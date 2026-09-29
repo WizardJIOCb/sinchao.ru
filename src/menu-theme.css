@@ -151,6 +151,8 @@ nav button.nav-active:after {
   overflow: visible;
 }
 .hero-art .hero-photo {
+  object-fit: contain;
+  transform: none;
   background: transparent;
   mix-blend-mode: normal;
   width: 92%;

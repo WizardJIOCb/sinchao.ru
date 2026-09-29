@@ -2,6 +2,10 @@ import { AdminV2 } from "./AdminV2";
 import { useEffect, useState } from "react";
 import { api, money } from "../api";
 import {
+  reservationWhen,
+  restaurantClock,
+} from "../../shared/reservation-time";
+import {
   orderLabels,
   type Category,
   type Config,
@@ -243,7 +247,7 @@ export function Admin({
                 <article key={r.id} className="record">
                   <div className="record-head">
                     <h3>
-                      {r.date} · {r.time} · {r.partySize} гостей
+                      {reservationWhen(r)} · {r.partySize} гостей
                     </h3>
                     <span className="badge">
                       {
@@ -265,6 +269,7 @@ export function Admin({
                   <p>
                     {r.tableName || r.seating} · {r.notes}
                   </p>
+                  <p className="muted">{restaurantClock(r.timezone, r.date)}</p>
                   {r.preorder && (
                     <p>
                       Предзаказ:{" "}

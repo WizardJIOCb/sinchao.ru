@@ -9,6 +9,7 @@ import {
   Utensils,
 } from "lucide-react";
 import { api, money } from "./api";
+import { reservationWhen, restaurantClock } from "../shared/reservation-time";
 import type { CartItem, Dish, User } from "../shared/types";
 import type {
   Discovery,
@@ -272,6 +273,15 @@ export function DinePanel({
         </form>
       ) : (
         <>
+          {visit.reservation && (
+            <p>
+              Бронь: <strong>{reservationWhen(visit.reservation)}</strong> ·{" "}
+              {restaurantClock(
+                visit.reservation.timezone,
+                visit.reservation.date,
+              )}
+            </p>
+          )}
           <div className="button-row">
             <button className="primary" onClick={openMenu}>
               Выбрать блюда

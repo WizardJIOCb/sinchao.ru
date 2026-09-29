@@ -203,6 +203,9 @@ test("V2 restaurant, discovery and CRM workflows", async (t) => {
       const i = results.findIndex((r) => r.status === 201),
         r = results[i];
       assert.equal(r.data.tableId, tableId);
+      assert.equal(r.data.time, "12:00");
+      assert.equal(r.data.endTime, "13:30");
+      assert.equal(r.data.timezone, cfg.timezone);
       const floor = (
         await alice.call(`/v2/floor?date=${tomorrow}&time=12:30&partySize=2`)
       ).data;
@@ -265,6 +268,17 @@ test("V2 restaurant, discovery and CRM workflows", async (t) => {
       assert.equal(open.status, 201, JSON.stringify(open));
       visitId = open.data.id;
       visitCode = open.data.joinCode;
+      assert.deepEqual(open.data.reservation, {
+        date,
+        time: slot.time,
+        endTime: r.data.endTime,
+        timezone: cfg.timezone,
+      });
+      assert.equal(
+        (await alice.call("/v2/visit")).data.reservation.endTime,
+        r.data.endTime,
+      );
+      assert.equal(open.data.reservation.phone, undefined);
       assert.equal(open.data.orders.length, 1);
       orderId = open.data.orders[0].id;
       assert.equal(

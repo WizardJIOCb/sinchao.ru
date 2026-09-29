@@ -127,6 +127,8 @@ export type Order = Quote & {
   createdAt: string;
 };
 export type Reservation = {
+  endTime: string;
+  timezone: string;
   tableId?: string | null;
   tableName?: string;
   preorder?: Quote | null;

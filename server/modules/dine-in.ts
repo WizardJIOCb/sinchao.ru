@@ -7,6 +7,11 @@ import { audit, config, dishes, fail, hash, localNow, notify } from "../lib";
 import { owner, requireStaff } from "./auth";
 import { idempotency, orderView } from "./orders";
 import { priceCart } from "./pricing";
+import {
+  minuteTime,
+  reservationWhen,
+  restaurantClock,
+} from "../../shared/reservation-time";
 import { checkBillUnlocked, equalShares, v2Settings } from "./v2-core";
 
 export async function visitView(db: DB, id: string, staff = false) {
@@ -17,6 +22,14 @@ export async function visitView(db: DB, id: string, staff = false) {
     )
   ).rows[0];
   if (!v) fail(404, "NOT_FOUND", "Посещение не найдено.");
+  const booking = v.reservation_id
+    ? (
+        await db.query(
+          "SELECT data,start_minute,end_minute FROM reservations WHERE id=$1",
+          [v.reservation_id],
+        )
+      ).rows[0]
+    : null;
   const rows = (
     await db.query(
       "SELECT * FROM orders WHERE visit_id=$1 ORDER BY created_at",
@@ -31,6 +44,14 @@ export async function visitView(db: DB, id: string, staff = false) {
   ).rows;
   return {
     id: v.id,
+    reservation: booking
+      ? {
+          date: booking.data.date,
+          time: minuteTime(booking.start_minute),
+          endTime: minuteTime(booking.end_minute),
+          timezone: booking.data.timezone,
+        }
+      : null,
     tableId: v.table_id,
     tableName: v.name,
     status: v.status,
@@ -392,7 +413,15 @@ adminDineRouter.post("/visits", async (req, res) => {
             phone: reservation.data.phone,
             address: table.name,
             zoneId: "",
-            time: "К брони " + reservation.data.time,
+            time:
+              "К брони " +
+              reservationWhen({
+                date: reservation.data.date,
+                time: minuteTime(reservation.start_minute),
+                endTime: minuteTime(reservation.end_minute),
+              }) +
+              ". " +
+              restaurantClock(reservation.data.timezone, reservation.data.date),
             notes: reservation.data.notes,
           },
           demo: cfg.demo,

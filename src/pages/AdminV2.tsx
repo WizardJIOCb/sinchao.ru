@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { api, money } from "../api";
+import {
+  reservationWhen,
+  restaurantClock,
+} from "../../shared/reservation-time";
 import { FloorPlan } from "../V2";
 import { orderLabels, type Reservation, type User } from "../../shared/types";
 import type {
@@ -216,7 +220,9 @@ export function AdminV2({
                   .filter((r) => r.status === "CONFIRMED" && r.tableId)
                   .map((r) => (
                     <option key={r.id} value={r.id}>
-                      {r.date} {r.time} · {r.tableName} · {r.name}
+                      {reservationWhen(r)} ·{" "}
+                      {restaurantClock(r.timezone, r.date)} · {r.tableName} ·{" "}
+                      {r.name}
                       {r.preorder ? " · предзаказ" : ""}
                     </option>
                   ))}
@@ -243,6 +249,12 @@ export function AdminV2({
                   Код визита: <code className="visit-code">{v.joinCode}</code>
                 </span>
               </div>
+              {v.reservation && (
+                <p>
+                  Бронь: <strong>{reservationWhen(v.reservation)}</strong> ·{" "}
+                  {restaurantClock(v.reservation.timezone, v.reservation.date)}
+                </p>
+              )}
               {v.calls
                 .filter((c) => c.status === "OPEN")
                 .map((c) => (

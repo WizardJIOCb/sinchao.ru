@@ -42,6 +42,11 @@ import type {
   User,
 } from "../shared/types";
 import { orderLabels } from "../shared/types";
+import {
+  minuteTime,
+  reservationWhen,
+  restaurantClock,
+} from "../shared/reservation-time";
 import { Admin } from "./pages/Admin";
 import { DishPicture } from "./DishPicture";
 import { Contacts } from "./Contacts";
@@ -447,13 +452,14 @@ function App() {
                   NGON MIỆNG · ПРИЯТНОГО АППЕТИТА
                 </span>
                 <div className="hero-orbit" />
-                {menu.dishes.find((d) => d.id === "pho-bo") && (
-                  <DishPicture
-                    dish={menu.dishes.find((d) => d.id === "pho-bo")!}
-                    className="hero-photo"
-                    eager
-                  />
-                )}
+                <img
+                  src="/images/theme/pho-hero.webp"
+                  className="hero-photo"
+                  alt="Фо Бо с говядиной и свежей зеленью — иллюстрация подачи"
+                  width={1254}
+                  height={1254}
+                  fetchPriority="high"
+                />
                 <div className="hero-stamp">
                   xin
                   <br />
@@ -461,8 +467,44 @@ function App() {
                   <small>ВКУС ВЬЕТНАМА</small>
                 </div>
                 <span className="art-caption">
-                  Фо Бо · рисовая лапша и говядина
+                  Фо Бо · иллюстрация подачи
                 </span>
+              </div>
+            </section>
+            <section className="combo-banner">
+              <a
+                href={cfg.promoImage}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Посмотреть меню обеденных комбо"
+              >
+                <img
+                  src={cfg.promoImage}
+                  alt="Три обеденных комбо Син Чао с бесплатным чаем"
+                  loading="lazy"
+                />
+              </a>
+              <div>
+                <div className="eyebrow">СОБРАЛИ ДЛЯ ВАШЕГО ОБЕДА</div>
+                <h2>
+                  Суп, салат, нэм.
+                  <br />
+                  <em>И чай в подарок.</em>
+                </h2>
+                <p>
+                  Комбо с Фо Бо — 500 ₽.
+                  <br />С Лау Хай Сан или Том ям — 550 ₽.
+                </p>
+                <button
+                  className="primary"
+                  onClick={() => {
+                    setCategory("combos");
+                    setQuery("");
+                    go("menu");
+                  }}
+                >
+                  Выбрать комбо <ArrowRight size={18} />
+                </button>
               </div>
             </section>
             <section className="service-options" aria-label="Способ заказа">
@@ -534,42 +576,6 @@ function App() {
                   .map((d) => (
                     <DishCard key={d.id} dish={d} onClick={() => openDish(d)} />
                   ))}
-              </div>
-            </section>
-            <section className="combo-banner">
-              <a
-                href={cfg.promoImage}
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Посмотреть меню обеденных комбо"
-              >
-                <img
-                  src={cfg.promoImage}
-                  alt="Три обеденных комбо Син Чао с бесплатным чаем"
-                  loading="lazy"
-                />
-              </a>
-              <div>
-                <div className="eyebrow">СОБРАЛИ ДЛЯ ВАШЕГО ОБЕДА</div>
-                <h2>
-                  Суп, салат, нэм.
-                  <br />
-                  <em>И чай в подарок.</em>
-                </h2>
-                <p>
-                  Комбо с Фо Бо — 500 ₽.
-                  <br />С Лау Хай Сан или Том ям — 550 ₽.
-                </p>
-                <button
-                  className="primary"
-                  onClick={() => {
-                    setCategory("combos");
-                    setQuery("");
-                    go("menu");
-                  }}
-                >
-                  Выбрать комбо <ArrowRight size={18} />
-                </button>
               </div>
             </section>
             <Contacts cfg={cfg} />
@@ -827,15 +833,16 @@ function App() {
                 {reservations.map((r) => (
                   <article className="record" key={r.id}>
                     <div className="record-head">
-                      <h3>
-                        {r.date.split("-").reverse().join(".")} · {r.time}
-                      </h3>
+                      <h3>{reservationWhen(r)}</h3>
                       <span className="badge">
                         {reservationLabels[r.status]}
                       </span>
                     </div>
                     <p>
                       {r.partySize} гостей · {r.tableName || r.seating}
+                    </p>
+                    <p className="muted">
+                      {restaurantClock(r.timezone, r.date)}
                     </p>
                     <p className="muted">{r.notes || cfg.address}</p>
                     {r.preorder && (
@@ -1960,7 +1967,7 @@ function BookingModal({
           </label>
         </div>
         <label>
-          Время <small>Местное время ресторана</small>
+          Время <small>{restaurantClock(cfg.timezone, date || today)}</small>
         </label>
         {loading ? (
           <p>Проверяем свободные места…</p>
@@ -2037,6 +2044,22 @@ function BookingModal({
           </select>
         </label>
         <small>
+          {time && (
+            <>
+              <strong>
+                {reservationWhen({
+                  date,
+                  time,
+                  endTime: minuteTime(
+                    Number(time.slice(0, 2)) * 60 +
+                      Number(time.slice(3)) +
+                      cfg.reservationMinutes,
+                  ),
+                })}
+              </strong>
+              <br />
+            </>
+          )}
           Пожелание учитывается, если стол не выбран на схеме. Бронь на{" "}
           {cfg.reservationMinutes} минут, отмена бесплатная до посадки.
         </small>

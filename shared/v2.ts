@@ -1,4 +1,5 @@
 import type { Dish, Order, Quote } from "./types";
+import type { ReservationTime } from "./reservation-time";
 export type Table = {
   id: string;
   name: string;
@@ -26,6 +27,7 @@ export type Share = {
   paid: boolean;
 };
 export type Visit = {
+  reservation: ReservationTime | null;
   id: string;
   tableName: string;
   tableId: string;

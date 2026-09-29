@@ -85,3 +85,11 @@ The owner registered Rodion and the authorized ADMIN role was assigned previousl
 - Before/after database counts match: 1 registered account (Rodion remains ADMIN), 2 existing orders, 2 reservations and 56 dishes. `demo=true`, `menuVerified=true` retained.
 - Public browser `/discover` verified at 1280px and 390px without horizontal overflow or browser errors. Journey's Pho Bo link opens `/menu/pho-bo` with original image, portion options and price; closing a directly loaded dish opens the catalogue. The mobile booking dialog shows available tables after choosing date/time; no production booking was submitted during this check.
 - Published 349,602-byte JS bundle matches the local build by SHA256: `d0fe49135afa8b568d8f69c4d5e3a4187756651f1d0c25ce92d7d94c344a0848`. Stylesheet SHA256 also matches: `16659cef16a811c91957f410a5b8889feb150a30f3e2411c75434b537309f918`.
+
+## Reservation times and homepage refinement — 2026-09-29
+
+- Bookings now expose the persisted start/end interval and saved restaurant timezone. New bookings snapshot the timezone; migration 005 fills it for existing records. No existing booking is rescheduled.
+- Consistent date/time range in guest history, staff reservations, visit selection, seated visit panels, new confirmation/cancellation notices and activated preorders. The form previews the full interval. Actual restaurant configuration is Asia/Yekaterinburg (UTC+5), 90 minutes.
+- Production build passes; 35 isolated tests pass, including historical interval formatting, timezone display, midnight end time and booking/visit API consistency. Local browser confirms staff records display the interval and timezone.
+- Homepage hero now uses a 1254px generated pho illustration, 299 KB WebP with transparency, rather than magnifying a small crop of a menu page. Prompt/provenance: `docs/HERO_IMAGE.md`.
+- Combo banner moved immediately after the hero, before ordering options and featured dishes. Its button still opens exactly the three combo menu entries. Desktop/mobile preview shows no horizontal overflow or browser errors.

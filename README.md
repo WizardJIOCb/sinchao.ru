@@ -83,7 +83,7 @@ To inspect: `systemctl status food-sinchao`, `journalctl -u food-sinchao`, `ngin
 
 ## Visual theme
 
-`src/menu-theme.css` applies the owner's printed-menu style across the app: cream paper, olive accents, red prices and locally hosted Cyrillic Lobster headings. The new `public/images/theme/bamboo-paper.jpg` is an AI-generated decorative watercolour background, optimised to 299 KB. Actual food/entrance/logo images remain the original owner-supplied VK photographs. On screens <=360px menu cards switch to one column to keep long names readable; larger phones retain two columns.
+`src/menu-theme.css` applies the owner's printed-menu style across the app: cream paper, olive accents, red prices and locally hosted Cyrillic Lobster headings. `public/images/theme/bamboo-paper.jpg` is an AI-generated decorative watercolour background, optimised to 299 KB. The homepage uses a separate generated pho illustration (`pho-hero.webp`, 1254 × 1254, 299 KB); its provenance and prompt are in `docs/HERO_IMAGE.md`. Menu cards, entrance and logo retain the original owner-supplied VK photographs. The combo banner follows the hero. On screens <=360px menu cards switch to one column to keep long names readable; larger phones retain two columns.
 
 ## V2 operation
 

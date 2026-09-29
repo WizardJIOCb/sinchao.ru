@@ -10,11 +10,18 @@ import { reservationSchema } from "../validation";
 import { owner } from "./auth";
 import { idempotency } from "./orders";
 import type { Config } from "../../shared/types";
+import {
+  minuteTime,
+  reservationWhen,
+  restaurantClock,
+} from "../../shared/reservation-time";
 export const reservationView = (r: any) => ({
   ...r.data,
   id: r.id,
   status: r.status,
   tableId: r.table_id,
+  time: minuteTime(r.start_minute),
+  endTime: minuteTime(r.end_minute),
   createdAt: r.created_at,
 });
 export function validateReservationDate(
@@ -225,7 +232,12 @@ reservationsRouter.post("/", async (req, res) => {
         0,
       );
     }
-    const data = { ...input, tableName: selectedTable?.name, preorder };
+    const data = {
+      ...input,
+      timezone: cfg.timezone,
+      tableName: selectedTable?.name,
+      preorder,
+    };
     const saved = (
       await db.query(
         "INSERT INTO reservations(id,owner,user_id,idempotency_key,request_hash,date,start_minute,end_minute,party_size,data,table_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *",
@@ -249,7 +261,7 @@ reservationsRouter.post("/", async (req, res) => {
       owner(req),
       req.session.user?.id ?? null,
       "Бронирование подтверждено",
-      `${input.date} в ${input.time}, гостей: ${input.partySize}. ${selectedTable?.name ?? "Пожелание по размещению принято."}`,
+      `${reservationWhen(reservationView(saved))}. ${restaurantClock(cfg.timezone, input.date)}. Гостей: ${input.partySize}. ${selectedTable?.name ?? "Пожелание по размещению принято."}`,
       id,
     );
     if (preorder)
@@ -281,7 +293,7 @@ reservationsRouter.post("/:id/cancel", async (req, res) => {
       row.owner,
       row.user_id,
       "Бронирование отменено",
-      `${row.data.date}, ${row.data.time}`,
+      `${reservationWhen(reservationView(row))}. ${restaurantClock(row.data.timezone, row.data.date)}.`,
       row.id,
     );
   });
