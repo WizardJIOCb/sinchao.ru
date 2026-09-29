@@ -38,7 +38,16 @@ Validated locally before publication:
 - Browser confirms 56 menu cards and category/search controls, original photographs, address/map/phone links and desktop/mobile layout.
 - Browser cart: Tom yam 500 g with noodles persists and quotes 550 RUB for pickup.
 - 390px browser viewport has document scroll width 375px (remaining width is scrollbar), without horizontal document overflow.
-- Public deployment verification is recorded after the release is activated.
+- Published application commit: `17f16e507df7e8eaec4d7d8c93daf71502ba00e0`, release `/opt/food-sinchao/releases/17f16e5`.
+- GitHub Actions passed for that exact application commit: https://github.com/WizardJIOCb/vietnam/actions/runs/36595541699.
+- Public `/api/health` returns OK; `/api/menu` returns 56 entries, 9 categories, `menuVerified=true`.
+- All 21 public JPGs return HTTP 200 / image/jpeg and match local originals byte-for-byte by SHA256 (11,298,655 bytes total).
+- Public API cart confirms Tom yam 500 g + noodles = 550 RUB; restaurant-only alcohol is rejected with HTTP 409; test cart was cleared. No production order was created by this content verification.
+- Public browser at 1440px and 390px: correct new menu, search for “Миен” returns three matching dishes, 19 original menu pages, real contact photograph and exact 2GIS map link. No horizontal document overflow or browser error entries observed.
+- Public frontend bundle matches the local build: SHA256 `85af0aa2489c1c20d143ab11bb8fcb399b8a3df73beee7b27d2437c175bc25cf`.
+- Service is active/running with NRestarts=0; nginx configuration validates. Pre-import backup: `/var/backups/food-sinchao/food-sinchao-20260929-190910.sql.gz`.
+- Database audit records replacement of 8 demo items with 56 authentic entries; Rodion remains ADMIN.
+- Local evidence: `artifacts/public-verification.json`, `menu-update-desktop.png`, `menu-update-mobile.png`, `menu-update-contacts.png` (ignored evidence files, not deployment inputs).
 
 ## Remaining launch conditions
 
