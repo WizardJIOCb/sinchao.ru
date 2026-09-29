@@ -1,0 +1,15 @@
+CREATE TABLE IF NOT EXISTS restaurant (id integer PRIMARY KEY CHECK (id=1), data jsonb NOT NULL);
+CREATE TABLE IF NOT EXISTS categories (id text PRIMARY KEY, data jsonb NOT NULL, position integer NOT NULL);
+CREATE TABLE IF NOT EXISTS dishes (id text PRIMARY KEY, data jsonb NOT NULL, position integer NOT NULL);
+CREATE TABLE IF NOT EXISTS users (id uuid PRIMARY KEY, email text UNIQUE NOT NULL, password_hash text NOT NULL, name text NOT NULL, phone text NOT NULL DEFAULT '', role text NOT NULL DEFAULT 'CUSTOMER' CHECK (role IN ('CUSTOMER','STAFF','MANAGER','ADMIN')), created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS sessions (id text PRIMARY KEY, user_id uuid REFERENCES users(id), cart jsonb NOT NULL DEFAULT '[]', expires_at timestamptz NOT NULL DEFAULT now()+interval '30 days');
+CREATE TABLE IF NOT EXISTS orders (id uuid PRIMARY KEY, number bigint GENERATED ALWAYS AS IDENTITY UNIQUE, owner text NOT NULL, user_id uuid REFERENCES users(id), idempotency_key text NOT NULL, request_hash text NOT NULL, status text NOT NULL DEFAULT 'CREATED', payment_status text NOT NULL DEFAULT 'PENDING', data jsonb NOT NULL, created_at timestamptz NOT NULL DEFAULT now(), UNIQUE(owner,idempotency_key));
+CREATE INDEX IF NOT EXISTS orders_user ON orders(user_id,created_at DESC);
+CREATE INDEX IF NOT EXISTS orders_owner ON orders(owner,created_at DESC);
+CREATE TABLE IF NOT EXISTS reservations (id uuid PRIMARY KEY, owner text NOT NULL, user_id uuid REFERENCES users(id), idempotency_key text NOT NULL, request_hash text NOT NULL, date date NOT NULL, start_minute integer NOT NULL, end_minute integer NOT NULL, party_size integer NOT NULL, status text NOT NULL DEFAULT 'CONFIRMED', data jsonb NOT NULL, created_at timestamptz NOT NULL DEFAULT now(), UNIQUE(owner,idempotency_key));
+CREATE INDEX IF NOT EXISTS reservations_date ON reservations(date,status);
+CREATE TABLE IF NOT EXISTS loyalty_transactions (id uuid PRIMARY KEY, user_id uuid NOT NULL REFERENCES users(id), points integer NOT NULL, type text NOT NULL, reference_id uuid NOT NULL, description text NOT NULL, created_at timestamptz NOT NULL DEFAULT now(), UNIQUE(user_id,type,reference_id));
+CREATE TABLE IF NOT EXISTS notifications (id uuid PRIMARY KEY, owner text NOT NULL, user_id uuid REFERENCES users(id), title text NOT NULL, body text NOT NULL, reference_id uuid, read_at timestamptz, created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS audit_logs (id uuid PRIMARY KEY, actor_id uuid REFERENCES users(id), action text NOT NULL, entity_id text NOT NULL, before_data jsonb, after_data jsonb, created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS analytics (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, event_name text NOT NULL, created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS qr_tables (token text PRIMARY KEY, name text NOT NULL, active boolean NOT NULL DEFAULT true);

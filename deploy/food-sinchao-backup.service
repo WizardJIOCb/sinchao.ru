@@ -1,0 +1,7 @@
+[Unit]
+Description=Back up Sin Chao PostgreSQL database
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /opt/food-sinchao/current/deploy/backup.sh
+UMask=0077

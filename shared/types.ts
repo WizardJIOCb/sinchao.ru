@@ -1,0 +1,135 @@
+export type Fulfillment = "DELIVERY" | "PICKUP";
+export type Modifier = {
+  id: string;
+  name: string;
+  price: number;
+  available: boolean;
+};
+export type ModifierGroup = {
+  id: string;
+  name: string;
+  min: number;
+  max: number;
+  options: Modifier[];
+};
+export type Dish = {
+  id: string;
+  categoryId: string;
+  name: string;
+  localizedName: string;
+  description: string;
+  ingredients: string[];
+  price: number;
+  portion: string;
+  image: string;
+  allergens: string[];
+  tags: string[];
+  spice: number;
+  available: boolean;
+  featured: boolean;
+  region: string;
+  modifiers: ModifierGroup[];
+};
+export type Category = { id: string; name: string; subtitle: string };
+export type Config = {
+  name: string;
+  tagline: string;
+  address: string;
+  phone: string;
+  timezone: string;
+  currency: string;
+  demo: boolean;
+  orderingEnabled: boolean;
+  openHour: number;
+  closeHour: number;
+  leadMinutes: number;
+  deliveryEta: string;
+  pickupEta: string;
+  zones: {
+    id: string;
+    name: string;
+    fee: number;
+    minimum: number;
+    streets: string[];
+  }[];
+  seating: string[];
+  capacity: number;
+  reservationMinutes: number;
+  bookingDays: number;
+  maxGuests: number;
+  loyaltyPercent: number;
+  redemptionPercent: number;
+  promo: { code: string; percent: number; enabled: boolean };
+  heroImage: string;
+};
+export type CartItem = {
+  id: string;
+  dishId: string;
+  quantity: number;
+  modifiers: string[];
+  notes: string;
+};
+export type PricedItem = CartItem & {
+  name: string;
+  image: string;
+  unitPrice: number;
+  lineTotal: number;
+  modifierNames: string[];
+};
+export type Quote = {
+  items: PricedItem[];
+  subtotal: number;
+  discount: number;
+  loyaltyDiscount: number;
+  deliveryFee: number;
+  serviceFee: number;
+  tax: number;
+  total: number;
+};
+export type User = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+};
+export type Order = Quote & {
+  id: string;
+  number: number;
+  status: string;
+  fulfillment: Fulfillment;
+  paymentStatus: string;
+  contact: {
+    name: string;
+    phone: string;
+    address: string;
+    zoneId: string;
+    time: string;
+    notes: string;
+  };
+  createdAt: string;
+};
+export type Reservation = {
+  id: string;
+  date: string;
+  time: string;
+  partySize: number;
+  seating: string;
+  notes: string;
+  name: string;
+  phone: string;
+  status: string;
+  createdAt: string;
+};
+export const orderLabels: Record<string, string> = {
+  CREATED: "Заказ получен",
+  PAYMENT_PENDING: "Ожидает оплаты",
+  PAID: "Оплачен",
+  CONFIRMED: "Подтверждён",
+  PREPARING: "Готовим",
+  READY: "Готов к выдаче",
+  OUT_FOR_DELIVERY: "У курьера",
+  DELIVERED: "Доставлен",
+  COMPLETED: "Завершён",
+  CANCELLED: "Отменён",
+};
