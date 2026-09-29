@@ -80,3 +80,7 @@ npx tsx scripts/set-role.ts owner@example.com ADMIN
 Before updating, take a backup with `deploy/backup.sh`, copy a built release, install dependencies with `npm ci`, apply migrations, switch the symlink, restart and check `/api/health`. Rollback: point `current` to the prior release and restart; review migration compatibility before rollback. Database is outside the release directory. Backups are local; copy them off-host for disaster recovery. Automatic nightly backup is enabled on the deployment host.
 
 To inspect: `systemctl status food-sinchao`, `journalctl -u food-sinchao`, `nginx -t`. HTTPS uses the server's Certbot renewal mechanism.
+
+## Visual theme
+
+`src/menu-theme.css` applies the owner's printed-menu style across the app: cream paper, olive accents, red prices and locally hosted Cyrillic Lobster headings. The new `public/images/theme/bamboo-paper.jpg` is an AI-generated decorative watercolour background, optimised to 299 KB. Actual food/entrance/logo images remain the original owner-supplied VK photographs. On screens <=360px menu cards switch to one column to keep long names readable; larger phones retain two columns.

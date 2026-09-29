@@ -54,3 +54,16 @@ Validated locally before publication:
 Menu content and images now come from the owner's supplied VK files. `menuVerified=true`; `demo=true` still identifies test ordering/booking because opening hours, delivery areas/fees, reservation capacity and loyalty rules require operator confirmation. Customer payment is pay-on-receipt; acquiring, SMS/push and couriers are not connected. V2 is not implemented.
 
 The owner registered Rodion and the authorized ADMIN role was assigned previously; this content update does not change account permissions.
+
+## Printed-menu visual theme — 2026-09-29
+
+- Published application commit `e96243a518f44799541119d681020fe36b68b19b`, release `/opt/food-sinchao/releases/e96243a`.
+- Visual reference: the owner's original nem/spring-roll menu page. Warm cream paper, olive navigation, cinnabar prices/buttons, local Cyrillic Lobster display font, watercolour bamboo and plum blossoms.
+- Decorative background generated specifically for the theme; restaurant/dish photographs remain the owner's original files. Deployed background is a 298,812-byte JPEG, its public SHA256 matches the local file.
+- Theme covers homepage, catalogue, contacts, footer, account/record panels, dish/cart/booking dialogs and mobile navigation. Cards use one column at <=360px so long titles remain readable.
+- Production build/TypeScript and catalogue tests pass; full GitHub Actions run passes: https://github.com/WizardJIOCb/vietnam/actions/runs/36597766597.
+- Local browser inspected at 1280px, 390px and 320px; public browser inspected at 1280px and 390px. No horizontal document overflow; 320px long drink titles no longer overflow cards. Dish quantity controls correctly display 500 RUB for two nem Hanoi portions. No browser errors observed.
+- Public verification confirms all 56 catalogue entries, all 21 original photos byte-for-byte, Tom yam 500g/noodles quote at 550 RUB and the restaurant-only cart restriction. Verification cart cleared, no order created.
+- Published stylesheet SHA256 matches local: `b4c3440bdf5179d2abd97caef96e4165f621e4b2a9332dac9fa4304485461ed5`.
+- Service active with NRestarts=0, /api/health OK. Backup before activation: `/var/backups/food-sinchao/food-sinchao-20260929-192959.sql.gz`. Full archive upload was interrupted; activation used a checksum-verified 895,512-byte theme release plus the previous release's unchanged VK assets. Menu seed reported existing catalogue preserved.
+- Evidence screenshots (ignored local files): `artifacts/paper-theme-live-desktop.png`, `artifacts/paper-theme-live-mobile.png`.
