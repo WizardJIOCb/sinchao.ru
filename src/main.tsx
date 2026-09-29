@@ -26,6 +26,7 @@ import {
   Settings,
   LogOut,
   Heart,
+  Link as LinkIcon,
   CheckCircle2,
 } from "lucide-react";
 import { api, money, track } from "./api";
@@ -59,6 +60,23 @@ type Page =
   | "profile"
   | "admin";
 type MenuData = { config: Config; categories: Category[]; dishes: Dish[] };
+
+const dishUrl = (id: string) => "/menu/" + encodeURIComponent(id);
+function dishIdFromPath(path: string) {
+  const match = path.match(/^\/menu\/([^/]+)\/?$/);
+  try {
+    return match ? decodeURIComponent(match[1]) : null;
+  } catch {
+    return null;
+  }
+}
+function pageFromPath(path: string): Page {
+  return path === "/admin"
+    ? "admin"
+    : path.startsWith("/menu")
+      ? "menu"
+      : "home";
+}
 type Notice = {
   id: string;
   title: string;
@@ -122,13 +140,14 @@ function App() {
     [reservations, setReservations] = useState<Reservation[]>([]),
     [notices, setNotices] = useState<Notice[]>([]);
   const [page, setPage] = useState<Page>(
-      location.pathname === "/admin" ? "admin" : "home",
+      history.state?.backgroundPage ?? pageFromPath(location.pathname),
     ),
+    [path, setPath] = useState(location.pathname),
     [category, setCategory] = useState("all"),
     [query, setQuery] = useState(""),
     [sourceMenuOpen, setSourceMenuOpen] = useState(false),
     [fulfillment, setFulfillment] = useState<Fulfillment>("DELIVERY"),
-    [dish, setDish] = useState<Dish | null>(null),
+    [editDish, setEditDish] = useState<Dish | null>(null),
     [editItem, setEditItem] = useState<CartItem | null>(null),
     [cartOpen, setCartOpen] = useState(false),
     [bookingOpen, setBookingOpen] = useState(false),
@@ -154,7 +173,6 @@ function App() {
     setOrders(o);
     setReservations(r);
     setNotices(n);
-    document.title = `${m.config.name} — вьетнамская кухня`;
   }, []);
   useEffect(() => {
     refresh()
@@ -180,20 +198,58 @@ function App() {
     return () => clearInterval(t);
   }, [refresh]);
   useEffect(() => {
+    const onPopState = () => {
+      setPath(location.pathname);
+      setPage(history.state?.backgroundPage ?? pageFromPath(location.pathname));
+      setEditDish(null);
+      setEditItem(null);
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+  const dish =
+    editDish ?? menu?.dishes.find((d) => d.id === dishIdFromPath(path));
+  useEffect(() => {
+    if (menu)
+      document.title = dish
+        ? `${dish.name} — ${menu.config.name}`
+        : `${menu.config.name} — вьетнамская кухня`;
+  }, [dish, menu]);
+  useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(""), 6000);
     return () => clearTimeout(t);
   }, [toast]);
   function go(p: Page) {
     setPage(p);
-    history.replaceState(null, "", p === "admin" ? "/admin" : "/");
+    const next = p === "admin" ? "/admin" : p === "menu" ? "/menu" : "/";
+    history.replaceState({ backgroundPage: p }, "", next);
+    setPath(next);
+    setEditDish(null);
+    setEditItem(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
     if (p === "menu") track("menu_view");
   }
   function openDish(d: Dish, item?: CartItem) {
     setEditItem(item ?? null);
-    setDish(d);
+    setEditDish(item ? d : null);
+    if (!item) {
+      const next = dishUrl(d.id);
+      history.replaceState({ ...history.state, backgroundPage: page }, "");
+      history.pushState({ dishOverlay: true, backgroundPage: page }, "", next);
+      setPath(next);
+    }
     track("dish_view");
+  }
+  function closeDish() {
+    if (editDish) {
+      setEditDish(null);
+      setEditItem(null);
+    } else if (history.state?.dishOverlay) {
+      history.back();
+    } else {
+      go("menu");
+    }
   }
   const cfg = menu?.config,
     totalCount = cart.reduce((s, i) => s + i.quantity, 0),
@@ -893,12 +949,13 @@ function App() {
       )}
       {dish && (
         <DishModal
+          key={dish.id + (editItem?.id ?? "")}
           dish={dish}
           item={editItem}
-          close={() => setDish(null)}
+          close={closeDish}
           done={async () => {
             await refresh();
-            setDish(null);
+            closeDish();
             say(
               editItem
                 ? "Блюдо обновлено"
@@ -906,6 +963,16 @@ function App() {
             );
           }}
         />
+      )}
+      {path.startsWith("/menu/") && !dish && (
+        <Modal title="Блюдо не найдено" onClose={closeDish}>
+          <div className="modal-dish-body">
+            <p>Возможно, блюдо убрали из меню или в ссылке есть ошибка.</p>
+            <button className="primary" onClick={() => go("menu")}>
+              Перейти в меню
+            </button>
+          </div>
+        </Modal>
       )}
       {cartOpen && (
         <CartModal
@@ -991,11 +1058,18 @@ function App() {
   );
 }
 function DishCard({ dish: d, onClick }: { dish: Dish; onClick: () => void }) {
+  function followLink(e: React.MouseEvent<HTMLAnchorElement>) {
+    if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey)
+      return;
+    e.preventDefault();
+    onClick();
+  }
   return (
     <article className={"dish-card " + (!d.available ? "unavailable" : "")}>
-      <button
+      <a
+        href={dishUrl(d.id)}
         className="dish-image"
-        onClick={onClick}
+        onClick={followLink}
         aria-label={"Подробнее: " + d.localizedName}
       >
         <DishPicture dish={d} />
@@ -1008,12 +1082,12 @@ function DishCard({ dish: d, onClick }: { dish: Dish; onClick: () => void }) {
           d.tags[0] && <span className="dish-tag">{d.tags[0]}</span>
         )}
         <span className="portion">{d.portion}</span>
-      </button>
+      </a>
       <div className="dish-info">
-        <button className="dish-title" onClick={onClick}>
+        <a className="dish-title" href={dishUrl(d.id)} onClick={followLink}>
           <h3>{d.name}</h3>
           <span>{d.localizedName}</span>
-        </button>
+        </a>
         <p>{d.description}</p>
         <div className="dish-bottom">
           <strong>
@@ -1090,6 +1164,8 @@ function DishModal({
     [qty, setQty] = useState(item?.quantity ?? 1),
     [notes, setNotes] = useState(item?.notes ?? ""),
     [error, setError] = useState(""),
+    [copied, setCopied] = useState(false),
+    [copyFallback, setCopyFallback] = useState(false),
     [busy, setBusy] = useState(false);
   const total =
     (dish.price +
@@ -1102,6 +1178,38 @@ function DishModal({
     <Modal title={dish.name} onClose={close}>
       <DishPicture dish={dish} className="modal-dish-image" eager />
       <div className="modal-dish-body">
+        <div className="dish-share">
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(
+                  new URL(dishUrl(dish.id), location.origin).href,
+                );
+                setCopied(true);
+                setCopyFallback(false);
+              } catch {
+                setCopyFallback(true);
+              }
+            }}
+          >
+            {copied ? <Check size={16} /> : <LinkIcon size={16} />}
+            {copied ? "Ссылка скопирована" : "Скопировать ссылку"}
+          </button>
+          <span role="status" className="sr-only">
+            {copied ? "Ссылка скопирована" : ""}
+          </span>
+          {copyFallback && (
+            <label>
+              Ссылка на блюдо
+              <input
+                readOnly
+                value={new URL(dishUrl(dish.id), location.origin).href}
+                onFocus={(e) => e.target.select()}
+              />
+            </label>
+          )}
+        </div>
         <div className="record-head">
           <h3>{dish.localizedName}</h3>
           <span className="muted">{dish.portion}</span>

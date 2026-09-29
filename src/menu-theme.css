@@ -311,6 +311,40 @@ nav button.nav-active:after {
   font-size: 12px;
   line-height: 1.6;
 }
+.dish-title {
+  display: block;
+}
+.dish-title:hover,
+.dish-image:hover {
+  text-decoration: none;
+}
+.dish-share {
+  margin-bottom: 18px;
+}
+.dish-share button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1px solid #cbb889;
+  border-radius: 5px;
+  color: #465330;
+}
+.dish-share label {
+  display: block;
+  margin-top: 10px;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 .dish-info > p {
   color: #746345;
   font-size: 12px;
