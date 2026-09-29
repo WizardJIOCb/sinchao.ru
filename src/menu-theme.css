@@ -13,7 +13,7 @@
 body {
   background:
     linear-gradient(#f7ecd2e8, #f7ecd2f5),
-    url("/images/theme/bamboo-paper.jpg") center top / 1536px auto repeat-y;
+    url("/images/theme/bamboo-paper.jpg") center top / 100% auto repeat-y;
 }
 h1,
 h2,
