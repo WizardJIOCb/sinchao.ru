@@ -19,7 +19,11 @@ React/TypeScript customer app and staff console, Express/TypeScript modular mono
 
 Confirmed by the owner in chat: name **Син Чао**, phone **+7 908 351-67-77**, address **Октябрьский, Республика Башкортостан, Садовое кольцо, 16/1, 1 этаж, 452614**.
 
-Requested source: https://vk.ru/club240374933. The browser safety policy blocked access to this group. **No menu, prices or photographs were imported from VK.** Seed dishes/prices, opening hours, delivery zone, capacity, loyalty percentage and promotion are illustrative configuration. Original SVG illustrations are placeholders, not photographs of the restaurant's food. The public page explicitly labels demo content, test orders and test bookings. Replace these records using confirmed restaurant menu images/text, configure real business conditions, and only then disable `config.demo`.
+On 2026-09-29 the owner supplied 21 original JPGs exported from https://vk.ru/club240374933: 18 menu pages, an offer with three lunch combos, the logo and the entrance photograph. They are preserved in `public/images/vk-group` (not only the disposable build directory). `server/data/catalog.ts` transcribes **56 menu entries** with prices, portions and the choices explicitly printed on those pages. Photographs in cards, the hero, dish details and the cart are clipped from the unchanged original pages. The menu also links to full-size originals. The address, phone, entrance photo and map link are shown in Contacts.
+
+`npm run seed` runs the versioned, transactional `importCatalog` once. It replaces the original eight demo dishes, records before/after data in the audit log and preserves orders, accounts and operational settings. Subsequent runs preserve staff edits. Deploy takes a database backup **before** migrations/content import. Alcohol is informational, restaurant-only, and rejected by server-side cart pricing.
+
+The real menu is published with `menuVerified=true`. Hours, delivery zones/fees, capacity, loyalty rules and promotions still require operator confirmation, so `demo=true` remains: online orders and bookings are explicitly test flows. Ingredient descriptions are transcribed from the menu; full allergen information and unspecified drink flavours/volumes must be checked with the restaurant. Online card acquiring remains unconnected.
 
 ## Local setup
 

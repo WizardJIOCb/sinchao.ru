@@ -22,6 +22,15 @@ export type Dish = {
   price: number;
   portion: string;
   image: string;
+  imageCrop?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    sourceWidth: number;
+    sourceHeight: number;
+  };
+  orderable?: boolean;
   allergens: string[];
   tags: string[];
   spice: number;
@@ -61,6 +70,11 @@ export type Config = {
   redemptionPercent: number;
   promo: { code: string; percent: number; enabled: boolean };
   heroImage: string;
+  menuVerified?: boolean;
+  logoImage?: string;
+  contactImage?: string;
+  mapUrl?: string;
+  promoImage?: string;
 };
 export type CartItem = {
   id: string;

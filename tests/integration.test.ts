@@ -5,8 +5,14 @@ import { app } from "../server/app";
 import { pool } from "../server/db";
 import { nextStates } from "../server/modules/orders";
 import { priceCart } from "../server/modules/pricing";
+import { importCatalog } from "../server/import-catalog";
 import { config, dishes, localNow } from "../server/lib";
 import type { Config, Dish } from "../shared/types";
+import {
+  restaurant as fixtureConfig,
+  categories as fixtureCategories,
+  menu as fixtureMenu,
+} from "./fixtures/demo-catalog";
 if (
   !new URL(process.env.DATABASE_URL ?? "http://invalid").pathname.endsWith(
     "_test",
@@ -49,7 +55,20 @@ before(async () => {
   await pool.query(
     "TRUNCATE audit_logs,notifications,loyalty_transactions,reservations,orders,sessions,users,analytics RESTART IDENTITY CASCADE",
   );
-  cfg = await config(pool);
+  await pool.query("DELETE FROM dishes");
+  await pool.query("DELETE FROM categories");
+  for (const [position, c] of fixtureCategories.entries())
+    await pool.query(
+      "INSERT INTO categories(id,data,position) VALUES($1,$2,$3)",
+      [c.id, JSON.stringify(c), position],
+    );
+  for (const [position, d] of fixtureMenu.entries())
+    await pool.query("INSERT INTO dishes(id,data,position) VALUES($1,$2,$3)", [
+      d.id,
+      JSON.stringify(d),
+      position,
+    ]);
+  cfg = fixtureConfig;
   cfg = {
     ...cfg,
     openHour: 0,
@@ -88,6 +107,37 @@ const checkout = {
   notes: "",
 };
 test("Server business rules and critical flows", async (t) => {
+  await t.test(
+    "Real catalog import is atomic and preserves later staff edits and business settings",
+    async () => {
+      const db = await pool.connect();
+      try {
+        await db.query("BEGIN");
+        await db.query(
+          "DELETE FROM catalog_imports WHERE id='vk-menu-2026-09-29'",
+        );
+        const before = await config(db);
+        assert.equal(await importCatalog(db), true);
+        const imported = await dishes(db);
+        assert.equal(imported.length, 56);
+        assert.equal(imported.find((d) => d.id === "pho-bo")?.price, 35000);
+        assert.equal((await config(db)).capacity, before.capacity);
+        assert.equal((await config(db)).demo, before.demo);
+        assert.equal((await config(db)).menuVerified, true);
+        await db.query(
+          "UPDATE dishes SET data=jsonb_set(data,'{price}','36000') WHERE id='pho-bo'",
+        );
+        assert.equal(await importCatalog(db), false);
+        assert.equal(
+          (await dishes(db)).find((d) => d.id === "pho-bo")?.price,
+          36000,
+        );
+      } finally {
+        await db.query("ROLLBACK");
+        db.release();
+      }
+    },
+  );
   const customer = new Client(),
     stranger = new Client(),
     staff = new Client();

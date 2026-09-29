@@ -9,9 +9,9 @@ npm ci --no-audit --no-fund
 set -a
 source /etc/food-sinchao.env
 set +a
+bash deploy/backup.sh
 npm run migrate
 npm run seed
-bash deploy/backup.sh
 chown -R root:food-sinchao "$release"
 chmod -R o-rwx "$release"
 ln -sfn "$release" /opt/food-sinchao/current

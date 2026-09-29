@@ -23,6 +23,14 @@ const settings = z
     }),
     currency: z.literal("RUB"),
     demo: z.boolean(),
+    menuVerified: z.boolean().optional(),
+    logoImage: z.string().max(1000).startsWith("/images/").optional(),
+    contactImage: z.string().max(1000).startsWith("/images/").optional(),
+    promoImage: z.string().max(1000).startsWith("/images/").optional(),
+    mapUrl: z
+      .url()
+      .refine((v) => v.startsWith("https://"))
+      .optional(),
     orderingEnabled: z.boolean(),
     openHour: z.number().int().min(0).max(23),
     closeHour: z.number().int().min(1).max(24),

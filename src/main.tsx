@@ -42,6 +42,8 @@ import type {
 } from "../shared/types";
 import { orderLabels } from "../shared/types";
 import { Admin } from "./pages/Admin";
+import { DishPicture } from "./DishPicture";
+import { Contacts } from "./Contacts";
 import "./style.css";
 import "@fontsource/golos-text/400.css";
 import "@fontsource/golos-text/500.css";
@@ -49,7 +51,14 @@ import "@fontsource/golos-text/600.css";
 import "@fontsource/lora/400.css";
 import "@fontsource/lora/400-italic.css";
 import "@fontsource/lora/500.css";
-type Page = "home" | "menu" | "orders" | "reservations" | "profile" | "admin";
+type Page =
+  | "home"
+  | "menu"
+  | "contacts"
+  | "orders"
+  | "reservations"
+  | "profile"
+  | "admin";
 type MenuData = { config: Config; categories: Category[]; dishes: Dish[] };
 type Notice = {
   id: string;
@@ -118,7 +127,7 @@ function App() {
     ),
     [category, setCategory] = useState("all"),
     [query, setQuery] = useState(""),
-    [vegetarian, setVegetarian] = useState(false),
+    [sourceMenuOpen, setSourceMenuOpen] = useState(false),
     [fulfillment, setFulfillment] = useState<Fulfillment>("DELIVERY"),
     [dish, setDish] = useState<Dish | null>(null),
     [editItem, setEditItem] = useState<CartItem | null>(null),
@@ -212,7 +221,6 @@ function App() {
   const filtered = menu.dishes.filter(
     (d) =>
       (category === "all" || d.categoryId === category) &&
-      (!vegetarian || d.tags.some((t) => /веган|вегетар/i.test(t))) &&
       (!query ||
         `${d.name} ${d.localizedName} ${d.description}`
           .toLowerCase()
@@ -230,17 +238,21 @@ function App() {
       <header>
         <div className="header-inner">
           <button
-            className="wordmark"
+            className="wordmark brand-lockup"
             onClick={() => go("home")}
             aria-label="Син Чао — главная"
           >
-            син чао<span>ВЬЕТНАМСКАЯ КУХНЯ</span>
+            <img className="brand-logo" src={cfg.logoImage} alt="" />
+            <span className="brand-name">
+              син чао<small>ВЬЕТНАМСКАЯ КУХНЯ</small>
+            </span>
           </button>
           <nav aria-label="Главная навигация">
             {(
               [
                 ["home", "Главная"],
                 ["menu", "Меню"],
+                ["contacts", "Контакты"],
                 ["orders", "Мои заказы"],
                 ["reservations", "Бронирования"],
               ] as [Page, string][]
@@ -292,8 +304,9 @@ function App() {
           <div className="demo-note">
             <Sparkles size={15} />
             <span>
-              Знакомимся с новым сайтом. Меню и цены пока демонстрационные,
-              заказы и брони — тестовые.
+              {cfg.menuVerified
+                ? "Меню и цены — из меню ресторана. Онлайн-заказы и брони пока тестовые. Для заказа позвоните нам."
+                : "Знакомимся с новым сайтом. Меню, заказы и брони пока тестовые."}
             </span>
           </div>
         )}
@@ -346,20 +359,27 @@ function App() {
                     Забронировать стол <ChevronRight size={16} />
                   </button>
                 </div>
-                <div className="hero-location">
+                <button
+                  className="hero-location"
+                  onClick={() => go("contacts")}
+                  aria-label="Контакты ресторана"
+                >
                   <MapPin size={17} />
                   <span>{cfg.address}</span>
-                </div>
+                </button>
               </div>
               <div className="hero-art">
                 <span className="vertical-type">
                   NGON MIỆNG · ПРИЯТНОГО АППЕТИТА
                 </span>
                 <div className="hero-orbit" />
-                <img
-                  src={cfg.heroImage}
-                  alt="Иллюстрация вьетнамского супа фо"
-                />
+                {menu.dishes.find((d) => d.id === "pho-bo") && (
+                  <DishPicture
+                    dish={menu.dishes.find((d) => d.id === "pho-bo")!}
+                    className="hero-photo"
+                    eager
+                  />
+                )}
                 <div className="hero-stamp">
                   xin
                   <br />
@@ -367,7 +387,7 @@ function App() {
                   <small>ВКУС ВЬЕТНАМА</small>
                 </div>
                 <span className="art-caption">
-                  Иллюстрация · настоящее меню скоро
+                  Фо Бо · рисовая лапша и говядина
                 </span>
               </div>
             </section>
@@ -442,25 +462,43 @@ function App() {
                   ))}
               </div>
             </section>
-            <section className="loyalty-banner">
-              <div className="loyalty-symbol">
-                <Heart size={38} />
-              </div>
+            <section className="combo-banner">
+              <a
+                href={cfg.promoImage}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Посмотреть меню обеденных комбо"
+              >
+                <img
+                  src={cfg.promoImage}
+                  alt="Три обеденных комбо Син Чао с бесплатным чаем"
+                  loading="lazy"
+                />
+              </a>
               <div>
-                <div className="eyebrow">РАДЫ ВАМ СНОВА</div>
-                <h2>Хороший вкус возвращается.</h2>
-                <p>
-                  Получайте {cfg.loyaltyPercent}% бонусами за завершённые
-                  заказы.
+                <div className="eyebrow">СОБРАЛИ ДЛЯ ВАШЕГО ОБЕДА</div>
+                <h2>
+                  Суп, салат, нэм.
                   <br />
-                  Один бонус — один рубль для следующей встречи.
+                  <em>И чай в подарок.</em>
+                </h2>
+                <p>
+                  Комбо с Фо Бо — 500 ₽.
+                  <br />С Лау Хай Сан или Том ям — 550 ₽.
                 </p>
+                <button
+                  className="primary"
+                  onClick={() => {
+                    setCategory("combos");
+                    setQuery("");
+                    go("menu");
+                  }}
+                >
+                  Выбрать комбо <ArrowRight size={18} />
+                </button>
               </div>
-              <button className="primary light" onClick={() => go("profile")}>
-                {user ? `Ваши бонусы: ${points}` : "Познакомиться ближе"}
-                <ArrowRight size={18} />
-              </button>
             </section>
+            <Contacts cfg={cfg} />
           </>
         )}
         {page === "menu" && (
@@ -515,15 +553,13 @@ function App() {
               </label>
             </div>
             <div className="filter-line">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={vegetarian}
-                  onChange={(e) => setVegetarian(e.target.checked)}
-                />
-                <Leaf size={16} /> Без мяса
-              </label>
-              <span>{filtered.length} блюд · готовим для вас</span>
+              <button
+                className="text-button"
+                onClick={() => setSourceMenuOpen(true)}
+              >
+                Меню на фотографиях <ArrowRight size={16} />
+              </button>
+              <span>Позиций: {filtered.length}</span>
             </div>
             <div className="dish-grid">
               {filtered.map((d) => (
@@ -539,6 +575,7 @@ function App() {
             )}
           </section>
         )}
+        {page === "contacts" && <Contacts cfg={cfg} />}
         {page === "orders" && (
           <section className="page-section">
             <div className="eyebrow">ОТ НАШЕЙ КУХНИ К ВАМ</div>
@@ -764,8 +801,16 @@ function App() {
       <footer>
         <div className="footer-top">
           <div>
-            <div className="wordmark">
-              син чао<span>ДО ВСТРЕЧИ ЗА СТОЛОМ</span>
+            <div className="wordmark brand-lockup">
+              <img
+                className="brand-logo"
+                src={cfg.logoImage}
+                alt="Логотип Син Чао"
+                loading="lazy"
+              />
+              <span className="brand-name">
+                син чао<small>ДО ВСТРЕЧИ ЗА СТОЛОМ</small>
+              </span>
             </div>
             <p>
               Немного Вьетнама.
@@ -777,6 +822,9 @@ function App() {
             <h4>Приходите в гости</h4>
             <p>{cfg.address}</p>
             <a href={"tel:" + cfg.phone}>{cfg.phone}</a>
+            <button className="footer-link" onClick={() => go("contacts")}>
+              Контакты и как нас найти
+            </button>
           </div>
           <div>
             <h4>Остаёмся на связи</h4>
@@ -825,6 +873,25 @@ function App() {
           </button>
         ))}
       </div>
+      {sourceMenuOpen && (
+        <Modal
+          title="Оригинальное меню Син Чао"
+          onClose={() => setSourceMenuOpen(false)}
+          wide
+        >
+          <p className="source-menu-note">
+            Страницы меню, предоставленные рестораном. Нажмите на страницу,
+            чтобы открыть её в полном размере.
+          </p>
+          <div className="source-menu-gallery">
+            {[...new Set(menu.dishes.map((d) => d.image))].map((src, i) => (
+              <a key={src} href={src} target="_blank" rel="noreferrer">
+                <img src={src} alt={`Страница меню ${i + 1}`} loading="lazy" />
+              </a>
+            ))}
+          </div>
+        </Modal>
+      )}
       {dish && (
         <DishModal
           dish={dish}
@@ -932,11 +999,7 @@ function DishCard({ dish: d, onClick }: { dish: Dish; onClick: () => void }) {
         onClick={onClick}
         aria-label={"Подробнее: " + d.localizedName}
       >
-        <img
-          src={d.image}
-          alt={d.localizedName + " — иллюстрация"}
-          loading="lazy"
-        />
+        <DishPicture dish={d} />
         {d.spice > 0 ? (
           <span className="dish-tag spicy">
             <Flame size={12} />
@@ -954,13 +1017,29 @@ function DishCard({ dish: d, onClick }: { dish: Dish; onClick: () => void }) {
         </button>
         <p>{d.description}</p>
         <div className="dish-bottom">
-          <strong>{money(d.price)}</strong>
+          <strong>
+            {d.modifiers.some((g) => g.options.some((o) => o.price > 0))
+              ? "от "
+              : ""}
+            {money(d.price)}
+          </strong>
           <button
             disabled={!d.available}
-            aria-label={"Добавить " + d.localizedName}
+            aria-label={
+              (d.orderable === false ? "Подробнее: " : "Добавить ") +
+              d.localizedName
+            }
             onClick={onClick}
           >
-            {d.available ? <Plus size={19} /> : <span>Нет в наличии</span>}
+            {d.available ? (
+              d.orderable === false ? (
+                <span>В ресторане</span>
+              ) : (
+                <Plus size={19} />
+              )
+            ) : (
+              <span>Нет в наличии</span>
+            )}
           </button>
         </div>
       </div>
@@ -1022,11 +1101,7 @@ function DishModal({
     qty;
   return (
     <Modal title={dish.name} onClose={close}>
-      <img
-        className="modal-dish-image"
-        src={dish.image}
-        alt={dish.localizedName}
-      />
+      <DishPicture dish={dish} className="modal-dish-image" eager />
       <div className="modal-dish-body">
         <div className="record-head">
           <h3>{dish.localizedName}</h3>
@@ -1037,7 +1112,7 @@ function DishModal({
           {dish.tags.map((t) => (
             <span key={t}>{t}</span>
           ))}
-          <span>{dish.region}</span>
+          {dish.region && <span>{dish.region}</span>}
         </div>
         <details>
           <summary>Состав и аллергены</summary>
@@ -1051,104 +1126,122 @@ function DishModal({
             об аллергии.
           </small>
         </details>
-        {dish.modifiers.map((g) => (
-          <fieldset key={g.id}>
-            <legend>
-              {g.name}{" "}
-              <small>
-                {g.min ? `выберите ${g.min}` : "по желанию"}, до {g.max}
-              </small>
-            </legend>
-            {g.options.map((m) => (
-              <label className="modifier" key={m.id}>
-                <input
-                  type={g.max === 1 ? "radio" : "checkbox"}
-                  name={g.id}
-                  checked={selected.includes(m.id)}
-                  disabled={!m.available}
-                  onChange={(e) =>
-                    setSelected(
-                      g.max === 1
-                        ? [
-                            ...selected.filter(
-                              (s) => !g.options.some((o) => o.id === s),
-                            ),
-                            m.id,
-                          ]
-                        : e.target.checked
-                          ? [...selected, m.id]
-                          : selected.filter((s) => s !== m.id),
-                    )
-                  }
-                />
-                <span>{m.name}</span>
-                <b>{m.price ? "+" + money(m.price) : "Бесплатно"}</b>
-              </label>
-            ))}
-          </fieldset>
-        ))}
-        <label>
-          Пожелания к блюду
-          <textarea
-            value={notes}
-            maxLength={300}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Например, чили отдельно"
-          />
-        </label>
-        {error && (
-          <p className="error" role="alert">
-            {error}
-          </p>
-        )}
-        <div className="dish-modal-actions">
-          <div className="quantity">
-            <button
-              disabled={qty <= 1}
-              aria-label="Уменьшить количество"
-              onClick={() => setQty(qty - 1)}
-            >
-              <Minus size={16} />
-            </button>
-            <b>{qty}</b>
-            <button
-              disabled={qty >= 20}
-              aria-label="Увеличить количество"
-              onClick={() => setQty(qty + 1)}
-            >
-              <Plus size={16} />
-            </button>
-          </div>
-          <button
-            className="primary"
-            disabled={busy || !dish.available}
-            onClick={async () => {
-              setBusy(true);
-              setError("");
-              try {
-                await api(
-                  "/cart/items" + (item ? "/" + item.id : ""),
-                  item ? "PATCH" : "POST",
-                  {
-                    dishId: dish.id,
-                    quantity: qty,
-                    modifiers: selected,
-                    notes,
-                  },
-                );
-                track("add_to_cart");
-                await done();
-              } catch (e: any) {
-                setError(e.message);
-              } finally {
-                setBusy(false);
-              }
-            }}
+        {dish.imageCrop && (
+          <a
+            className="source-menu-link"
+            href={dish.image}
+            target="_blank"
+            rel="noreferrer"
           >
-            {busy ? "Добавляем…" : item ? "Сохранить" : "В корзину"} ·{" "}
-            {money(total)}
-          </button>
-        </div>
+            Страница оригинального меню ↗
+          </a>
+        )}
+        {dish.orderable === false ? (
+          <p className="restaurant-only-note">
+            Только в ресторане · 18+. Недоступно для онлайн-заказа.
+          </p>
+        ) : (
+          <>
+            {dish.modifiers.map((g) => (
+              <fieldset key={g.id}>
+                <legend>
+                  {g.name}{" "}
+                  <small>
+                    {g.min ? `выберите ${g.min}` : "по желанию"}, до {g.max}
+                  </small>
+                </legend>
+                {g.options.map((m) => (
+                  <label className="modifier" key={m.id}>
+                    <input
+                      type={g.max === 1 ? "radio" : "checkbox"}
+                      name={g.id}
+                      checked={selected.includes(m.id)}
+                      disabled={!m.available}
+                      onChange={(e) =>
+                        setSelected(
+                          g.max === 1
+                            ? [
+                                ...selected.filter(
+                                  (s) => !g.options.some((o) => o.id === s),
+                                ),
+                                m.id,
+                              ]
+                            : e.target.checked
+                              ? [...selected, m.id]
+                              : selected.filter((s) => s !== m.id),
+                        )
+                      }
+                    />
+                    <span>{m.name}</span>
+                    <b>{m.price ? "+" + money(m.price) : "В цене"}</b>
+                  </label>
+                ))}
+              </fieldset>
+            ))}
+            <label>
+              Пожелания к блюду
+              <textarea
+                value={notes}
+                maxLength={300}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Например, чили отдельно"
+              />
+            </label>
+            {error && (
+              <p className="error" role="alert">
+                {error}
+              </p>
+            )}
+            <div className="dish-modal-actions">
+              <div className="quantity">
+                <button
+                  disabled={qty <= 1}
+                  aria-label="Уменьшить количество"
+                  onClick={() => setQty(qty - 1)}
+                >
+                  <Minus size={16} />
+                </button>
+                <b>{qty}</b>
+                <button
+                  disabled={qty >= 20}
+                  aria-label="Увеличить количество"
+                  onClick={() => setQty(qty + 1)}
+                >
+                  <Plus size={16} />
+                </button>
+              </div>
+              <button
+                className="primary"
+                disabled={busy || !dish.available}
+                onClick={async () => {
+                  setBusy(true);
+                  setError("");
+                  try {
+                    await api(
+                      "/cart/items" + (item ? "/" + item.id : ""),
+                      item ? "PATCH" : "POST",
+                      {
+                        dishId: dish.id,
+                        quantity: qty,
+                        modifiers: selected,
+                        notes,
+                      },
+                    );
+                    track("add_to_cart");
+                    await done();
+                  } catch (e: any) {
+                    setError(e.message);
+                  } finally {
+                    setBusy(false);
+                  }
+                }}
+              >
+                {busy ? "Добавляем…" : item ? "Сохранить" : "В корзину"} ·{" "}
+                {money(total)}
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </Modal>
   );
@@ -1278,7 +1371,11 @@ function CartModal({
                 const d = menu.dishes.find((d) => d.id === i.dishId);
                 return (
                   <div className="cart-item" key={i.id}>
-                    <img src={d?.image} alt="" />
+                    {d ? (
+                      <DishPicture dish={d} className="cart-dish-photo" eager />
+                    ) : (
+                      <div className="cart-dish-photo" />
+                    )}
                     <div>
                       <b>{d?.name ?? "Блюдо недоступно"}</b>
                       <small>

@@ -46,6 +46,20 @@ export const dishSchema = z.object({
     .max(1000)
     .refine((v) => v.startsWith("/images/") || v.startsWith("https://")),
   allergens: z.array(z.string().max(60)).max(30),
+  orderable: z.boolean().optional(),
+  imageCrop: z
+    .object({
+      x: z.number().nonnegative(),
+      y: z.number().nonnegative(),
+      width: z.number().positive(),
+      height: z.number().positive(),
+      sourceWidth: z.number().positive(),
+      sourceHeight: z.number().positive(),
+    })
+    .refine(
+      (c) => c.x + c.width <= c.sourceWidth && c.y + c.height <= c.sourceHeight,
+    )
+    .optional(),
   tags: z.array(z.string().max(60)).max(30),
   spice: z.number().int().min(0).max(3),
   available: z.boolean(),

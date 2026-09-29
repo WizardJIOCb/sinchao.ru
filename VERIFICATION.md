@@ -1,4 +1,4 @@
-# Deployment acceptance — 2026-09-29
+# Initial deployment acceptance — 2026-09-29 (historical)
 
 ## Delivered
 
@@ -25,10 +25,23 @@
 - Application bundle SHA256 matches local and server: `bea7a74e46bfb3ff16ce162e0a28f53ca6a69fd48f0f42388fa88a2edd43c1ed`.
 - Service active, `NRestarts=0`, memory approximately **26 MiB** at inspection. This is a point-in-time observation, not a load test.
 
-## Content and launch limitations
+## VK content update — 2026-09-29
 
-Real name, phone and address were provided by the user and installed. The requested VK group was blocked by the browser's safety policy. **The actual VK menu, prices and restaurant photographs have not been obtained or imported.** The catalogue, illustrations and business conditions remain explicitly labelled demo content. To complete content migration, provide menu text or images exported from that group.
+The owner supplied 21 JPGs locally: 18 menu pages, one three-combo poster, `logo.jpg` and `contacts.jpg`. All originals are committed under `public/images/vk-group`. The new catalogue contains 56 entries in nine categories, with printed prices, portions, required portion/garnish/flavour selections and original photographs. The hero, cards, dish modal and cart display photographs from the corresponding menu pages; an original-pages viewer is included. The header/footer/favicon use the supplied logo. Contacts show the entrance photograph, full address, telephone and the user-provided 2GIS location.
 
-Menu publication, opening hours, delivery areas/fees, reservation capacity and loyalty rules need real operator values before disabling demo mode. Customer payment is pay-on-receipt; card acquiring is not connected. Notifications are in-app; push/SMS and external couriers are not connected. V2 is not implemented. The deployment is a working V1 demonstration, not a complete V1+V2 launch.
+The old eight demo entries are replaced by a transactional, versioned import; the before/after catalogue is retained in the audit log. Repeat seed/deploy preserves staff edits. Orders and registered accounts are untouched. Database backup now precedes migrations/import. Alcohol is restaurant-only, with backend rejection of online cart requests.
 
-No production staff account has been invented. The owner should register their own account and supply the email for authorized role assignment; no password sharing is needed.
+Validated locally before publication:
+
+- Production build / TypeScript pass.
+- 22 tests pass, including isolated PostgreSQL business flows, once-only content migration and pricing for real portions, drinks and combos.
+- Browser confirms 56 menu cards and category/search controls, original photographs, address/map/phone links and desktop/mobile layout.
+- Browser cart: Tom yam 500 g with noodles persists and quotes 550 RUB for pickup.
+- 390px browser viewport has document scroll width 375px (remaining width is scrollbar), without horizontal document overflow.
+- Public deployment verification is recorded after the release is activated.
+
+## Remaining launch conditions
+
+Menu content and images now come from the owner's supplied VK files. `menuVerified=true`; `demo=true` still identifies test ordering/booking because opening hours, delivery areas/fees, reservation capacity and loyalty rules require operator confirmation. Customer payment is pay-on-receipt; acquiring, SMS/push and couriers are not connected. V2 is not implemented.
+
+The owner registered Rodion and the authorized ADMIN role was assigned previously; this content update does not change account permissions.

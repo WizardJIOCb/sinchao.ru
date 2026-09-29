@@ -22,7 +22,7 @@ export function priceCart(
   if (!cart.length) fail(400, "EMPTY_CART", "Добавьте блюда в корзину.");
   const items = cart.map((item) => {
     const dish = menu.find((d) => d.id === item.dishId);
-    if (!dish?.available)
+    if (!dish?.available || dish.orderable === false)
       fail(
         409,
         "DISH_UNAVAILABLE",

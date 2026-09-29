@@ -1,1 +1,16 @@
-{"name":"Син Чао — вьетнамская кухня","short_name":"Син Чао","start_url":"/","display":"standalone","background_color":"#f8f6ef","theme_color":"#284b3e","icons":[{"src":"/favicon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]}
+{
+  "name": "Син Чао — вьетнамская кухня",
+  "short_name": "Син Чао",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f6ef",
+  "theme_color": "#284b3e",
+  "icons": [
+    {
+      "src": "/images/vk-group/logo.jpg",
+      "sizes": "498x494",
+      "purpose": "any",
+      "type": "image/jpeg"
+    }
+  ]
+}
