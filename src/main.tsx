@@ -45,12 +45,11 @@ import { Admin } from "./pages/Admin";
 import { DishPicture } from "./DishPicture";
 import { Contacts } from "./Contacts";
 import "./style.css";
+import "./menu-theme.css";
+import "@fontsource/lobster/400.css";
 import "@fontsource/golos-text/400.css";
 import "@fontsource/golos-text/500.css";
 import "@fontsource/golos-text/600.css";
-import "@fontsource/lora/400.css";
-import "@fontsource/lora/400-italic.css";
-import "@fontsource/lora/500.css";
 type Page =
   | "home"
   | "menu"

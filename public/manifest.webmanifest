@@ -3,8 +3,8 @@
   "short_name": "Син Чао",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f8f6ef",
-  "theme_color": "#284b3e",
+  "background_color": "#f7ecd2",
+  "theme_color": "#465330",
   "icons": [
     {
       "src": "/images/vk-group/logo.jpg",
