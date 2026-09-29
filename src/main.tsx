@@ -275,7 +275,11 @@ function App() {
             >
               <UserRound size={21} />
             </button>
-            <button className="cart-button" onClick={() => setCartOpen(true)}>
+            <button
+              className="cart-button"
+              aria-label={`Корзина: ${totalCount} блюд`}
+              onClick={() => setCartOpen(true)}
+            >
               <ShoppingBag size={18} />
               <span>Корзина</span>
               <b>{totalCount}</b>
@@ -1632,6 +1636,7 @@ function BookingModal({
               required
               value={date}
               onChange={(e) => setDate(e.target.value)}
+              onInput={(e) => setDate(e.currentTarget.value)}
             />
           </label>
           <label>
