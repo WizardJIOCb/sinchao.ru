@@ -2,7 +2,10 @@ import { Router } from "express";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { pool, transaction, type DB } from "../db";
-import { config, fail, hash, localNow, notify } from "../lib";
+import { config, dishes, fail, hash, localNow, notify } from "../lib";
+import { availableTables } from "./tables";
+import { v2Settings } from "./v2-core";
+import { priceCart } from "./pricing";
 import { reservationSchema } from "../validation";
 import { owner } from "./auth";
 import { idempotency } from "./orders";
@@ -11,6 +14,7 @@ export const reservationView = (r: any) => ({
   ...r.data,
   id: r.id,
   status: r.status,
+  tableId: r.table_id,
   createdAt: r.created_at,
 });
 export function validateReservationDate(
@@ -52,10 +56,21 @@ export async function availability(
   const now = localNow(cfg);
   const rows = (
     await db.query(
-      "SELECT start_minute,end_minute,party_size FROM reservations WHERE date=$1 AND status IN ('PENDING','CONFIRMED','SEATED')",
+      "SELECT start_minute,end_minute,party_size,table_id FROM reservations WHERE date=$1 AND status IN ('PENDING','CONFIRMED','SEATED')",
       [date],
     )
   ).rows;
+  const settings = await v2Settings(db);
+  const tables =
+    cfg.demo || settings.floorPlanVerified
+      ? (await db.query("SELECT id,seats FROM qr_tables WHERE active")).rows
+      : [];
+  const occupied =
+    date === now.date
+      ? (
+          await db.query("SELECT table_id FROM dine_visits WHERE status='OPEN'")
+        ).rows.map((r) => r.table_id)
+      : [];
   const slots: { time: string; available: boolean }[] = [];
   for (
     let minute = cfg.openHour * 60;
@@ -72,7 +87,20 @@ export async function availability(
     }
     slots.push({
       time: `${String(Math.floor(minute / 60)).padStart(2, "0")}:${String(minute % 60).padStart(2, "0")}`,
-      available: peak + partySize <= cfg.capacity,
+      available:
+        peak + partySize <= cfg.capacity &&
+        (!tables.length ||
+          tables.some(
+            (t) =>
+              t.seats >= partySize &&
+              !occupied.includes(t.id) &&
+              !rows.some(
+                (r) =>
+                  r.table_id === t.id &&
+                  r.start_minute < minute + cfg.reservationMinutes &&
+                  r.end_minute > minute,
+              ),
+          )),
     });
   }
   return slots;
@@ -144,9 +172,63 @@ reservationsRouter.post("/", async (req, res) => {
     const id = randomUUID(),
       minute =
         Number(input.time.slice(0, 2)) * 60 + Number(input.time.slice(3));
+    const settings = await v2Settings(db);
+    let selectedTable;
+    if (cfg.demo || settings.floorPlanVerified) {
+      const tables = await availableTables(
+        db,
+        cfg,
+        input.date,
+        minute,
+        input.partySize,
+      );
+      if (tables.length) {
+        selectedTable = tables.find(
+          (t) => t.available && (!input.tableId || t.id === input.tableId),
+        );
+        if (!selectedTable)
+          fail(
+            409,
+            "TABLE_UNAVAILABLE",
+            "Этот стол уже занят или не подходит по числу гостей. Выберите другой стол или время.",
+          );
+        // Locks against deactivation/seating edits while saving the reservation.
+        const current = (
+          await db.query("SELECT * FROM qr_tables WHERE id=$1 FOR UPDATE", [
+            selectedTable.id,
+          ])
+        ).rows[0];
+        if (!current.active || current.seats < input.partySize)
+          fail(409, "TABLE_UNAVAILABLE", "Стол больше не доступен.");
+      } else if (input.tableId)
+        fail(409, "TABLE_UNAVAILABLE", "Стол больше не доступен.");
+    } else if (input.tableId)
+      fail(
+        409,
+        "FLOOR_NOT_VERIFIED",
+        "Схема зала ещё не подтверждена рестораном.",
+      );
+    let preorder = null;
+    if (input.preorder) {
+      if (!cfg.orderingEnabled)
+        fail(503, "ORDERING_DISABLED", "Приём предзаказов приостановлен.");
+      const session = (
+        await db.query("SELECT cart FROM sessions WHERE id=$1 FOR UPDATE", [
+          req.session.id,
+        ])
+      ).rows[0];
+      preorder = priceCart(
+        session.cart,
+        await dishes(db),
+        cfg,
+        { fulfillment: "PICKUP", zoneId: "", promo: "", points: 0 },
+        0,
+      );
+    }
+    const data = { ...input, tableName: selectedTable?.name, preorder };
     const saved = (
       await db.query(
-        "INSERT INTO reservations(id,owner,user_id,idempotency_key,request_hash,date,start_minute,end_minute,party_size,data) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *",
+        "INSERT INTO reservations(id,owner,user_id,idempotency_key,request_hash,date,start_minute,end_minute,party_size,data,table_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *",
         [
           id,
           owner(req),
@@ -157,7 +239,8 @@ reservationsRouter.post("/", async (req, res) => {
           minute,
           minute + cfg.reservationMinutes,
           input.partySize,
-          JSON.stringify(input),
+          JSON.stringify(data),
+          selectedTable?.id ?? null,
         ],
       )
     ).rows[0];
@@ -166,9 +249,13 @@ reservationsRouter.post("/", async (req, res) => {
       owner(req),
       req.session.user?.id ?? null,
       "Бронирование подтверждено",
-      `${input.date} в ${input.time}, гостей: ${input.partySize}. Пожелание по размещению не гарантирует конкретный стол.`,
+      `${input.date} в ${input.time}, гостей: ${input.partySize}. ${selectedTable?.name ?? "Пожелание по размещению принято."}`,
       id,
     );
+    if (preorder)
+      await db.query("UPDATE sessions SET cart='[]' WHERE id=$1", [
+        req.session.id,
+      ]);
     return saved;
   });
   res.status(201).json({ data: reservationView(row), error: null });

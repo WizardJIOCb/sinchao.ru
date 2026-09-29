@@ -69,6 +69,8 @@ before(async () => {
       position,
     ]);
   cfg = fixtureConfig;
+  // V1 capacity tests use a table that can actually seat their eight-person party.
+  await pool.query("UPDATE qr_tables SET seats=8,active=true");
   cfg = {
     ...cfg,
     openHour: 0,

@@ -10,6 +10,11 @@ import { cartRouter } from "./modules/cart";
 import { ordersRouter } from "./modules/orders";
 import { reservationsRouter } from "./modules/reservations";
 import { adminRouter } from "./modules/admin";
+import { tablesRouter, adminTablesRouter } from "./modules/tables";
+import { dineRouter, adminDineRouter } from "./modules/dine-in";
+import { discoveryRouter } from "./modules/discovery";
+import { eventsRouter, adminEventsRouter } from "./modules/events";
+import { giftsRouter, adminGiftsRouter } from "./modules/gifts";
 export const app = express();
 app.set("trust proxy", "loopback");
 app.disable("x-powered-by");
@@ -34,7 +39,7 @@ app.use(
 app.use(express.json({ limit: "150kb" }));
 app.get("/api/health", async (_req, res) => {
   await pool.query("SELECT 1");
-  res.json({ data: { status: "ok", version: "1.0.0" }, error: null });
+  res.json({ data: { status: "ok", version: "2.0.0" }, error: null });
 });
 app.use(
   "/api",
@@ -138,6 +143,21 @@ app.use("/api/cart", cartRouter);
 app.use("/api/orders", ordersRouter);
 app.use("/api/reservations", reservationsRouter);
 app.use("/api/admin", adminRouter);
+app.use(
+  "/api/v2",
+  tablesRouter,
+  dineRouter,
+  discoveryRouter,
+  eventsRouter,
+  giftsRouter,
+);
+app.use(
+  "/api/admin/v2",
+  adminTablesRouter,
+  adminDineRouter,
+  adminEventsRouter,
+  adminGiftsRouter,
+);
 app.get(["/api/loyalty", "/api/loyalty/transactions"], async (req, res) =>
   res.json({
     data: {
@@ -184,8 +204,8 @@ app.get("/api/dine-in/:token", async (req, res) => {
   res.json({
     data: {
       table: row.name,
-      ordering: false,
-      message: "Меню за вашим столом. Для заказа пригласите официанта.",
+      ordering: true,
+      message: "Введите код визита у официанта, чтобы заказать за столом.",
     },
     error: null,
   });
@@ -213,12 +233,10 @@ app.post("/api/analytics", async (req, res) => {
   res.json({ data: { ok: true }, error: null });
 });
 app.use("/api", (_req, res) =>
-  res
-    .status(404)
-    .json({
-      data: null,
-      error: { code: "NOT_FOUND", message: "Маршрут не найден." },
-    }),
+  res.status(404).json({
+    data: null,
+    error: { code: "NOT_FOUND", message: "Маршрут не найден." },
+  }),
 );
 app.use(express.static(resolve("dist/public"), { maxAge: "1h", index: false }));
 app.get("/{*path}", (_req, res) =>
@@ -232,15 +250,13 @@ app.use(
     _next: express.NextFunction,
   ) => {
     if (err instanceof z.ZodError) {
-      res
-        .status(400)
-        .json({
-          data: null,
-          error: {
-            code: "VALIDATION",
-            message: err.issues.map((i) => i.message).join("; "),
-          },
-        });
+      res.status(400).json({
+        data: null,
+        error: {
+          code: "VALIDATION",
+          message: err.issues.map((i) => i.message).join("; "),
+        },
+      });
       return;
     }
     if (err instanceof ApiError) {
@@ -250,23 +266,19 @@ app.use(
       return;
     }
     if (err.type === "entity.parse.failed") {
-      res
-        .status(400)
-        .json({
-          data: null,
-          error: { code: "INVALID_JSON", message: "Некорректный JSON." },
-        });
+      res.status(400).json({
+        data: null,
+        error: { code: "INVALID_JSON", message: "Некорректный JSON." },
+      });
       return;
     }
     console.error("Request failed:", err.code ?? err.name, err.message);
-    res
-      .status(500)
-      .json({
-        data: null,
-        error: {
-          code: "INTERNAL",
-          message: "Не удалось выполнить запрос. Попробуйте ещё раз.",
-        },
-      });
+    res.status(500).json({
+      data: null,
+      error: {
+        code: "INTERNAL",
+        message: "Не удалось выполнить запрос. Попробуйте ещё раз.",
+      },
+    });
   },
 );

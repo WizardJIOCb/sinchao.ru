@@ -27,7 +27,8 @@ export const money = (n: number) =>
   new Intl.NumberFormat("ru-RU", {
     style: "currency",
     currency: "RUB",
-    maximumFractionDigits: 0,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
   }).format(n / 100);
 export const track = (event: string) => {
   void api("/analytics", "POST", { event }).catch(() => {});

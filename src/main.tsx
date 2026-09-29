@@ -45,6 +45,14 @@ import { orderLabels } from "../shared/types";
 import { Admin } from "./pages/Admin";
 import { DishPicture } from "./DishPicture";
 import { Contacts } from "./Contacts";
+import {
+  DiscoveryHub,
+  DinePanel,
+  DineCart,
+  FavoriteButton,
+  TablePicker,
+} from "./V2";
+import type { Visit } from "../shared/v2";
 import "./style.css";
 import "./menu-theme.css";
 import "@fontsource/lobster/400.css";
@@ -58,7 +66,8 @@ type Page =
   | "orders"
   | "reservations"
   | "profile"
-  | "admin";
+  | "admin"
+  | "discover";
 type MenuData = { config: Config; categories: Category[]; dishes: Dish[] };
 
 const dishUrl = (id: string) => "/menu/" + encodeURIComponent(id);
@@ -71,6 +80,8 @@ function dishIdFromPath(path: string) {
   }
 }
 function pageFromPath(path: string): Page {
+  if (path.startsWith("/discover")) return "discover";
+  if (path.startsWith("/dine-in/")) return "menu";
   return path === "/admin"
     ? "admin"
     : path.startsWith("/menu")
@@ -155,7 +166,11 @@ function App() {
     [authOpen, setAuthOpen] = useState(false),
     [toast, setToast] = useState(""),
     [error, setError] = useState(""),
-    [table, setTable] = useState("");
+    [table, setTable] = useState(""),
+    [visit, setVisit] = useState<Visit | null>(null);
+  const [tableToken] = useState(
+    () => location.pathname.match(/^\/dine-in\/([^/]+)$/)?.[1] ?? "",
+  );
   const say = useCallback((text: string) => setToast(text), []);
   const refresh = useCallback(async () => {
     const [m, me, c, o, r, n] = await Promise.all([
@@ -222,7 +237,14 @@ function App() {
   }, [toast]);
   function go(p: Page) {
     setPage(p);
-    const next = p === "admin" ? "/admin" : p === "menu" ? "/menu" : "/";
+    const next =
+      p === "admin"
+        ? "/admin"
+        : p === "menu"
+          ? "/menu"
+          : p === "discover"
+            ? "/discover"
+            : "/";
     history.replaceState({ backgroundPage: p }, "", next);
     setPath(next);
     setEditDish(null);
@@ -310,6 +332,7 @@ function App() {
                 ["contacts", "Контакты"],
                 ["orders", "Мои заказы"],
                 ["reservations", "Бронирования"],
+                ["discover", "Открытия"],
               ] as [Page, string][]
             ).map(([p, label]) => (
               <button
@@ -365,20 +388,16 @@ function App() {
             </span>
           </div>
         )}
-        {table && (
-          <div className="table-note">
-            <Utensils size={20} />
-            <div>
-              <b>
-                {table} · {cfg.name}
-              </b>
-              <p>
-                Выбирайте блюда в меню. Для заказа за столом пригласите
-                официанта.
-              </p>
-            </div>
-          </div>
-        )}
+        <DinePanel
+          key={user?.id ?? "guest"}
+          refreshKey={orders.length}
+          token={tableToken}
+          tableName={table}
+          onVisit={setVisit}
+          openMenu={() => go("menu")}
+          openCart={() => setCartOpen(true)}
+          say={say}
+        />
         {error && (
           <div className="error" role="alert">
             {error}
@@ -563,22 +582,28 @@ function App() {
                 <div className="eyebrow">СВЕЖЕЕ. АРОМАТНОЕ. ВАШЕ.</div>
                 <h1>Наше меню</h1>
               </div>
-              <div className="segmented">
-                <button
-                  className={fulfillment === "DELIVERY" ? "selected" : ""}
-                  onClick={() => setFulfillment("DELIVERY")}
-                >
-                  <Bike size={17} />
-                  Доставка
-                </button>
-                <button
-                  className={fulfillment === "PICKUP" ? "selected" : ""}
-                  onClick={() => setFulfillment("PICKUP")}
-                >
-                  <ShoppingBag size={17} />
-                  Самовывоз
-                </button>
-              </div>
+              {visit ? (
+                <span className="badge">
+                  {visit.tableName} · заказ за столом
+                </span>
+              ) : (
+                <div className="segmented">
+                  <button
+                    className={fulfillment === "DELIVERY" ? "selected" : ""}
+                    onClick={() => setFulfillment("DELIVERY")}
+                  >
+                    <Bike size={17} />
+                    Доставка
+                  </button>
+                  <button
+                    className={fulfillment === "PICKUP" ? "selected" : ""}
+                    onClick={() => setFulfillment("PICKUP")}
+                  >
+                    <ShoppingBag size={17} />
+                    Самовывоз
+                  </button>
+                </div>
+              )}
             </div>
             <div className="menu-tools">
               <div className="categories">
@@ -662,7 +687,11 @@ function App() {
                     </div>
                     <p className="muted">
                       {new Date(o.createdAt).toLocaleString("ru-RU")} ·{" "}
-                      {o.fulfillment === "DELIVERY" ? "Доставка" : "Самовывоз"}
+                      {o.fulfillment === "DELIVERY"
+                        ? "Доставка"
+                        : o.fulfillment === "DINE_IN"
+                          ? o.tableName || "За столом"
+                          : "Самовывоз"}
                     </p>
                     <div className="order-progress">
                       {[
@@ -716,7 +745,11 @@ function App() {
                               warnings: string[];
                               fulfillment: Fulfillment;
                             }>("/orders/" + o.id + "/reorder", "POST", {});
-                            setFulfillment(r.fulfillment);
+                            setFulfillment(
+                              r.fulfillment === "DINE_IN"
+                                ? "PICKUP"
+                                : r.fulfillment,
+                            );
                             await refresh();
                             setCartOpen(true);
                             say(
@@ -802,9 +835,20 @@ function App() {
                       </span>
                     </div>
                     <p>
-                      {r.partySize} гостей · {r.seating}
+                      {r.partySize} гостей · {r.tableName || r.seating}
                     </p>
                     <p className="muted">{r.notes || cfg.address}</p>
+                    {r.preorder && (
+                      <div className="preorder-preview">
+                        <b>Предзаказ · {money(r.preorder.total)}</b>
+                        {r.preorder.items.map((i) => (
+                          <p key={i.id}>
+                            {i.name} × {i.quantity} ·{" "}
+                            {i.modifierNames.join(", ")}
+                          </p>
+                        ))}
+                      </div>
+                    )}
                     {["PENDING", "CONFIRMED"].includes(r.status) && (
                       <button
                         className="text-button danger"
@@ -832,6 +876,9 @@ function App() {
             )}
           </section>
         )}
+        {page === "discover" && (
+          <DiscoveryHub user={user} login={() => setAuthOpen(true)} say={say} />
+        )}
         {page === "profile" && (
           <Profile
             user={user}
@@ -853,6 +900,17 @@ function App() {
           />
         )}
       </main>
+      {page !== "admin" && page !== "discover" && (
+        <div className="v2-shortcut">
+          <div>
+            <h2>Ваше путешествие по Вьетнаму</h2>
+            <p>Любимые блюда, новые открытия, события и подарки.</p>
+          </div>
+          <button className="primary" onClick={() => go("discover")}>
+            Открыть Food Journey <ArrowRight size={17} />
+          </button>
+        </div>
+      )}
       <footer>
         <div className="footer-top">
           <div>
@@ -977,6 +1035,7 @@ function App() {
       {cartOpen && (
         <CartModal
           menu={menu}
+          visit={visit}
           user={user}
           points={points}
           cart={cart}
@@ -1001,6 +1060,8 @@ function App() {
       {bookingOpen && (
         <BookingModal
           cfg={cfg}
+          cart={cart}
+          menu={menu.dishes}
           user={user}
           close={() => setBookingOpen(false)}
           done={async () => {
@@ -1178,6 +1239,7 @@ function DishModal({
     <Modal title={dish.name} onClose={close}>
       <DishPicture dish={dish} className="modal-dish-image" eager />
       <div className="modal-dish-body">
+        <FavoriteButton dishId={dish.id} />
         <div className="dish-share">
           <button
             type="button"
@@ -1355,6 +1417,7 @@ function DishModal({
 }
 function CartModal({
   menu,
+  visit,
   user,
   points,
   cart,
@@ -1366,6 +1429,7 @@ function CartModal({
   done,
 }: {
   menu: MenuData;
+  visit: Visit | null;
   user: User | null;
   points: number;
   cart: CartItem[];
@@ -1422,7 +1486,16 @@ function CartModal({
   }, [cart, fulfillment, zoneId, promo, redeem]);
   return (
     <Modal title="Ваша корзина" onClose={close} wide>
-      {!cart.length ? (
+      {visit ? (
+        <DineCart
+          visit={visit}
+          cart={cart}
+          menu={menu.dishes}
+          edit={edit}
+          refresh={refresh}
+          done={done}
+        />
+      ) : !cart.length ? (
         <Empty
           icon={<ShoppingBag />}
           title="Добавим что-нибудь вкусное?"
@@ -1746,11 +1819,15 @@ function CartModal({
 }
 function BookingModal({
   cfg,
+  cart,
+  menu,
   user,
   close,
   done,
 }: {
   cfg: Config;
+  cart: CartItem[];
+  menu: Dish[];
   user: User | null;
   close: () => void;
   done: () => Promise<void>;
@@ -1761,10 +1838,33 @@ function BookingModal({
   const [date, setDate] = useState(today),
     [guests, setGuests] = useState(2),
     [time, setTime] = useState(""),
+    [tableId, setTableId] = useState(""),
+    [preorder, setPreorder] = useState(false),
+    [preorderQuote, setPreorderQuote] = useState<Quote | null>(null),
     [slots, setSlots] = useState<{ time: string; available: boolean }[]>([]),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
     [loading, setLoading] = useState(true);
+  useEffect(() => {
+    let valid = true;
+    setPreorderQuote(null);
+    if (preorder && cart.length)
+      api<Quote>("/cart/quote", "POST", {
+        fulfillment: "PICKUP",
+        zoneId: "",
+        promo: "",
+        points: 0,
+      })
+        .then((q) => {
+          if (valid) setPreorderQuote(q);
+        })
+        .catch((e) => {
+          if (valid) setError(e.message);
+        });
+    return () => {
+      valid = false;
+    };
+  }, [preorder, cart]);
   const key = useRef(crypto.randomUUID());
   useEffect(() => {
     track("reservation_started");
@@ -1814,6 +1914,8 @@ function BookingModal({
                 date,
                 time,
                 partySize: guests,
+                ...(tableId ? { tableId } : {}),
+                preorder,
                 seating: f.get("seating"),
                 name: f.get("name"),
                 phone: f.get("phone"),
@@ -1886,6 +1988,46 @@ function BookingModal({
             На эту дату нет доступного времени. Попробуйте следующий день.
           </p>
         )}
+        <TablePicker
+          date={date}
+          time={time}
+          guests={guests}
+          value={tableId}
+          onChange={(id) => {
+            setTableId(id);
+            key.current = crypto.randomUUID();
+          }}
+        />
+        {!!cart.length && (
+          <div className="preorder-preview">
+            <label className="preorder-toggle">
+              <input
+                type="checkbox"
+                checked={preorder}
+                onChange={(e) => setPreorder(e.target.checked)}
+              />
+              <span>Добавить блюда из корзины к брони</span>
+            </label>
+            {preorder && (
+              <>
+                {cart.map((i) => (
+                  <p key={i.id}>
+                    {menu.find((d) => d.id === i.dishId)?.name} × {i.quantity}
+                  </p>
+                ))}
+                <b>
+                  {preorderQuote
+                    ? money(preorderQuote.total)
+                    : "Проверяем стоимость…"}
+                </b>
+                <p>
+                  Предзаказ сохранится с бронью. При посадке сотрудник передаст
+                  его на кухню. Корзина после бронирования очистится.
+                </p>
+              </>
+            )}
+          </div>
+        )}
         <label>
           Где вам уютнее?
           <select name="seating">
@@ -1895,7 +2037,7 @@ function BookingModal({
           </select>
         </label>
         <small>
-          Это пожелание, а не гарантия конкретного стола. Бронь на{" "}
+          Пожелание учитывается, если стол не выбран на схеме. Бронь на{" "}
           {cfg.reservationMinutes} минут, отмена бесплатная до посадки.
         </small>
         <div className="form-grid">
@@ -1939,7 +2081,10 @@ function BookingModal({
             Тестовое бронирование. Для настоящей брони позвоните {cfg.phone}.
           </p>
         )}
-        <button className="primary full" disabled={busy || !time || loading}>
+        <button
+          className="primary full"
+          disabled={busy || !time || loading || (preorder && !preorderQuote)}
+        >
           {busy
             ? "Бронируем…"
             : cfg.demo

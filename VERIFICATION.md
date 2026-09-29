@@ -51,7 +51,7 @@ Validated locally before publication:
 
 ## Remaining launch conditions
 
-Menu content and images now come from the owner's supplied VK files. `menuVerified=true`; `demo=true` still identifies test ordering/booking because opening hours, delivery areas/fees, reservation capacity and loyalty rules require operator confirmation. Customer payment is pay-on-receipt; acquiring, SMS/push and couriers are not connected. V2 is not implemented.
+Menu content and images now come from the owner's supplied VK files. `menuVerified=true`; `demo=true` still identifies test ordering/booking because opening hours, delivery areas/fees, reservation capacity and loyalty rules require operator confirmation. Customer payment is pay-on-receipt; acquiring, SMS/push and couriers are not connected. V2 was not implemented at this historical checkpoint; see the V2 acceptance section below.
 
 The owner registered Rodion and the authorized ADMIN role was assigned previously; this content update does not change account permissions.
 
@@ -67,3 +67,15 @@ The owner registered Rodion and the authorized ADMIN role was assigned previousl
 - Published stylesheet SHA256 matches local: `b4c3440bdf5179d2abd97caef96e4165f621e4b2a9332dac9fa4304485461ed5`.
 - Service active with NRestarts=0, /api/health OK. Backup before activation: `/var/backups/food-sinchao/food-sinchao-20260929-192959.sql.gz`. Full archive upload was interrupted; activation used a checksum-verified 895,512-byte theme release plus the previous release's unchanged VK assets. Menu seed reported existing catalogue preserved.
 - Evidence screenshots (ignored local files): `artifacts/paper-theme-live-desktop.png`, `artifacts/paper-theme-live-mobile.png`.
+
+## V2 acceptance — 2026-09-29
+
+- All requested V2 feature areas have working customer and staff flows: floor plan, specific-table reservations, reservation preorders, QR table orders, waiter calls, equal bill splitting, recommendations, Food Journey, achievements, events, certificates and referrals.
+- TypeScript and production build pass. The isolated PostgreSQL suite passes **34 tests, 0 failures**, including concurrent reservations/event capacity, ownership restrictions, idempotency, exact kopeck splitting, partial certificate redemption against orders and table shares, and once-only referral rewards.
+- Local browser, using the real backend and an isolated test database: staff opens a visit; guest joins through QR/code; Pho Bo order 350 RUB reaches the table; waiter call appears in the staff queue; two shares of 175 RUB are created and one is paid by staff.
+- Browser reservation: 30 September, 12:00, two guests, selected table, nem Hanoi preorder 250 RUB. Persisted history shows the selected table and preorder; basket clears after success.
+- Browser gift request 1,000 RUB is activated by staff; event creation and signup for two guests succeed; favorites and explanatory recommendations render.
+- Desktop 1280px and mobile 390px show no horizontal document overflow or browser error entries. Evidence is in ignored `artifacts/v2-*.png`, `v2-tests.txt` and `v2-build.txt`.
+- All mutation-based V2 browser tests ran on the isolated local database. Production events, gift balances and referral rewards were not fabricated for testing.
+- The floor layout is an explicitly labelled example until the restaurant confirms it. Menu region metadata is currently empty, so Journey uses a general Vietnam route rather than invented regional attribution. No event is published by default.
+- Existing demo ordering/booking remains enabled. Certificate activation and receipt of each bill share are staff confirmations; external acquiring, automatic refunds and push/SMS delivery are not connected.

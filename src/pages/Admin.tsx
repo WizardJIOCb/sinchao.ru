@@ -1,3 +1,4 @@
+import { AdminV2 } from "./AdminV2";
 import { useEffect, useState } from "react";
 import { api, money } from "../api";
 import {
@@ -93,7 +94,7 @@ export function Admin({
           ["reservations", "Брони"],
           ["menu", "Меню"],
           ["settings", "Настройки"],
-          ["qr", "QR-меню"],
+          ["v2", "V2 · Зал и гости"],
           ["audit", "Журнал"],
         ].map(([id, name]) => (
           <button
@@ -112,6 +113,7 @@ export function Admin({
         <p>Загружаем…</p>
       ) : (
         <>
+          {tab === "v2" && <AdminV2 user={user} say={say} refresh={refresh} />}
           {tab === "orders" && (
             <div className="records">
               {data.orders.length === 0 && <p>Заказов пока нет.</p>}
@@ -136,11 +138,22 @@ export function Admin({
                       <span className="badge">{orderLabels[o.status]}</span>
                     </div>
                     <p>
-                      {o.fulfillment === "DELIVERY" ? "Доставка" : "Самовывоз"}{" "}
+                      {o.fulfillment === "DELIVERY"
+                        ? "Доставка"
+                        : o.fulfillment === "DINE_IN"
+                          ? o.tableName || "За столом"
+                          : "Самовывоз"}{" "}
                       · {o.contact.time} ·{" "}
                       <a href={"tel:" + o.contact.phone}>{o.contact.phone}</a>
                     </p>
                     <p>{o.contact.address}</p>
+                    <small>ID заказа: {o.id}</small>
+                    {!!o.giftPaid && (
+                      <p>
+                        Сертификатом: {money(o.giftPaid)} · осталось{" "}
+                        {money(o.total - o.giftPaid)}
+                      </p>
+                    )}
                     {o.items.map((i) => (
                       <p key={i.id}>
                         {i.name} × {i.quantity} {i.modifierNames.join(", ")}{" "}
@@ -176,7 +189,8 @@ export function Admin({
                         </button>
                       ))}
                       {o.paymentStatus !== "PAID" &&
-                        o.status !== "CANCELLED" && (
+                        o.status !== "CANCELLED" &&
+                        !o.visitId && (
                           <button
                             disabled={busy}
                             className="primary"
@@ -191,8 +205,9 @@ export function Admin({
                     {editing === "payment:" + o.id && (
                       <div className="confirm-box">
                         <p>
-                          Подтвердить фактическое получение {money(o.total)} по
-                          заказу №{o.number}?
+                          Подтвердить фактическое получение{" "}
+                          {money(o.total - (o.giftPaid ?? 0))} по заказу №
+                          {o.number}?
                         </p>
                         <button
                           className="primary"
@@ -248,12 +263,27 @@ export function Admin({
                     {r.name} · <a href={"tel:" + r.phone}>{r.phone}</a>
                   </p>
                   <p>
-                    {r.seating} · {r.notes}
+                    {r.tableName || r.seating} · {r.notes}
                   </p>
+                  {r.preorder && (
+                    <p>
+                      Предзаказ:{" "}
+                      {r.preorder.items
+                        .map((i) => `${i.name} × ${i.quantity}`)
+                        .join(", ")}{" "}
+                      · {money(r.preorder.total)}
+                    </p>
+                  )}
+                  {r.tableId && r.status === "CONFIRMED" && (
+                    <p>
+                      Для посадки откройте посещение с этой бронью во вкладке
+                      «V2 · Зал и гости».
+                    </p>
+                  )}
                   <div className="button-row">
                     {(r.status === "CONFIRMED"
                       ? [
-                          ["SEATED", "Гости пришли"],
+                          ...(!r.tableId ? [["SEATED", "Гости пришли"]] : []),
                           ["CANCELLED", "Отменить"],
                           ["NO_SHOW", "Не пришли"],
                         ]
@@ -441,28 +471,6 @@ export function Admin({
             ) : (
               <p>Настройки доступны управляющему.</p>
             ))}
-          {tab === "qr" && (
-            <>
-              <h2>Меню за столом</h2>
-              <p className="muted">
-                Эти ссылки открывают меню с контекстом стола. Заказ официанту —
-                текущий сценарий V1. Ссылку можно использовать при печати
-                QR-кода.
-              </p>
-              {data.tables.map((t) => (
-                <article className="record" key={t.token}>
-                  <h3>{t.name}</h3>
-                  <a
-                    href={"/dine-in/" + t.token}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {location.origin}/dine-in/{t.token}
-                  </a>
-                </article>
-              ))}
-            </>
-          )}
           {tab === "audit" && (
             <div className="records">
               {data.audit.map((a) => (

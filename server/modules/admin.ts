@@ -111,7 +111,13 @@ adminRouter.post("/orders/:id/payment", async (req, res) => {
     if (!r) fail(404, "NOT_FOUND", "Заказ не найден.");
     if (r.status === "CANCELLED") fail(409, "CANCELLED", "Заказ отменён.");
     if (r.payment_status === "PAID") return;
-    await payOnReceipt.confirmPayment(r.data.total);
+    if (r.visit_id)
+      fail(
+        409,
+        "TABLE_BILL",
+        "Оплату за столом подтверждайте по частям общего счёта во вкладке «Зал».",
+      );
+    await payOnReceipt.confirmPayment(r.data.total - (r.gift_paid ?? 0));
     await db.query("UPDATE orders SET payment_status='PAID' WHERE id=$1", [id]);
     await audit(
       db,
@@ -142,6 +148,25 @@ adminRouter.patch("/reservations/:id", async (req, res) => {
       await db.query("SELECT * FROM reservations WHERE id=$1 FOR UPDATE", [id])
     ).rows[0];
     if (!r) fail(404, "NOT_FOUND", "Бронь не найдена.");
+    if (r.table_id && status === "SEATED")
+      fail(
+        409,
+        "OPEN_VISIT",
+        "Для посадки откройте посещение по этой брони во вкладке «Зал».",
+      );
+    if (
+      (
+        await db.query(
+          "SELECT id FROM dine_visits WHERE reservation_id=$1 AND status='OPEN'",
+          [id],
+        )
+      ).rowCount
+    )
+      fail(
+        409,
+        "VISIT_ACTIVE",
+        "Сначала завершите посещение во вкладке «Зал».",
+      );
     const states: Record<string, string[]> = {
       CONFIRMED: ["SEATED", "CANCELLED", "NO_SHOW"],
       SEATED: ["COMPLETED"],

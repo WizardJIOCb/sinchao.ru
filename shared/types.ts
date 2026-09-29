@@ -1,4 +1,4 @@
-export type Fulfillment = "DELIVERY" | "PICKUP";
+export type Fulfillment = "DELIVERY" | "PICKUP" | "DINE_IN";
 export type Modifier = {
   id: string;
   name: string;
@@ -108,6 +108,9 @@ export type User = {
   role: string;
 };
 export type Order = Quote & {
+  visitId?: string | null;
+  giftPaid?: number;
+  tableName?: string;
   id: string;
   number: number;
   status: string;
@@ -124,6 +127,9 @@ export type Order = Quote & {
   createdAt: string;
 };
 export type Reservation = {
+  tableId?: string | null;
+  tableName?: string;
+  preorder?: Quote | null;
   id: string;
   date: string;
   time: string;

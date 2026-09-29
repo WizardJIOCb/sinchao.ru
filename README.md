@@ -13,7 +13,7 @@ React/TypeScript customer app and staff console, Express/TypeScript modular mono
 - Staff console `/admin`: orders, received-payment confirmation, reservations, menu/availability, configuration, categories, audit log and opaque table-menu links.
 - PostgreSQL migrations, backend authorization, secure production cookies, scrypt passwords, rate limits, same-origin write protection, idempotency.
 
-**This is a deployed V1 implementation in demonstration mode, not a claim that every item in the V1/V2 design document is complete.** Card acquiring, device push, automatic couriers, account recovery and V2 table orders / preorders / split payments / Food Journey are not connected or implemented. Do not treat a cash order as paid until a staff member confirms actual receipt.
+**V2 is implemented with the existing demonstration mode retained.** Table bookings, preorders, QR orders, shared bills, discovery and loyalty features are described below. Card acquiring, device push, automatic couriers and account recovery are not connected. Do not treat a cash order as paid until a staff member confirms actual receipt.
 
 ## Restaurant content
 
@@ -48,7 +48,7 @@ Use a **separate database whose name ends in `_test`**. The integration suite re
 ```sh
 node --env-file=.env.test --import tsx server/migrate.ts
 node --env-file=.env.test --import tsx server/seed.ts
-node --env-file=.env.test --import tsx --test tests/*.test.ts
+node --env-file=.env.test --import tsx --test --test-concurrency=1 tests/*.test.ts
 npm run build
 ```
 
@@ -58,11 +58,11 @@ Integration tests cover real PostgreSQL transactions, total tampering, modifier 
 
 - Money is integer kopecks. One loyalty point is one ruble; discounts apply before redemption; delivery does not earn points. Redemption is committed with order creation and refunded once on cancellation.
 - Order creation locks the customer (across sessions), then the cart. Reservation creation serializes the owner's idempotency key and locks the selected date to validate overlapping capacity.
-- Seating is a preference; V1 reserves capacity, never guarantees a named table.
+- V2 reserves a specific compatible table under a date lock; global capacity is also checked. Unverified floor plans are only selectable in demo mode.
 - Delivery zones use explicitly configured street names, validated on the server. This is a basic restaurant-managed zone list, not a geocoder or radius guarantee; staff should verify the full address before confirmation.
 - Hours apply daily; same-day fulfillment and bounded advance reservation horizon. Complex weekly schedules, blackouts and holidays need follow-up work before they are advertised.
 - Guest history is attached to the account on sign-in from the same session. Raw session tokens never enter the database.
-- QR V1 is menu browsing with table context; QR table ordering is V2.
+- Permanent QR links show the menu; staff opens a visit with a fresh six-digit code. Only joined guests can order, call staff and view the shared bill. Closing a visit revokes access.
 - Analytics retains only allowlisted event names/timestamps for 90 days. API responses and personal data are never offline-cached.
 
 ## Production operation
@@ -84,3 +84,19 @@ To inspect: `systemctl status food-sinchao`, `journalctl -u food-sinchao`, `ngin
 ## Visual theme
 
 `src/menu-theme.css` applies the owner's printed-menu style across the app: cream paper, olive accents, red prices and locally hosted Cyrillic Lobster headings. The new `public/images/theme/bamboo-paper.jpg` is an AI-generated decorative watercolour background, optimised to 299 KB. Actual food/entrance/logo images remain the original owner-supplied VK photographs. On screens <=360px menu cards switch to one column to keep long names readable; larger phones retain two columns.
+
+## V2 operation
+
+Customer discovery is at `/discover` (header “Открытия” and Food Journey shortcut).
+Staff tools: `/admin` → “V2 · Зал и гости”.
+
+1. Configure tables and download printable QR PNGs under “Столы и QR”. Confirm the real floor layout in “Правила V2”; the initial layout is explicitly an example.
+2. Guests select date/time/table and optionally attach the current basket to their reservation. Pre-order prices are snapshotted; staff checks availability and activates the pre-order when opening the reservation's visit on arrival.
+3. Open a visit, give guests its code. Their QR baskets create kitchen orders. Handle waiter/bill requests in the hall panel.
+4. Guest or staff prepares equal bill shares (one share = a single bill). New orders are locked until an unpaid split is reset. Confirm each actual payment. Complete paid kitchen orders, then close the visit. Gift credit also pays individual shares.
+5. Events are explicitly published by a manager, with controlled signup capacity. No invented events are seeded.
+6. Gift requests become usable only after staff confirms receipt. Partial redemptions are transactional and logged. The same request key cannot spend twice. Active/used certificates cannot simply be cancelled; refunds require an operator process.
+7. Favourites/preferences explain recommendations; unknown allergen lists are excluded when allergen exclusions are set. Food Journey/achievements use paid, completed orders. Regions come from restaurant dish data; unspecified regions use a general discovery route.
+8. Referral codes are accepted before the first completed order; invitee and inviter are rewarded once on the first qualifying completion. The reward and program switch are configurable.
+
+The existing demo flag remains enabled until real operational settings are approved. Card acquiring, automatic refunds and external push/SMS are not connected; payment confirmations are staff actions. Full V2 scope and verification notes: `docs/V2.md`.

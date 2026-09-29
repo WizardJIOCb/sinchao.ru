@@ -49,9 +49,14 @@ await transaction(async (db) => {
   );
   if (!(await db.query("SELECT token FROM qr_tables LIMIT 1")).rowCount)
     for (let i = 1; i <= 6; i++)
-      await db.query("INSERT INTO qr_tables(token,name) VALUES($1,$2)", [
-        randomBytes(24).toString("hex"),
-        `Стол ${i}`,
-      ]);
+      await db.query(
+        "INSERT INTO qr_tables(token,name,x,y) VALUES($1,$2,$3,$4)",
+        [
+          randomBytes(24).toString("hex"),
+          `Стол ${i}`,
+          10 + ((i - 1) % 3) * 30,
+          15 + Math.floor((i - 1) / 3) * 35,
+        ],
+      );
 });
 await pool.end();

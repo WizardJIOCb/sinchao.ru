@@ -122,6 +122,10 @@ async function signIn(req: Request, res: Response, userId: string) {
       [userId, req.session.id],
     );
     await db.query("DELETE FROM sessions WHERE id=$1", [req.session.id]);
+    await db.query(
+      "UPDATE dine_members SET user_id=$1 WHERE owner=$2 AND user_id IS NULL",
+      [userId, req.session.id],
+    );
   });
   cookie(res, token);
 }

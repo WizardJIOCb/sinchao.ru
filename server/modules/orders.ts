@@ -7,6 +7,7 @@ import { checkoutSchema } from "../validation";
 import { owner } from "./auth";
 import { priceCart, validateFulfillment } from "./pricing";
 import { payOnReceipt } from "./payments";
+import { checkBillUnlocked, rewardReferral } from "./v2-core";
 import {
   orderLabels,
   type CartItem,
@@ -24,6 +25,8 @@ export const orderView = (r: any) => ({
   status: r.status,
   paymentStatus: r.payment_status,
   createdAt: r.created_at,
+  visitId: r.visit_id,
+  giftPaid: r.gift_paid ?? 0,
 });
 export async function ownedOrder(
   db: DB,
@@ -166,6 +169,13 @@ ordersRouter.post("/:id/cancel", async (req, res) => {
   await transaction(async (db) => {
     await db.query("SELECT pg_advisory_xact_lock(hashtext($1))", [owner(req)]);
     const row = await ownedOrder(db, req, req.params.id, true);
+    await checkBillUnlocked(db, row.visit_id);
+    if (row.gift_paid)
+      fail(
+        409,
+        "REFUND_REQUIRED",
+        "Заказ частично оплачен сертификатом. Для отмены обратитесь в ресторан.",
+      );
     if (row.status === "CANCELLED") return;
     if (
       !["CREATED", "CONFIRMED"].includes(row.status) ||
@@ -250,6 +260,15 @@ export async function changeOrderStatus(
     await db.query("SELECT * FROM orders WHERE id=$1 FOR UPDATE", [id])
   ).rows[0];
   if (!row) fail(404, "NOT_FOUND", "Заказ не найден.");
+  if (status === "CANCELLED") {
+    await checkBillUnlocked(db, row.visit_id);
+    if (row.gift_paid)
+      fail(
+        409,
+        "REFUND_REQUIRED",
+        "Заказ оплачен сертификатом. Отмена требует возврата через ресторан.",
+      );
+  }
   if (!nextStates(row.status, row.data.fulfillment).includes(status))
     fail(409, "INVALID_TRANSITION", "Недопустимый переход статуса.");
   if (status === "CANCELLED" && row.payment_status === "PAID")
@@ -260,6 +279,10 @@ export async function changeOrderStatus(
       "PAYMENT_REQUIRED",
       "Подтвердите получение оплаты перед завершением.",
     );
+  if (status === "COMPLETED" && row.user_id)
+    await db.query("SELECT id FROM users WHERE id=$1 FOR UPDATE", [
+      row.user_id,
+    ]);
   await db.query("UPDATE orders SET status=$1 WHERE id=$2", [status, id]);
   if (status === "CANCELLED") await returnPoints(db, row);
   if (status === "COMPLETED" && row.user_id) {
@@ -274,6 +297,7 @@ export async function changeOrderStatus(
       "INSERT INTO loyalty_transactions(id,user_id,points,type,reference_id,description) VALUES($1,$2,$3,'EARN',$4,'Бонусы за завершённый заказ') ON CONFLICT DO NOTHING",
       [randomUUID(), row.user_id, points, id],
     );
+    if (row.data.total > 0) await rewardReferral(db, row.user_id, id);
   }
   await audit(
     db,
