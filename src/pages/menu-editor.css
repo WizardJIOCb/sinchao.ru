@@ -1,0 +1,330 @@
+.menu-editor .editor-fields {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.menu-editor section {
+  padding: 4px 0 24px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #d9c596;
+}
+.menu-editor h3 {
+  font-size: 20px;
+  margin: 0 0 18px;
+}
+.menu-editor .editor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.menu-editor label {
+  min-width: 0;
+  display: grid;
+  gap: 7px;
+  margin-bottom: 16px;
+}
+.menu-editor label small,
+.menu-editor .muted {
+  line-height: 1.6;
+}
+.menu-editor input,
+.menu-editor select,
+.menu-editor textarea {
+  min-width: 0;
+  max-width: 100%;
+}
+.menu-editor .editor-checks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+.menu-editor .editor-checks label {
+  display: block;
+  padding: 14px;
+  border: 1px solid #d9c596;
+  border-radius: 8px;
+}
+.menu-editor .editor-checks small {
+  display: block;
+  margin-top: 9px;
+}
+.menu-editor input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  vertical-align: middle;
+  accent-color: #475431;
+}
+.menu-editor .editor-photo-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+.editor-photo-preview {
+  width: 150px;
+  height: 150px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid #d9c596;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f7eacb;
+  padding: 8px;
+  text-align: center;
+}
+.editor-photo-preview > img,
+.editor-photo-preview > svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.editor-photo-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+  gap: 10px;
+  max-height: 350px;
+  overflow: auto;
+  padding: 4px;
+  margin-bottom: 20px;
+}
+.editor-photo-gallery button {
+  padding: 8px;
+  border: 1px solid #d9c596;
+  background: #fff5dd;
+  border-radius: 8px;
+  font-size: 12px;
+}
+.editor-photo-gallery img,
+.editor-photo-gallery svg {
+  width: 90px;
+  height: 75px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 8px;
+}
+.editor-photo-source {
+  display: block;
+  max-width: 100%;
+  max-height: 240px;
+  object-fit: contain;
+  margin: 16px auto;
+}
+.menu-editor details {
+  padding: 16px;
+  border: 1px solid #d9c596;
+  border-radius: 8px;
+}
+.menu-editor details[open] summary {
+  margin-bottom: 20px;
+}
+.menu-editor .modifier-editor {
+  padding: 16px;
+  border: 1px solid #d9c596;
+  border-radius: 8px;
+  margin: 20px 0;
+  min-width: 0;
+}
+.menu-editor .modifier-editor legend {
+  padding: 0 8px;
+}
+.modifier-option {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto auto;
+  gap: 14px;
+  align-items: start;
+  border-top: 1px solid #e4d5b3;
+  padding-top: 18px;
+  margin-top: 12px;
+}
+.menu-editor .editor-toggle {
+  display: flex;
+  align-items: center;
+  padding-top: 30px;
+}
+.modifier-option > button {
+  margin-top: 30px;
+}
+.menu-editor-actions {
+  position: sticky;
+  bottom: 0;
+  background: #faf0d6;
+  padding: 16px 0;
+  border-top: 1px solid #d9c596;
+  z-index: 2;
+}
+.menu-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 16px;
+  margin: 24px 0;
+}
+.menu-toolbar label {
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+}
+.menu-toolbar label:first-child {
+  flex: 1 1 280px;
+}
+.menu-toolbar input,
+.menu-toolbar select {
+  width: 100%;
+  padding: 12px;
+  min-height: 44px;
+  border: 1px solid #ccb27a;
+  border-radius: 6px;
+  background: #fff9e9;
+  color: inherit;
+  font: inherit;
+}
+.menu-toolbar > span {
+  padding: 12px 0;
+  font-size: 13px;
+}
+.admin-menu-table-wrap {
+  border: 1px solid #d9c596;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.admin-menu-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 14px;
+}
+.admin-menu-table th,
+.admin-menu-table td {
+  text-align: left;
+  padding: 18px 16px;
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid #dfcea6;
+}
+.admin-menu-table th {
+  font-weight: 600;
+  background: #eee0b9;
+}
+.admin-menu-table th:first-child {
+  width: 30%;
+}
+.admin-menu-table th:nth-child(2) {
+  width: 14%;
+}
+.admin-menu-table th:nth-child(3) {
+  width: 12%;
+}
+.admin-menu-table th:nth-child(4) {
+  width: 15%;
+}
+.admin-menu-table td small {
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
+  color: #7a663e;
+}
+.admin-menu-table tbody tr:nth-child(even) {
+  background: #fff6df77;
+}
+.admin-menu-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.admin-menu-table .menu-price {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.menu-row-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.menu-row-actions button {
+  padding: 11px 12px;
+  min-height: 44px;
+}
+.menu-availability {
+  display: inline-block;
+  font-size: 12px;
+  padding: 6px 8px;
+  border-radius: 5px;
+}
+.menu-availability.available {
+  color: #344823;
+  background: #e5e8c9;
+}
+.menu-availability.stopped {
+  color: #8e3027;
+  background: #f4d8c6;
+}
+@media (min-width: 701px) and (max-width: 1100px) {
+  .menu-row-actions {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 700px) {
+  .menu-editor .editor-grid,
+  .menu-editor .editor-checks {
+    grid-template-columns: 1fr;
+  }
+  .modifier-option {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 10px;
+  }
+  .modifier-option .editor-toggle,
+  .modifier-option > button {
+    margin: 0;
+    padding-top: 0;
+  }
+  .menu-editor .editor-photo-row {
+    align-items: start;
+    flex-direction: column;
+  }
+  .menu-editor-actions {
+    bottom: 0;
+  }
+  .menu-toolbar label {
+    width: 100%;
+  }
+  .admin-menu-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .admin-menu-table,
+  .admin-menu-table tbody,
+  .admin-menu-table tr,
+  .admin-menu-table td {
+    display: block;
+    width: 100%;
+  }
+  .admin-menu-table tr {
+    padding: 14px;
+    border-bottom: 1px solid #d9c596;
+  }
+  .admin-menu-table tr:last-child {
+    border-bottom: 0;
+  }
+  .admin-menu-table td {
+    padding: 8px 0;
+    border: 0;
+  }
+  .admin-menu-table td::before {
+    content: attr(data-label);
+    display: block;
+    color: #7a663e;
+    font-size: 11px;
+    margin-bottom: 5px;
+  }
+  .admin-menu-table td:first-child::before {
+    display: none;
+  }
+  .menu-row-actions button {
+    flex: 1;
+  }
+}

@@ -3,6 +3,7 @@ import { AdminMarketing } from "./AdminMarketing";
 import { AdminUsers } from "./AdminUsers";
 import { OperatorPanel } from "./OperatorPanel";
 import { Modal } from "../Modal";
+import { DishEditor, CategoriesEditor } from "./MenuEditor";
 import { useEffect, useState } from "react";
 import { api, money } from "../api";
 import {
@@ -45,10 +46,33 @@ export function Admin({
   const [tab, setTab] = useState("operator"),
     [data, setData] = useState<Dashboard | null>(null),
     [editing, setEditing] = useState<string | null>(null),
-    [json, setJson] = useState(""),
+    [menuSearch, setMenuSearch] = useState(""),
+    [menuCategory, setMenuCategory] = useState(""),
     [editorError, setEditorError] = useState(""),
     [busy, setBusy] = useState(false);
   const manager = user && ["ADMIN", "MANAGER"].includes(user.role);
+  const searchTerms = menuSearch
+    .toLocaleLowerCase("ru")
+    .replaceAll("ё", "е")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  const visibleDishes = menu.dishes.filter((d) => {
+    const haystack = [
+      d.name,
+      d.localizedName,
+      d.description,
+      ...d.ingredients,
+      menu.categories.find((c) => c.id === d.categoryId)?.name ?? "",
+    ]
+      .join(" ")
+      .toLocaleLowerCase("ru")
+      .replaceAll("ё", "е");
+    return (
+      (!menuCategory || d.categoryId === menuCategory) &&
+      searchTerms.every((term) => haystack.includes(term))
+    );
+  });
   useEffect(() => setEditorError(""), [editing]);
   async function load() {
     try {
@@ -335,79 +359,133 @@ export function Admin({
           {tab === "menu" && (
             <>
               <p className="muted">
-                Цены в редакторе хранятся в копейках. Изменения сохраняются в
-                журнале.
+                Цены указаны в рублях. Изменения сохраняются в журнале.
               </p>
               {manager && (
                 <div className="button-row">
-                  <button
-                    className="primary"
-                    onClick={() => {
-                      setEditing("new");
-                      setJson(
-                        JSON.stringify(
-                          {
-                            ...menu.dishes[0],
-                            id: "new-dish",
-                            name: "Новое блюдо",
-                            localizedName: "Новое блюдо",
-                            featured: false,
-                          },
-                          null,
-                          2,
-                        ),
-                      );
-                    }}
-                  >
+                  <button className="primary" onClick={() => setEditing("new")}>
                     Добавить блюдо
                   </button>
                   <button
                     className="secondary"
-                    onClick={() => {
-                      setEditing("categories");
-                      setJson(JSON.stringify(menu.categories, null, 2));
-                    }}
+                    onClick={() => setEditing("categories")}
                   >
                     Категории
                   </button>
                 </div>
               )}
-              <div className="admin-menu">
-                {menu.dishes.map((d) => (
-                  <div className="record-head" key={d.id}>
-                    <span>
-                      <b>{d.name}</b>
-                      <small>{d.localizedName}</small>
-                    </span>
-                    <span>{money(d.price)}</span>
-                    <span>{d.available ? "Доступно" : "Стоп-лист"}</span>
-                    {manager && (
-                      <>
-                        <button
-                          disabled={busy}
-                          className="secondary"
-                          onClick={() =>
-                            mutate("/dishes/" + d.id, "PUT", {
-                              ...d,
-                              available: !d.available,
-                            })
-                          }
-                        >
-                          {d.available ? "В стоп-лист" : "Вернуть"}
-                        </button>
-                        <button
-                          className="text-button"
-                          onClick={() => {
-                            setEditing(d.id);
-                            setJson(JSON.stringify(d, null, 2));
-                          }}
-                        >
-                          Редактировать
-                        </button>
-                      </>
-                    )}
-                  </div>
-                ))}
+              <div className="menu-toolbar">
+                <label>
+                  Поиск по меню
+                  <input
+                    type="search"
+                    placeholder="Название, описание или ингредиент"
+                    value={menuSearch}
+                    onChange={(e) => setMenuSearch(e.target.value)}
+                  />
+                </label>
+                <label>
+                  Категория меню
+                  <select
+                    value={menuCategory}
+                    onChange={(e) => setMenuCategory(e.target.value)}
+                  >
+                    <option value="">Все категории</option>
+                    {menu.categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <span role="status">
+                  Найдено: {visibleDishes.length} из {menu.dishes.length}
+                </span>
+                {(menuSearch || menuCategory) && (
+                  <button
+                    type="button"
+                    className="text-button"
+                    onClick={() => {
+                      setMenuSearch("");
+                      setMenuCategory("");
+                    }}
+                  >
+                    Сбросить поиск
+                  </button>
+                )}
+              </div>
+              <div className="admin-menu-table-wrap">
+                <table className="admin-menu-table">
+                  <caption className="sr-only">Позиции меню ресторана</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Блюдо</th>
+                      <th scope="col">Категория</th>
+                      <th scope="col">Цена</th>
+                      <th scope="col">Статус</th>
+                      {manager && <th scope="col">Действия</th>}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {visibleDishes.map((d) => (
+                      <tr key={d.id}>
+                        <td data-label="Блюдо">
+                          <b>{d.name}</b>
+                          <small>{d.localizedName}</small>
+                        </td>
+                        <td data-label="Категория">
+                          {menu.categories.find((c) => c.id === d.categoryId)
+                            ?.name ?? "—"}
+                        </td>
+                        <td data-label="Цена" className="menu-price">
+                          {money(d.price)}
+                        </td>
+                        <td data-label="Статус">
+                          <span
+                            className={`menu-availability ${d.available ? "available" : "stopped"}`}
+                          >
+                            {d.available ? "Доступно" : "Стоп-лист"}
+                          </span>
+                          {d.orderable === false && (
+                            <small>Только в ресторане</small>
+                          )}
+                        </td>
+                        {manager && (
+                          <td data-label="Действия">
+                            <div className="menu-row-actions">
+                              <button
+                                type="button"
+                                disabled={busy}
+                                className="secondary"
+                                onClick={() =>
+                                  mutate("/dishes/" + d.id, "PUT", {
+                                    ...d,
+                                    available: !d.available,
+                                  })
+                                }
+                              >
+                                {d.available ? "В стоп-лист" : "Вернуть"}
+                              </button>
+                              <button
+                                type="button"
+                                className="secondary"
+                                onClick={() => setEditing(d.id)}
+                              >
+                                Редактировать
+                              </button>
+                            </div>
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {!visibleDishes.length && (
+                  <p className="empty">
+                    Ничего не найдено. Попробуйте другое название или сбросьте
+                    фильтры.
+                  </p>
+                )}
               </div>
               {manager && editing && (
                 <Modal
@@ -421,59 +499,39 @@ export function Admin({
                   onClose={() => setEditing(null)}
                   wide
                 >
-                  <form
-                    className="standard-form admin-menu-editor"
-                    onSubmit={async (e) => {
-                      e.preventDefault();
-                      setEditorError("");
-                      try {
-                        const value = JSON.parse(json);
-                        const saved = await mutate(
-                          editing === "categories"
-                            ? "/categories"
-                            : "/dishes/" + value.id,
-                          "PUT",
-                          value,
-                        );
-                        if (saved) setEditing(null);
-                      } catch {
-                        setEditorError("Проверьте формат JSON.");
+                  {editing === "categories" ? (
+                    <CategoriesEditor
+                      initial={menu.categories}
+                      dishes={menu.dishes}
+                      busy={busy}
+                      error={editorError}
+                      close={() => setEditing(null)}
+                      save={async (rows) => {
+                        setEditorError("");
+                        if (await mutate("/categories", "PUT", rows))
+                          setEditing(null);
+                      }}
+                    />
+                  ) : (
+                    <DishEditor
+                      key={editing}
+                      initial={
+                        editing === "new"
+                          ? undefined
+                          : menu.dishes.find((d) => d.id === editing)
                       }
-                    }}
-                  >
-                    <p className="muted">
-                      Цены указываются в копейках. Изменения сохранятся после
-                      нажатия «Сохранить».
-                    </p>
-                    <label>
-                      Данные {editing === "categories" ? "категорий" : "блюда"}
-                      <textarea
-                        className="json-editor"
-                        value={json}
-                        onChange={(e) => setJson(e.target.value)}
-                        spellCheck={false}
-                        autoFocus
-                        data-initial-focus
-                      />
-                    </label>
-                    {editorError && (
-                      <p className="error" role="alert">
-                        {editorError}
-                      </p>
-                    )}
-                    <div className="button-row">
-                      <button disabled={busy} className="primary">
-                        Сохранить
-                      </button>
-                      <button
-                        className="text-button"
-                        type="button"
-                        onClick={() => setEditing(null)}
-                      >
-                        Закрыть редактор
-                      </button>
-                    </div>
-                  </form>
+                      categories={menu.categories}
+                      dishes={menu.dishes}
+                      busy={busy}
+                      error={editorError}
+                      close={() => setEditing(null)}
+                      save={async (dish) => {
+                        setEditorError("");
+                        if (await mutate("/dishes/" + dish.id, "PUT", dish))
+                          setEditing(null);
+                      }}
+                    />
+                  )}
                 </Modal>
               )}
             </>
