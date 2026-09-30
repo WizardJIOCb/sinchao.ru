@@ -6,6 +6,9 @@ import type {
   Promotion,
 } from "../../shared/marketing";
 import { api } from "../api";
+import { AchievementImageEditor } from "./AchievementImageEditor";
+import { AchievementArt } from "../DishAchievements";
+import { DishPicture } from "../DishPicture";
 
 const emptyPromo: Promotion = {
   code: "",
@@ -39,6 +42,7 @@ export function AdminMarketing({ menu }: { menu: Dish[] }) {
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [message, setMessage] = useState("");
+  const [imageBusy, setImageBusy] = useState(false);
   async function load() {
     setData(await api("/admin/marketing"));
   }
@@ -46,7 +50,7 @@ export function AdminMarketing({ menu }: { menu: Dish[] }) {
     void load().catch((e) => setError(e.message));
   }, []);
   async function save(path: string, body: unknown) {
-    if (busy) return;
+    if (busy || imageBusy) return;
     setBusy(true);
     setError("");
     setMessage("");
@@ -149,6 +153,19 @@ export function AdminMarketing({ menu }: { menu: Dish[] }) {
                   }
                 />
               </label>
+              <AchievementImageEditor
+                key={general.id}
+                image={general.image}
+                fallback={<AchievementArt id={general.id} />}
+                onChange={(image) =>
+                  setGeneral((current) =>
+                    current?.id === general.id
+                      ? { ...current, image }
+                      : current,
+                  )
+                }
+                onBusyChange={setImageBusy}
+              />
               <div className="marketing-levels">
                 {general.milestones.map((n, i) => (
                   <label key={i}>
@@ -181,7 +198,7 @@ export function AdminMarketing({ menu }: { menu: Dish[] }) {
                 />
                 Показывать достижение
               </label>
-              <button className="primary" disabled={busy}>
+              <button className="primary" disabled={busy || imageBusy}>
                 Сохранить общее достижение
               </button>
             </form>
@@ -439,6 +456,25 @@ export function AdminMarketing({ menu }: { menu: Dish[] }) {
                   onChange={(e) => setRule({ ...rule, name: e.target.value })}
                 />
               </label>
+              <AchievementImageEditor
+                key={rule.dishId}
+                image={rule.image}
+                fallback={
+                  menu.find((d) => d.id === rule.dishId) ? (
+                    <DishPicture
+                      dish={menu.find((d) => d.id === rule.dishId)!}
+                    />
+                  ) : null
+                }
+                onChange={(image) =>
+                  setRule((current) =>
+                    current?.dishId === rule.dishId
+                      ? { ...current, image }
+                      : current,
+                  )
+                }
+                onBusyChange={setImageBusy}
+              />
               <div className="marketing-levels">
                 {rule.milestones.map((n, i) => (
                   <label key={i}>
@@ -471,7 +507,7 @@ export function AdminMarketing({ menu }: { menu: Dish[] }) {
                 />
                 Показывать ачивку
               </label>
-              <button className="primary" disabled={busy}>
+              <button className="primary" disabled={busy || imageBusy}>
                 Сохранить ачивку
               </button>
             </form>

@@ -5,6 +5,10 @@ import { audit, dishes, fail } from "../lib";
 import { requireManager } from "./auth";
 import { dishAchievements } from "../dish-achievements";
 import { generalDefaults } from "../general-achievements";
+import {
+  achievementImageSchema,
+  validateAchievementImage,
+} from "../achievement-images";
 import type { GeneralAchievementRule } from "../../shared/marketing";
 export async function generalRules(db: DB): Promise<GeneralAchievementRule[]> {
   return (
@@ -71,6 +75,7 @@ const promoSchema = z
     "Окончание должно быть позже начала.",
   );
 const ruleSchema = z.object({
+  image: achievementImageSchema,
   dishId: z.string().max(80),
   name: z.string().trim().min(1).max(100),
   enabled: z.boolean(),
@@ -120,6 +125,7 @@ marketingRouter.put("/general-achievements/:id", async (req, res) => {
     .omit({ dishId: true })
     .extend({ id: z.string() })
     .parse(req.body);
+  await validateAchievementImage(input.image);
   if (
     input.id !== req.params.id ||
     !generalDefaults.some((d) => d.id === input.id)
@@ -187,6 +193,7 @@ marketingRouter.put("/promotions/:code", async (req, res) => {
 });
 marketingRouter.put("/achievements/:dishId", async (req, res) => {
   const rule = ruleSchema.parse(req.body);
+  await validateAchievementImage(rule.image);
   const defaults = dishAchievements(await dishes(pool), []);
   if (
     rule.dishId !== req.params.dishId ||

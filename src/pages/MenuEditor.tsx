@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { Category, Dish, ModifierGroup } from "../../shared/types";
 import { DishPicture } from "../DishPicture";
+import { ImageUpload } from "../ImageUpload";
 import { DishFeatures, DishFeatureIcon } from "../DishFeatures";
 import {
   dishFeatures,
@@ -144,6 +145,7 @@ export function DishEditor({
     height: number;
   } | null>(null);
   const [photoError, setPhotoError] = useState(false);
+  const [imageBusy, setImageBusy] = useState(false);
   const [gallery, setGallery] = useState(false);
   const change = (patch: Partial<Dish>) => setDish((d) => ({ ...d, ...patch }));
   const groupChange = (id: string, patch: Partial<ModifierGroup>) =>
@@ -162,6 +164,7 @@ export function DishEditor({
       className="standard-form menu-editor"
       onSubmit={async (e) => {
         e.preventDefault();
+        if (imageBusy) return;
         setValidation("");
         const value = {
           ...dish,
@@ -353,7 +356,7 @@ export function DishEditor({
             блюда отмечайте после проверки полного состава.
           </p>
           <div className="feature-choices">
-            <label>
+            <label className="feature-spicy">
               <input
                 type="checkbox"
                 checked={dish.spice > 0}
@@ -367,7 +370,7 @@ export function DishEditor({
               Острое
             </label>
             {dishFeatureIds.map((id) => (
-              <label key={id}>
+              <label key={id} className={`feature-${id}`}>
                 <input
                   type="checkbox"
                   checked={dish.features?.includes(id) ?? false}
@@ -406,8 +409,16 @@ export function DishEditor({
             </div>
             <div>
               <p>
-                Можно взять фотографию из существующего меню или указать ссылку
-                на новое изображение.
+                Загрузите фотографию с устройства, выберите её из меню или
+                укажите ссылку.
+              </p>
+              <ImageUpload
+                kind="dish"
+                onChange={(image) => changePhoto(image)}
+                onBusyChange={setImageBusy}
+              />
+              <p className="form-help">
+                Новая фотография появится на сайте после сохранения блюда.
               </p>
               <button
                 type="button"
@@ -768,7 +779,7 @@ export function DishEditor({
         </section>
       </fieldset>
       <EditorError message={validation || error} />
-      <Actions busy={busy} close={close} />
+      <Actions busy={busy || imageBusy} close={close} />
     </form>
   );
 }

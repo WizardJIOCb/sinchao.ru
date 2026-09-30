@@ -11,12 +11,14 @@ export type Promotion = {
   used?: number;
 };
 export type GeneralAchievementRule = {
+  image?: string | null;
   id: string;
   name: string;
   enabled: boolean;
   milestones: number[];
 };
 export type GeneralAchievement = {
+  image?: string | null;
   id: string;
   name: string;
   icon: string;
@@ -28,6 +30,7 @@ export type GeneralAchievement = {
   nextTarget: number | null;
 };
 export type AchievementRule = {
+  image?: string | null;
   dishId: string;
   name: string;
   enabled: boolean;

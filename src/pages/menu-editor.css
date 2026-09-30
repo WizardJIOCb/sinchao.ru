@@ -356,3 +356,13 @@
     flex: 1;
   }
 }
+
+.image-upload input[type="file"] {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  font: inherit;
+}
+.image-upload {
+  min-width: 0;
+}

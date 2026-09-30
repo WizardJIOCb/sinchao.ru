@@ -485,3 +485,154 @@ test("gifted achievement progress is private, additive and does not fabricate ac
     alice.id,
   ]);
 });
+
+test("image upload enforces roles, validates content and persists dish/general artwork", async () => {
+  const sharp = (await import("sharp")).default;
+  await pool.query("UPDATE users SET role='ADMIN' WHERE id=$1", [admin.id]);
+  await pool.query("UPDATE users SET role='CUSTOMER' WHERE id=$1", [alice.id]);
+  await pool.query("UPDATE users SET role='STAFF' WHERE id=$1", [bob.id]);
+  const source = await sharp({
+    create: { width: 900, height: 600, channels: 3, background: "#647744" },
+  })
+    .png()
+    .toBuffer();
+  const input = { base64: source.toString("base64"), kind: "achievement" };
+  assert.equal((await anon.call("/admin/images", "POST", input)).status, 403);
+  assert.equal((await alice.call("/admin/images", "POST", input)).status, 403);
+  assert.equal((await bob.call("/admin/images", "POST", input)).status, 403);
+  assert.equal(
+    (
+      await admin.call("/admin/images", "POST", {
+        base64: Buffer.from("<svg></svg>").toString("base64"),
+      })
+    ).status,
+    400,
+  );
+  assert.equal(
+    (
+      await admin.call("/admin/images", "POST", {
+        base64: Buffer.from("not an image").toString("base64"),
+      })
+    ).status,
+    400,
+  );
+  assert.equal(
+    (await admin.call("/admin/images", "POST", { base64: "A".repeat(210000) }))
+      .status,
+    413,
+  );
+  const uploaded = await admin.call("/admin/images", "POST", input);
+  assert.equal(uploaded.status, 201);
+  const image = uploaded.data.image;
+  assert.match(image, /^\/images\/uploads\/[a-f0-9]{64}\.webp$/);
+  assert.equal(
+    (await admin.call("/admin/images", "POST", input)).data.image,
+    image,
+  );
+  const response = await fetch(base.replace(/\/api$/, "") + image);
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type")!, /image\/webp/);
+  const meta = await sharp(
+    Buffer.from(await response.arrayBuffer()),
+  ).metadata();
+  assert.equal(meta.width, 512);
+  assert.equal(meta.height, 512);
+  assert.equal(
+    (await fetch(base.replace(/\/api$/, "") + "/images/uploads/missing.webp"))
+      .status,
+    404,
+  );
+  const rule = {
+    dishId: dish.id,
+    name: "Image test",
+    enabled: true,
+    milestones: [1, 3, 5, 10, 20],
+    image,
+  };
+  assert.equal(
+    (await admin.call("/admin/marketing/achievements/" + dish.id, "PUT", rule))
+      .status,
+    200,
+  );
+  assert.equal(
+    (await anon.call("/v2/discovery")).data.dishAchievements.find(
+      (a: any) => a.dish.id === dish.id,
+    ).image,
+    image,
+  );
+  const general = {
+    id: "tips",
+    name: "Tip image test",
+    enabled: true,
+    milestones: [1, 3, 5, 10, 20],
+    image,
+  };
+  assert.equal(
+    (
+      await admin.call(
+        "/admin/marketing/general-achievements/tips",
+        "PUT",
+        general,
+      )
+    ).status,
+    200,
+  );
+  assert.equal(
+    (await anon.call("/v2/discovery")).data.generalAchievements.find(
+      (a: any) => a.id === "tips",
+    ).image,
+    image,
+  );
+  assert.equal(
+    (
+      await admin.call("/admin/marketing/general-achievements/tips", "PUT", {
+        ...general,
+        image: "/images/uploads/" + "0".repeat(64) + ".webp",
+      })
+    ).status,
+    400,
+  );
+  assert.equal(
+    (
+      await admin.call("/admin/marketing/general-achievements/tips", "PUT", {
+        ...general,
+        image: "https://invalid.example/file.svg",
+      })
+    ).status,
+    400,
+  );
+  assert.equal(
+    (
+      await admin.call("/admin/marketing/general-achievements/tips", "PUT", {
+        ...general,
+        image: null,
+      })
+    ).status,
+    200,
+  );
+  assert.equal(
+    (await anon.call("/v2/discovery")).data.generalAchievements.find(
+      (a: any) => a.id === "tips",
+    ).image,
+    null,
+  );
+  const dishImage = (
+    await admin.call("/admin/images", "POST", { ...input, kind: "dish" })
+  ).data.image;
+  const bytes = Buffer.from(
+    await (await fetch(base.replace(/\/api$/, "") + dishImage)).arrayBuffer(),
+  );
+  const dishMeta = await sharp(bytes).metadata();
+  assert.equal(dishMeta.width, 900);
+  assert.equal(dishMeta.height, 600);
+  assert.equal(
+    (
+      await admin.call("/admin/dishes/" + dish.id, "PUT", {
+        ...dish,
+        image: dishImage,
+      })
+    ).status,
+    200,
+  );
+  assert.equal((await anon.call("/dishes/" + dish.id)).data.image, dishImage);
+});

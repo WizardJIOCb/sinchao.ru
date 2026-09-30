@@ -49,6 +49,7 @@ import {
 } from "../shared/reservation-time";
 import { Admin } from "./pages/Admin";
 import { DishPicture } from "./DishPicture";
+import { SourceMenuPromo, SourceMenuGallery } from "./SourceMenu";
 import { DishFeatures } from "./DishFeatures";
 import { ProfileAchievements } from "./DishAchievements";
 import { TipSelector } from "./Tips";
@@ -634,13 +635,8 @@ function App() {
                 />
               </label>
             </div>
+            <SourceMenuPromo open={() => setSourceMenuOpen(true)} />
             <div className="filter-line">
-              <button
-                className="text-button"
-                onClick={() => setSourceMenuOpen(true)}
-              >
-                Меню на фотографиях <ArrowRight size={16} />
-              </button>
               <span>Позиций: {filtered.length}</span>
             </div>
             <div className="dish-grid">
@@ -1002,13 +998,7 @@ function App() {
             Страницы меню, предоставленные рестораном. Нажмите на страницу,
             чтобы открыть её в полном размере.
           </p>
-          <div className="source-menu-gallery">
-            {[...new Set(menu.dishes.map((d) => d.image))].map((src, i) => (
-              <a key={src} href={src} target="_blank" rel="noreferrer">
-                <img src={src} alt={`Страница меню ${i + 1}`} loading="lazy" />
-              </a>
-            ))}
-          </div>
+          <SourceMenuGallery />
         </Modal>
       )}
       {dish && (

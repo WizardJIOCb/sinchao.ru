@@ -6,11 +6,20 @@ import { DishPicture } from "./DishPicture";
 import { isBeverage } from "../shared/beverages";
 import type { GeneralAchievement } from "../shared/marketing";
 
-export function AchievementArt({ id }: { id: string }) {
+export function AchievementArt({
+  id,
+  image,
+}: {
+  id: string;
+  image?: string | null;
+}) {
   return (
     <img
       className="achievement-art"
-      src={`/images/achievements/${id === "variety" ? "categories" : id}.webp`}
+      src={
+        image ||
+        `/images/achievements/${id === "variety" ? "categories" : id}.webp`
+      }
       alt=""
       width={128}
       height={128}
@@ -65,7 +74,7 @@ export function GeneralAchievementCollection({
             className={`dish-badge general-badge ${a.level ? "unlocked" : "locked"}`}
           >
             <div className="dish-badge-top">
-              <AchievementArt id={a.id} />
+              <AchievementArt id={a.id} image={a.image} />
               <span className="dish-badge-level">
                 {a.level ? `Уровень ${a.level} / 5` : "Не открыта"}
               </span>
@@ -158,7 +167,17 @@ function TasteCollection({
           >
             <div className="dish-badge-top">
               <div className="dish-badge-picture">
-                <DishPicture dish={a.dish} />
+                {a.image ? (
+                  <img
+                    src={a.image}
+                    alt=""
+                    loading="lazy"
+                    width={128}
+                    height={128}
+                  />
+                ) : (
+                  <DishPicture dish={a.dish} />
+                )}
               </div>
               <span className="dish-badge-level">
                 {a.level ? `Уровень ${a.level} / 5` : "Не открыта"}
@@ -174,7 +193,7 @@ function TasteCollection({
             <div className="dish-badge-rank">{a.rank}</div>
             {a.awardedProgress > 0 && (
               <p className="form-help">
-                Подарено рестораном: {a.awardedProgress} шагов
+                Подарочные шаги от ресторана: {a.awardedProgress}
               </p>
             )}
             {a.dish.orderable === false && (

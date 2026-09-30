@@ -17,6 +17,7 @@ import { eventsRouter, adminEventsRouter } from "./modules/events";
 import { giftsRouter, adminGiftsRouter } from "./modules/gifts";
 import { marketingRouter } from "./modules/marketing";
 import { staffAdminRouter } from "./modules/staff-admin";
+import { serveAchievementImage } from "./achievement-images";
 export const app = express();
 app.set("trust proxy", "loopback");
 app.disable("x-powered-by");
@@ -242,16 +243,21 @@ app.use("/api", (_req, res) =>
     error: { code: "NOT_FOUND", message: "Маршрут не найден." },
   }),
 );
-app.use(express.static(resolve("dist/public"), {
-  maxAge: "1h",
-  index: false,
-  setHeaders(res, path) {
-    // Revalidate PWA metadata and its fallback on every release.
-    if (/[/\\](sw\.js|manifest\.webmanifest|offline\.(html|css|js))$/.test(path)) {
-      res.setHeader("Cache-Control", "no-cache");
-    }
-  },
-}));
+app.get("/images/uploads/:file", serveAchievementImage);
+app.use(
+  express.static(resolve("dist/public"), {
+    maxAge: "1h",
+    index: false,
+    setHeaders(res, path) {
+      // Revalidate PWA metadata and its fallback on every release.
+      if (
+        /[/\\](sw\.js|manifest\.webmanifest|offline\.(html|css|js))$/.test(path)
+      ) {
+        res.setHeader("Cache-Control", "no-cache");
+      }
+    },
+  }),
+);
 app.get("/{*path}", (_req, res) =>
   res.sendFile(resolve("dist/public/index.html")),
 );
@@ -276,6 +282,19 @@ app.use(
       res
         .status(err.status)
         .json({ data: null, error: { code: err.code, message: err.message } });
+      return;
+    }
+    if (err.type === "entity.too.large") {
+      res
+        .status(413)
+        .json({
+          data: null,
+          error: {
+            code: "BODY_SIZE",
+            message:
+              "Файл слишком большой. Выберите изображение меньшего размера.",
+          },
+        });
       return;
     }
     if (err.type === "entity.parse.failed") {

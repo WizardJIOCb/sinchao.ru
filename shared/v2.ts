@@ -71,6 +71,7 @@ export type Preferences = {
   avoidAllergens: string[];
 };
 export type DishAchievement = {
+  image?: string | null;
   dish: Dish;
   name: string;
   orders: number;

@@ -11,10 +11,10 @@
   align-items: center;
   gap: 5px;
   padding: 5px 7px;
-  border: 1px solid #d9c596;
+  border: 1px solid var(--feature-border, #d9c596);
   border-radius: 6px;
-  color: #5d593d;
-  background: #fff6df;
+  color: var(--feature-text, #5d593d);
+  background: var(--feature-bg, #fff6df);
   font-size: 11px;
   line-height: 1.3;
 }
@@ -23,16 +23,65 @@
   width: 16px;
   height: 16px;
 }
-.dish-features .feature-spicy {
-  color: #a63829;
-  background: #fbe7d4;
-  border-color: #dfb196;
+.feature-spicy {
+  --feature-text: #9a3029;
+  --feature-bg: #fbe1d9;
+  --feature-border: #dba599;
 }
-.dish-features .feature-vegetarian,
-.dish-features .feature-vegan {
-  color: #445f30;
-  background: #e9edd1;
-  border-color: #bbc99c;
+.feature-vegetarian {
+  --feature-text: #416030;
+  --feature-bg: #e9efd5;
+  --feature-border: #aebb8c;
+}
+.feature-vegan {
+  --feature-text: #275c41;
+  --feature-bg: #dfefdd;
+  --feature-border: #a0c4a1;
+}
+.feature-chicken {
+  --feature-text: #805018;
+  --feature-bg: #fae8c5;
+  --feature-border: #d8b476;
+}
+.feature-beef {
+  --feature-text: #873b41;
+  --feature-bg: #f1dce0;
+  --feature-border: #cda0a6;
+}
+.feature-pork {
+  --feature-text: #874659;
+  --feature-bg: #f7e1e7;
+  --feature-border: #d8adba;
+}
+.feature-fish {
+  --feature-text: #2d5879;
+  --feature-bg: #e0edf5;
+  --feature-border: #a3bfd2;
+}
+.feature-seafood {
+  --feature-text: #246357;
+  --feature-bg: #deeee5;
+  --feature-border: #9fc8b7;
+}
+.feature-mushrooms {
+  --feature-text: #695039;
+  --feature-bg: #ede2d2;
+  --feature-border: #c5b296;
+}
+.feature-egg {
+  --feature-text: #795b18;
+  --feature-bg: #f6edbf;
+  --feature-border: #d0bd76;
+}
+.feature-milk {
+  --feature-text: #525b7b;
+  --feature-bg: #e9e9f4;
+  --feature-border: #b7bad3;
+}
+.feature-nuts {
+  --feature-text: #854a26;
+  --feature-bg: #f2e1cd;
+  --feature-border: #cfaa85;
 }
 .menu-editor .feature-choices {
   display: grid;
@@ -49,6 +98,7 @@
   margin: 0;
   font-size: 13px;
   cursor: pointer;
+  border-left: 3px solid var(--feature-border, #d9c596);
 }
 .menu-editor .feature-choices input {
   margin: 0;
@@ -58,8 +108,9 @@
   flex-shrink: 0;
 }
 .menu-editor .feature-choices label:has(input:checked) {
-  background: #e9edd1;
-  border-color: #8c9d62;
+  background: var(--feature-bg, #e9edd1);
+  border-color: var(--feature-border, #8c9d62);
+  color: var(--feature-text, #445f30);
 }
 @media (max-width: 700px) {
   .menu-editor .feature-choices {

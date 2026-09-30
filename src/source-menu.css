@@ -1,0 +1,120 @@
+.source-menu-promo {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 24px;
+  text-align: left;
+  padding: 18px 24px;
+  margin: 22px 0 10px;
+  border: 1px solid #9d9159;
+  border-radius: 10px;
+  background: linear-gradient(110deg, #e4e8ca, #faf0d6);
+  box-shadow: 0 5px 16px #51442212;
+  color: #354326;
+}
+.source-menu-promo:hover {
+  border-color: #4d5c34;
+  box-shadow: 0 7px 20px #51442225;
+}
+.source-menu-promo:focus-visible {
+  outline: 3px solid #b63329;
+  outline-offset: 3px;
+}
+.source-menu-previews {
+  display: flex;
+  flex: 0 0 115px;
+  align-items: center;
+  padding: 4px;
+}
+.source-menu-previews .source-page-window {
+  width: 65px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  box-shadow: 0 3px 9px #51442240;
+  transform: rotate(-8deg);
+}
+.source-menu-previews .source-page-window + .source-page-window {
+  margin-left: -22px;
+  transform: rotate(8deg);
+}
+.source-menu-promo-copy {
+  display: grid;
+  gap: 7px;
+}
+.source-menu-promo-copy .eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.source-menu-promo-copy strong {
+  font: 28px var(--display);
+}
+.source-menu-promo-copy > span:last-child {
+  font-size: 13px;
+  line-height: 1.5;
+}
+.source-menu-promo-action {
+  margin-left: auto;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.source-page-window {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+.source-page-window img {
+  position: absolute;
+  max-width: none;
+  display: block;
+}
+.source-menu-gallery > button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  align-self: start;
+  cursor: zoom-in;
+}
+.source-menu-full {
+  padding: 20px;
+}
+.source-menu-full > .button-row {
+  margin: 0 0 18px;
+  align-items: center;
+}
+.source-menu-full > .source-page-navigation {
+  margin: 18px 0 0;
+  justify-content: space-between;
+}
+@media (max-width: 650px) {
+  .source-menu-promo {
+    gap: 14px;
+    padding: 16px;
+    flex-wrap: wrap;
+  }
+  .source-menu-previews {
+    flex-basis: 76px;
+  }
+  .source-menu-previews .source-page-window {
+    width: 48px;
+  }
+  .source-menu-promo-copy {
+    flex: 1;
+    min-width: 160px;
+  }
+  .source-menu-promo-copy strong {
+    font-size: 24px;
+  }
+  .source-menu-promo-action {
+    margin: 0;
+    width: 100%;
+    padding-top: 12px;
+    border-top: 1px solid #abb28560;
+    justify-content: center;
+  }
+}

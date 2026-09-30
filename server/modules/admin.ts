@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { uploadAchievementImage } from "../achievement-images";
 import { z } from "zod";
 import { pool, transaction } from "../db";
 import { audit, config, fail, notify } from "../lib";
@@ -73,6 +74,7 @@ const settings = z
   );
 export const adminRouter = Router();
 adminRouter.use(requireStaff);
+adminRouter.post("/images", requireManager, uploadAchievementImage);
 adminRouter.get("/dashboard", async (_req, res) => {
   const [orders, reservations, logs, tables] = await Promise.all([
     pool.query("SELECT * FROM orders ORDER BY created_at DESC LIMIT 150"),

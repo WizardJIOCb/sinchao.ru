@@ -49,6 +49,7 @@ export function generalAchievements(
     return [
       {
         ...d,
+        image: rule?.image ?? null,
         name: rule?.name ?? d.name,
         milestones,
         progress,

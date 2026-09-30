@@ -96,6 +96,7 @@ export function dishAchievements(
       const level = milestones.filter((target) => orders >= target).length;
       return {
         dish,
+        image: rule?.image ?? null,
         name:
           rule?.name ??
           names[dish.id] ??
