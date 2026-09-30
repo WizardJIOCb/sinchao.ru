@@ -10,6 +10,7 @@ import { promisify } from "node:util";
 import { z } from "zod";
 import { pool, transaction } from "../db";
 import { fail, hash } from "../lib";
+import { grantRegistrationPromotion } from "../registration-promotions";
 import type { CartItem, User } from "../../shared/types";
 const scrypt = promisify(scryptCallback);
 export type Session = { id: string; user: User | null; cart: CartItem[] };
@@ -145,22 +146,28 @@ authRouter.post("/register", async (req, res) => {
     .extend({
       name: z.string().trim().min(2).max(100),
       phone: z.string().max(30).default(""),
+      registrationSource: z.enum(["web", "mobile_app"]).default("web"),
     })
     .parse(req.body);
   const id = randomUUID();
   const pw = await passwordHash(input.password);
+  let registrationPromotions: string[] = [];
   try {
-    await pool.query(
-      "INSERT INTO users(id,email,password_hash,name,phone) VALUES($1,$2,$3,$4,$5)",
-      [id, input.email, pw, input.name, input.phone],
-    );
+    await transaction(async (db) => {
+      await db.query(
+        "INSERT INTO users(id,email,password_hash,name,phone) VALUES($1,$2,$3,$4,$5)",
+        [id, input.email, pw, input.name, input.phone],
+      );
+      if (input.registrationSource === "mobile_app")
+        registrationPromotions = await grantRegistrationPromotion(db, id);
+    });
   } catch (e: any) {
     if (e.code === "23505")
       fail(409, "EMAIL_EXISTS", "Этот email уже зарегистрирован.");
     throw e;
   }
   await signIn(req, res, id);
-  res.status(201).json({ data: { id }, error: null });
+  res.status(201).json({ data: { id, registrationPromotions }, error: null });
 });
 authRouter.post("/login", async (req, res) => {
   const input = credentials.parse(req.body);

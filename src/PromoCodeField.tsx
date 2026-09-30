@@ -2,6 +2,7 @@ import { useId, useState } from "react";
 import { Check, Tag } from "lucide-react";
 import { money } from "./api";
 import "./promo-code.css";
+import { MyPromotions } from "./MyPromotions";
 
 export function PromoCodeField({
   code,
@@ -11,6 +12,7 @@ export function PromoCodeField({
   discount,
   error,
   onApply,
+  userId,
 }: {
   code: string;
   pending: boolean;
@@ -19,6 +21,7 @@ export function PromoCodeField({
   discount: number;
   error: string;
   onApply: (code: string) => void;
+  userId?: string;
 }) {
   const id = useId();
   const [draft, setDraft] = useState(code);
@@ -29,6 +32,14 @@ export function PromoCodeField({
   }
   return (
     <div className="promo-code">
+      <MyPromotions
+        userId={userId}
+        disabled={disabled || pending}
+        onChoose={(value) => {
+          setDraft(value);
+          onApply(value);
+        }}
+      />
       <label htmlFor={id}>Промокод</label>
       <div className="promo-code-controls">
         <input

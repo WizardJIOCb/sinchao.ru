@@ -50,6 +50,8 @@ import {
 import { Admin } from "./pages/Admin";
 import { DishPicture } from "./DishPicture";
 import { PromoCodeField } from "./PromoCodeField";
+import { MyPromotions } from "./MyPromotions";
+import { registrationSource } from "../shared/app-registration";
 import { ShareMenuSearch } from "./ShareMenuSearch";
 import {
   readMenuFilters,
@@ -1145,10 +1147,14 @@ function App() {
       {authOpen && (
         <AuthModal
           close={() => setAuthOpen(false)}
-          done={async () => {
+          done={async (codes) => {
             await refresh();
             setAuthOpen(false);
-            say("Добро пожаловать!");
+            say(
+              codes?.length
+                ? `Добро пожаловать! Ваш подарок — промокод ${codes.join(", ")}. Он сохранён в профиле и доступен в корзине.`
+                : "Добро пожаловать!",
+            );
           }}
         />
       )}
@@ -1559,6 +1565,7 @@ function CartModal({
     <Modal title="Ваша корзина" onClose={close} wide>
       {visit ? (
         <DineCart
+          userId={user?.id}
           visit={visit}
           cart={cart}
           menu={menu.dishes}
@@ -1786,6 +1793,7 @@ function CartModal({
           <aside className="checkout-summary">
             <h3>Ваш заказ</h3>
             <PromoCodeField
+              userId={user?.id}
               code={promo}
               pending={quoteLoading}
               disabled={busy}
@@ -2213,7 +2221,7 @@ function AuthModal({
   done,
 }: {
   close: () => void;
-  done: () => Promise<void>;
+  done: (codes?: string[]) => Promise<void>;
 }) {
   const [register, setRegister] = useState(false),
     [error, setError] = useState(""),
@@ -2231,12 +2239,28 @@ function AuthModal({
           setError("");
           const f = new FormData(e.currentTarget);
           try {
-            await api(
+            const result = await api<{ registrationPromotions?: string[] }>(
               "/auth/" + (register ? "register" : "login"),
               "POST",
-              Object.fromEntries(f),
+              {
+                ...Object.fromEntries(f),
+                ...(register
+                  ? {
+                      registrationSource: registrationSource(
+                        window.matchMedia("(display-mode: standalone)")
+                          .matches ||
+                          window.matchMedia("(display-mode: fullscreen)")
+                            .matches ||
+                          !!(navigator as Navigator & { standalone?: boolean })
+                            .standalone,
+                        navigator.userAgent,
+                        navigator.maxTouchPoints,
+                      ),
+                    }
+                  : {}),
+              },
             );
-            await done();
+            await done(result.registrationPromotions);
           } catch (e: any) {
             setError(e.message);
           } finally {
@@ -2345,6 +2369,7 @@ function Profile({
       ) : (
         <div className="profile-grid">
           <div>
+            <MyPromotions userId={user.id} />
             <div className="points-card">
               <span>
                 <Sparkles size={20} /> ВАШИ БОНУСЫ

@@ -427,6 +427,7 @@ export function DinePanel({
   );
 }
 export function DineCart({
+  userId,
   visit,
   cart,
   menu,
@@ -434,6 +435,7 @@ export function DineCart({
   refresh,
   done,
 }: {
+  userId?: string;
   visit: Visit;
   cart: CartItem[];
   menu: Dish[];
@@ -509,6 +511,7 @@ export function DineCart({
         <p>Выберите блюда в меню.</p>
       )}
       <PromoCodeField
+        userId={userId}
         code={promo}
         pending={quoteLoading}
         disabled={busy || !cart.length}

@@ -86,7 +86,10 @@ export function priceCart(
           "PROMO_DISH",
           "Добавьте в корзину блюдо, на которое действует промокод.",
         );
-      discount = Math.floor((eligible * promotion.percent) / 100);
+      discount =
+        promotion.kind === "fixed"
+          ? Math.min(eligible, promotion.amount ?? 0)
+          : Math.floor((eligible * promotion.percent) / 100);
     } else {
       if (
         !cfg.promo.enabled ||

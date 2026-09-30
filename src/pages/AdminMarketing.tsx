@@ -5,7 +5,7 @@ import type {
   GeneralAchievementRule,
   Promotion,
 } from "../../shared/marketing";
-import { api } from "../api";
+import { api, money } from "../api";
 import { AchievementImageEditor } from "./AchievementImageEditor";
 import { AchievementArt } from "../DishAchievements";
 import { DishPicture } from "../DishPicture";
@@ -14,6 +14,9 @@ const emptyPromo: Promotion = {
   code: "",
   title: "",
   percent: 0,
+  kind: "percent",
+  amount: 0,
+  registrationGift: false,
   dishIds: [],
   enabled: false,
   startsAt: null,
@@ -234,8 +237,13 @@ export function AdminMarketing({ menu }: { menu: Dish[] }) {
               <option value="">Выберите…</option>
               {data.promotions.map((p) => (
                 <option key={p.code} value={p.code}>
-                  {p.code} · {p.enabled ? `${p.percent}%` : "выключен"} ·
-                  использован {p.used ?? 0}
+                  {p.code} ·{" "}
+                  {p.enabled
+                    ? p.kind === "fixed"
+                      ? money(p.amount ?? 0)
+                      : `${p.percent}%`
+                    : "выключен"}{" "}
+                  · использован {p.used ?? 0}
                 </option>
               ))}
             </select>
@@ -303,15 +311,42 @@ export function AdminMarketing({ menu }: { menu: Dish[] }) {
               </div>
               <div className="form-two">
                 <label>
-                  Скидка, %
+                  Тип скидки
+                  <select
+                    value={promo.kind ?? "percent"}
+                    onChange={(e) =>
+                      setPromo({
+                        ...promo,
+                        kind: e.target.value as "percent" | "fixed",
+                      })
+                    }
+                  >
+                    <option value="percent">Процент от стоимости блюд</option>
+                    <option value="fixed">Сумма в рублях</option>
+                  </select>
+                </label>
+                <label>
+                  {promo.kind === "fixed" ? "Скидка, ₽" : "Скидка, %"}
                   <input
                     type="number"
                     min={0}
-                    max={100}
+                    max={promo.kind === "fixed" ? 1000000 : 100}
+                    step={promo.kind === "fixed" ? "0.01" : "1"}
                     required
-                    value={promo.percent}
+                    value={
+                      promo.kind === "fixed"
+                        ? (promo.amount ?? 0) / 100
+                        : promo.percent
+                    }
                     onChange={(e) =>
-                      setPromo({ ...promo, percent: Number(e.target.value) })
+                      setPromo(
+                        promo.kind === "fixed"
+                          ? {
+                              ...promo,
+                              amount: Math.round(Number(e.target.value) * 100),
+                            }
+                          : { ...promo, percent: Number(e.target.value) },
+                      )
                     }
                   />
                 </label>
@@ -332,6 +367,24 @@ export function AdminMarketing({ menu }: { menu: Dish[] }) {
                   />
                 </label>
               </div>
+              <label className="check-label">
+                <input
+                  type="checkbox"
+                  checked={!!promo.registrationGift}
+                  onChange={(e) =>
+                    setPromo({ ...promo, registrationGift: e.target.checked })
+                  }
+                />
+                Выдавать при регистрации в мобильном приложении
+              </label>
+              <p className="form-help">
+                Выдаётся новым аккаунтам при регистрации из установленного
+                приложения на телефоне. Один раз на аккаунт. Можно выбрать один
+                приветственный промокод. Снятие галочки прекращает новую выдачу;
+                уже выданные коды остаются персональными. Изменение суммы
+                действует и на неиспользованные подарки. Скидка не превышает
+                стоимость подходящих блюд.
+              </p>
               <label>
                 Лимит использований (пусто — без лимита)
                 <input

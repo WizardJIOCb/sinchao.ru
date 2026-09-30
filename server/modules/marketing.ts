@@ -26,6 +26,7 @@ export async function resolvePromotion(
   db: DB,
   code: string,
   lock = false,
+  userId?: string,
 ): Promise<Promotion | undefined> {
   if (!code.trim()) return;
   const row = (
@@ -36,6 +37,26 @@ export async function resolvePromotion(
   ).rows[0];
   if (!row) return; // Preserve the existing restaurant-wide legacy code.
   const p: Promotion = { ...row.data, used: row.used };
+  if (p.requiresGrant || p.registrationGift) {
+    if (!userId)
+      fail(
+        400,
+        "PROMO_PERSONAL",
+        "Войдите в аккаунт, которому выдан промокод.",
+      );
+    const grant = (
+      await db.query(
+        `SELECT used_order_id FROM promotion_grants WHERE user_id=$1 AND code=$2 ${lock ? "FOR UPDATE" : ""}`,
+        [userId, p.code],
+      )
+    ).rows[0];
+    if (!grant || grant.used_order_id)
+      fail(
+        400,
+        "PROMO_PERSONAL",
+        "Промокод не выдан этому аккаунту или уже использован.",
+      );
+  }
   const now = Date.now();
   if (
     !p.enabled ||
@@ -59,6 +80,9 @@ const promoSchema = z
       .regex(/^[A-ZА-ЯЁ0-9_-]{2,30}$/u),
     title: z.string().trim().min(1).max(100),
     percent: z.number().int().min(0).max(100),
+    kind: z.enum(["percent", "fixed"]).default("percent"),
+    amount: z.number().int().min(0).max(100000000).default(0),
+    registrationGift: z.boolean().default(false),
     dishIds: z.array(z.string().max(80)).max(100),
     enabled: z.boolean(),
     startsAt: z.iso.datetime().nullable(),
@@ -67,7 +91,7 @@ const promoSchema = z
     minSubtotal: z.number().int().min(0).max(100000000),
   })
   .refine(
-    (p) => !p.enabled || p.percent > 0,
+    (p) => !p.enabled || (p.kind === "fixed" ? p.amount > 0 : p.percent > 0),
     "Укажите скидку перед включением промокода.",
   )
   .refine(
@@ -168,6 +192,9 @@ marketingRouter.put("/promotions/:code", async (req, res) => {
     fail(400, "PROMO_DISH", "Выберите доступные для заказа блюда.");
   await transaction(async (db) => {
     await db.query("SELECT pg_advisory_xact_lock(hashtext($1))", [
+      "registration-promo-settings",
+    ]);
+    await db.query("SELECT pg_advisory_xact_lock(hashtext($1))", [
       "promo:" + p.code,
     ]);
     const before = (
@@ -176,9 +203,30 @@ marketingRouter.put("/promotions/:code", async (req, res) => {
         [p.code],
       )
     ).rows[0];
+    if (
+      p.registrationGift &&
+      (
+        await db.query(
+          "SELECT code FROM promotions WHERE code<>$1 AND data->>'registrationGift'='true'",
+          [p.code],
+        )
+      ).rowCount
+    )
+      fail(
+        400,
+        "REGISTRATION_PROMO_EXISTS",
+        "Промокод за регистрацию уже выбран. Сначала снимите галочку у него.",
+      );
+    const saved = {
+      ...p,
+      requiresGrant:
+        !!before?.data.requiresGrant ||
+        !!before?.data.registrationGift ||
+        p.registrationGift,
+    };
     await db.query(
       "INSERT INTO promotions(code,data) VALUES($1,$2) ON CONFLICT(code) DO UPDATE SET data=$2",
-      [p.code, JSON.stringify(p)],
+      [p.code, JSON.stringify(saved)],
     );
     await audit(
       db,
@@ -186,7 +234,7 @@ marketingRouter.put("/promotions/:code", async (req, res) => {
       "PROMOTION_UPDATE",
       p.code,
       before ?? null,
-      p,
+      saved,
     );
   });
   res.json({ data: p, error: null });

@@ -23,7 +23,7 @@ cartRouter.post("/quote", async (req, res) => {
       input,
       await balance(pool, req.session.user?.id),
       true,
-      await resolvePromotion(pool, input.promo),
+      await resolvePromotion(pool, input.promo, false, req.session.user?.id),
     ),
     error: null,
   });

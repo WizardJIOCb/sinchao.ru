@@ -2,6 +2,10 @@ export type Promotion = {
   code: string;
   title: string;
   percent: number;
+  kind?: "percent" | "fixed";
+  amount?: number;
+  registrationGift?: boolean;
+  requiresGrant?: boolean;
   dishIds: string[];
   enabled: boolean;
   startsAt: string | null;
@@ -9,6 +13,10 @@ export type Promotion = {
   limit: number | null;
   minSubtotal: number;
   used?: number;
+};
+export type GrantedPromotion = Promotion & {
+  usedByUser: boolean;
+  available: boolean;
 };
 export type GeneralAchievementRule = {
   image?: string | null;

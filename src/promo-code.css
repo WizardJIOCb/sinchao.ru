@@ -49,3 +49,19 @@
   margin-top: 8px;
   min-height: 36px;
 }
+.my-promotions {
+  padding: 18px;
+  margin-bottom: 20px;
+  border: 1px solid #abb17d;
+  border-radius: 9px;
+  background: #edf0db;
+}
+.my-promotions h3 {
+  margin: 0 0 12px;
+}
+.my-promo p {
+  margin: 8px 0;
+}
+.my-promotions > p:empty {
+  display: none;
+}

@@ -18,6 +18,7 @@ import { giftsRouter, adminGiftsRouter } from "./modules/gifts";
 import { marketingRouter } from "./modules/marketing";
 import { staffAdminRouter } from "./modules/staff-admin";
 import { serveAchievementImage } from "./achievement-images";
+import { grantedPromotions } from "./registration-promotions";
 export const app = express();
 app.set("trust proxy", "loopback");
 app.disable("x-powered-by");
@@ -113,6 +114,14 @@ app.patch("/api/me", requireUser, async (req, res) => {
     req.session.user!.id,
   ]);
   res.json({ data: { ...req.session.user, ...input }, error: null });
+});
+app.get("/api/me/promotions", async (req, res) => {
+  res.json({
+    data: req.session.user
+      ? await grantedPromotions(pool, req.session.user.id)
+      : [],
+    error: null,
+  });
 });
 app.get("/api/menu", async (_req, res) => {
   const cfg = await config(pool);
@@ -285,16 +294,14 @@ app.use(
       return;
     }
     if (err.type === "entity.too.large") {
-      res
-        .status(413)
-        .json({
-          data: null,
-          error: {
-            code: "BODY_SIZE",
-            message:
-              "Файл слишком большой. Выберите изображение меньшего размера.",
-          },
-        });
+      res.status(413).json({
+        data: null,
+        error: {
+          code: "BODY_SIZE",
+          message:
+            "Файл слишком большой. Выберите изображение меньшего размера.",
+        },
+      });
       return;
     }
     if (err.type === "entity.parse.failed") {

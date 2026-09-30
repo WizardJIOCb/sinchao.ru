@@ -8,6 +8,7 @@ import { owner, requireStaff } from "./auth";
 import { idempotency, orderView } from "./orders";
 import { priceCart } from "./pricing";
 import { resolvePromotion } from "./marketing";
+import { consumePromotion } from "../registration-promotions";
 import {
   minuteTime,
   reservationWhen,
@@ -186,7 +187,12 @@ dineRouter.post("/visits/:id/orders", async (req, res) => {
         req.session.id,
       ])
     ).rows[0];
-    const promotion = await resolvePromotion(db, promo, true);
+    const promotion = await resolvePromotion(
+      db,
+      promo,
+      true,
+      req.session.user?.id,
+    );
     const quote = priceCart(
       s.cart,
       await dishes(db),
@@ -231,9 +237,7 @@ dineRouter.post("/visits/:id/orders", async (req, res) => {
       )
     ).rows[0];
     if (promotion)
-      await db.query("UPDATE promotions SET used=used+1 WHERE code=$1", [
-        promotion.code,
-      ]);
+      await consumePromotion(db, promotion, req.session.user?.id, saved.id);
     await db.query("UPDATE sessions SET cart='[]' WHERE id=$1", [
       req.session.id,
     ]);
