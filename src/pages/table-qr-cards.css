@@ -1,0 +1,242 @@
+.table-qr-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 28px 0 18px;
+}
+.table-qr-toolbar h2 {
+  margin: 0 0 10px;
+}
+.table-qr-toolbar p {
+  max-width: 740px;
+  line-height: 1.65;
+  margin: 0 0 10px;
+}
+.table-qr-toolbar small {
+  display: block;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.table-qr-toolbar > button {
+  flex-shrink: 0;
+  max-width: 260px;
+}
+.table-qr-actions .button-row {
+  align-items: center;
+  gap: 10px 16px;
+  margin-top: 12px;
+}
+.table-qr-actions .qr-image {
+  background: #fff;
+}
+.table-qr-download {
+  font-size: 13px;
+}
+.table-qr-link {
+  width: 100%;
+  min-width: 0;
+  padding: 10px;
+  font-size: 12px;
+}
+.table-qr-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  overflow: auto;
+  padding: 24px;
+  background: #e5e1d7;
+  color: #272719;
+}
+.table-qr-print-controls {
+  max-width: 1000px;
+  margin: 0 auto 24px;
+  padding: 22px;
+  background: #faf8f2;
+  border: 1px solid #ccb989;
+  border-radius: 12px;
+}
+.table-qr-print-controls h2 {
+  margin: 0;
+  font-size: 26px;
+}
+.table-qr-print-controls p {
+  line-height: 1.6;
+  margin: 12px 0;
+}
+.table-qr-print-controls small {
+  display: block;
+  line-height: 1.6;
+  color: #716647;
+}
+.table-qr-print-controls .button-row {
+  margin-top: 18px;
+}
+.table-qr-print-pages {
+  display: grid;
+  gap: 24px;
+  justify-content: center;
+}
+.table-qr-print-sheet {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(2, 89mm);
+  grid-template-rows: repeat(2, 127mm);
+  gap: 8mm;
+  width: 210mm;
+  min-height: 297mm;
+  padding: 12mm;
+  background: #fff;
+  box-shadow: 0 3px 18px #27271922;
+}
+.table-qr-print-card {
+  box-sizing: border-box;
+  height: 127mm;
+  width: 89mm;
+  padding: 6mm 5mm 4mm;
+  border: 1px dashed #afa997;
+  border-radius: 3mm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #fff;
+  color: #24271b;
+  text-align: center;
+  break-inside: avoid;
+  page-break-inside: avoid;
+  font-family: "Golos Text", Arial, sans-serif;
+}
+.table-qr-card-brand {
+  color: #465330;
+  font-family: "Lobster", Georgia, serif;
+  font-size: 27pt;
+  line-height: 1.1;
+}
+.table-qr-print-card .table-qr-card-caption {
+  margin: 1mm 0 3mm;
+  font-size: 8pt;
+  letter-spacing: 0.3mm;
+}
+.table-qr-print-card .table-qr-card-table {
+  margin: 0 0 2mm;
+  max-width: 100%;
+  font-family: "Golos Text", Arial, sans-serif;
+  font-size: 16pt;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+.table-qr-print-card .table-qr-card-table.long-name {
+  font-size: 12pt;
+}
+.table-qr-print-card img {
+  display: block;
+  flex-shrink: 0;
+  width: 48mm;
+  height: 48mm;
+  max-width: 100%;
+  background: #fff;
+}
+.table-qr-print-card .table-qr-card-scan {
+  margin: 1mm 0 4mm;
+  font-size: 8.5pt;
+  font-weight: 600;
+}
+.table-qr-card-features {
+  display: grid;
+  gap: 1.4mm;
+  width: 100%;
+  padding-top: 3mm;
+  border-top: 1px solid #dedbd0;
+  font-size: 9pt;
+  font-weight: 600;
+}
+.table-qr-print-card .table-qr-card-note {
+  margin: 3mm 0 0;
+  max-width: 68mm;
+  font-size: 7.5pt;
+  line-height: 1.45;
+}
+.table-qr-print-card .table-qr-card-host {
+  margin: auto 0 0;
+  padding-top: 2mm;
+  font-size: 7pt;
+  color: #716647;
+}
+@media (max-width: 850px) {
+  .table-qr-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .table-qr-toolbar > button {
+    max-width: none;
+  }
+  .table-qr-overlay {
+    padding: 16px;
+  }
+  .table-qr-print-pages {
+    display: block;
+  }
+  .table-qr-print-sheet {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-rows: auto;
+    width: 100%;
+    min-height: 0;
+    gap: 16px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .table-qr-print-card {
+    width: 100%;
+  }
+}
+@media print {
+  @page table-qr-cards {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+  body.printing-table-qr {
+    margin: 0 !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+  body.printing-table-qr > :not(.table-qr-overlay) {
+    display: none !important;
+  }
+  .table-qr-overlay {
+    position: static;
+    overflow: visible;
+    padding: 0;
+    background: #fff;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .table-qr-print-controls {
+    display: none;
+  }
+  .table-qr-print-pages {
+    display: block;
+  }
+  .table-qr-print-sheet {
+    page: table-qr-cards;
+    display: grid;
+    grid-template-columns: repeat(2, 89mm);
+    grid-template-rows: repeat(2, 127mm);
+    gap: 8mm;
+    width: 186mm;
+    min-height: 0;
+    height: 262mm;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    break-after: page;
+    page-break-after: always;
+  }
+  .table-qr-print-sheet:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+  .table-qr-print-card {
+    width: 89mm;
+    height: 127mm;
+  }
+}

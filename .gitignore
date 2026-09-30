@@ -5,4 +5,5 @@ dist/
 !.env.example
 *.log
 artifacts/
+output/pdf/
 deploy/*.local.*

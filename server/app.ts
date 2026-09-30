@@ -19,6 +19,7 @@ import { marketingRouter } from "./modules/marketing";
 import { staffAdminRouter } from "./modules/staff-admin";
 import { serveAchievementImage } from "./achievement-images";
 import { grantedPromotions } from "./registration-promotions";
+import { tablePaymentRouter, yooKassaWebhook } from "./modules/table-payments";
 export const app = express();
 app.set("trust proxy", "loopback");
 app.disable("x-powered-by");
@@ -41,6 +42,12 @@ app.use(
   }),
 );
 app.use(express.json({ limit: "150kb" }));
+app.post("/api/payments/yookassa/webhook", rateLimit({
+  windowMs: 60000,
+  limit: 240,
+  standardHeaders: false,
+  legacyHeaders: false,
+}), yooKassaWebhook);
 app.get("/api/health", async (_req, res) => {
   await pool.query("SELECT 1");
   res.json({ data: { status: "ok", version: "2.0.0" }, error: null });
@@ -49,7 +56,8 @@ app.use(
   "/api",
   rateLimit({
     windowMs: 60000,
-    limit: 240,
+    // A restaurant Wi-Fi address can serve all 66 seats at once.
+    limit: 3000,
     standardHeaders: "draft-8",
     legacyHeaders: false,
     message: {
@@ -75,6 +83,23 @@ app.use("/api", (req, res, next) => {
   next();
 });
 app.use("/api", session);
+app.use(
+  "/api",
+  rateLimit({
+    windowMs: 60000,
+    limit: 240,
+    keyGenerator: (req) => owner(req),
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+    message: {
+      data: null,
+      error: {
+        code: "RATE_LIMIT",
+        message: "Слишком много запросов. Попробуйте через минуту.",
+      },
+    },
+  }),
+);
 app.use(
   "/api/auth",
   rateLimit({
@@ -153,6 +178,7 @@ app.get("/api/dishes/:id", async (req, res) => {
 });
 app.use("/api/cart", cartRouter);
 app.use("/api/orders", ordersRouter);
+app.use("/api/payments", tablePaymentRouter);
 app.use("/api/reservations", reservationsRouter);
 app.use("/api/admin", adminRouter);
 app.use(
@@ -218,7 +244,7 @@ app.get("/api/dine-in/:token", async (req, res) => {
   res.json({
     data: {
       table: row.name,
-      ordering: true,
+      ordering: (await config(pool)).orderingEnabled,
       message: "Введите код визита у официанта, чтобы заказать за столом.",
     },
     error: null,

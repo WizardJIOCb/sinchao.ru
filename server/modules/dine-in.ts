@@ -9,6 +9,7 @@ import { idempotency, orderView } from "./orders";
 import { priceCart } from "./pricing";
 import { resolvePromotion } from "./marketing";
 import { consumePromotion } from "../registration-promotions";
+import { assertNoActiveTablePayment } from "../online-payments";
 import {
   minuteTime,
   reservationWhen,
@@ -46,9 +47,8 @@ export async function visitView(db: DB, id: string, staff = false) {
       [id],
     )
   ).rows;
-  const foodTotal = rows
-    .filter((r) => r.status !== "CANCELLED")
-    .reduce((s, r) => s + r.data.total, 0);
+  const activeOrders = rows.filter((r) => r.status !== "CANCELLED");
+  const foodTotal = activeOrders.reduce((s, r) => s + r.data.total, 0);
   const tip = calculateTip(foodTotal, v.tip_choice);
   return {
     foodTotal,
@@ -83,7 +83,14 @@ export async function visitView(db: DB, id: string, staff = false) {
           };
     }),
     total: foodTotal + tip,
-    paid: shares.reduce((s, r) => s + (r.paid ? r.amount : r.giftPaid), 0),
+    paid: shares.length
+      ? shares.reduce((s, r) => s + (r.paid ? r.amount : r.giftPaid), 0)
+      : activeOrders.reduce(
+          (s, r) =>
+            s +
+            (r.payment_status === "PAID" ? r.data.total : (r.gift_paid ?? 0)),
+          0,
+        ),
     shares,
     calls: (
       await db.query(
@@ -93,7 +100,7 @@ export async function visitView(db: DB, id: string, staff = false) {
     ).rows,
   };
 }
-async function member(db: DB, req: Request, id: string, lock = false) {
+export async function member(db: DB, req: Request, id: string, lock = false) {
   z.uuid().parse(id);
   const v = (
     await db.query(
@@ -117,10 +124,20 @@ async function member(db: DB, req: Request, id: string, lock = false) {
 }
 export const dineRouter = Router();
 dineRouter.get("/visit", async (req, res) => {
+  const token = z.string().min(1).max(100).optional().parse(req.query.token);
+  const table = token
+    ? (
+        await pool.query("SELECT id FROM qr_tables WHERE token=$1 AND active", [
+          token,
+        ])
+      ).rows[0]
+    : null;
+  if (token && !table)
+    fail(404, "QR_NOT_FOUND", "QR-код не найден. Обратитесь к сотруднику.");
   const v = (
     await pool.query(
-      "SELECT v.id FROM dine_visits v WHERE v.status='OPEN' AND EXISTS(SELECT 1 FROM dine_members m WHERE m.visit_id=v.id AND (m.owner=$1 OR m.user_id=$2)) ORDER BY v.created_at DESC LIMIT 1",
-      [owner(req), req.session.user?.id ?? null],
+      "SELECT v.id FROM dine_visits v WHERE v.status='OPEN' AND ($3::uuid IS NULL OR v.table_id=$3) AND EXISTS(SELECT 1 FROM dine_members m WHERE m.visit_id=v.id AND (m.owner=$1 OR m.user_id=$2)) ORDER BY v.created_at DESC LIMIT 1",
+      [owner(req), req.session.user?.id ?? null, table?.id ?? null],
     )
   ).rows[0];
   res.json({ data: v ? await visitView(pool, v.id) : null, error: null });
@@ -319,7 +336,7 @@ dineRouter.put("/visits/:id/tip", async (req, res) => {
   res.json({ data: await visitView(pool, id), error: null });
 });
 
-async function createShares(db: DB, id: string, count: number) {
+export async function createShares(db: DB, id: string, count: number) {
   const existing = (
     await db.query("SELECT id FROM bill_shares WHERE visit_id=$1", [id])
   ).rows;
@@ -541,6 +558,7 @@ adminDineRouter.delete("/visits/:id/split", async (req, res) => {
   const id = z.uuid().parse(req.params.id);
   await transaction(async (db) => {
     await db.query("SELECT id FROM dine_visits WHERE id=$1 FOR UPDATE", [id]);
+    await assertNoActiveTablePayment(db, id);
     if (
       (
         await db.query(
@@ -572,6 +590,7 @@ adminDineRouter.post("/visits/:id/shares/:shareId/pay", async (req, res) => {
       )
     ).rows[0];
     if (!v) fail(409, "VISIT_CLOSED", "Посещение закрыто.");
+    await assertNoActiveTablePayment(db, id, shareId);
     const share = (
       await db.query(
         "SELECT * FROM bill_shares WHERE id=$1 AND visit_id=$2 FOR UPDATE",
@@ -612,6 +631,7 @@ adminDineRouter.post("/visits/:id/close", async (req, res) => {
     ).rows[0];
     if (!v) fail(404, "NOT_FOUND", "Посещение не найдено.");
     if (v.status === "CLOSED") return;
+    await assertNoActiveTablePayment(db, id);
     if (
       (
         await db.query(

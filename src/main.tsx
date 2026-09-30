@@ -197,6 +197,7 @@ function App() {
     [toast, setToast] = useState(""),
     [error, setError] = useState(""),
     [table, setTable] = useState(""),
+    [tableReady, setTableReady] = useState(false),
     [visit, setVisit] = useState<Visit | null>(null);
   const sourceMenuOpen = path.replace(/\/$/, "") === photoMenuPath;
   function updateMenuFilters(filters: MenuFilters) {
@@ -220,6 +221,7 @@ function App() {
       {
         photoMenuOverlay: true,
         backgroundPage: page,
+        tableToken,
         menuFilters: { query, category },
       },
       "",
@@ -232,7 +234,10 @@ function App() {
     else go("menu");
   }
   const [tableToken] = useState(
-    () => location.pathname.match(/^\/dine-in\/([^/]+)$/)?.[1] ?? "",
+    () =>
+      location.pathname.match(/^\/dine-in\/([^/]+)$/)?.[1] ??
+      history.state?.tableToken ??
+      "",
   );
   const say = useCallback((text: string) => setToast(text), []);
   const refresh = useCallback(async () => {
@@ -256,19 +261,28 @@ function App() {
     refresh()
       .then(() => {
         track("app_open");
-        const token = location.pathname.match(/^\/dine-in\/([^/]+)$/)?.[1];
-        if (token) {
-          api<{ table: string }>("/dine-in/" + encodeURIComponent(token))
-            .then((v) => {
-              setTable(v.table);
-              setPage("menu");
-              track("qr_opened");
-            })
-            .catch((e) => setError(e.message));
-        }
       })
       .catch((e) => setError(e.message));
   }, [refresh]);
+  useEffect(() => {
+    if (!tableToken) return;
+    let active = true;
+    setTableReady(false);
+    api<{ table: string }>("/dine-in/" + encodeURIComponent(tableToken))
+      .then((value) => {
+        if (active) {
+          setTable(value.table);
+          setTableReady(true);
+          track("qr_opened");
+        }
+      })
+      .catch((e) => {
+        if (active) setError(e.message);
+      });
+    return () => {
+      active = false;
+    };
+  }, [tableToken]);
   useEffect(() => {
     const t = setInterval(() => {
       if (document.visibilityState === "visible") refresh().catch(() => {});
@@ -314,11 +328,15 @@ function App() {
       p === "admin"
         ? "/admin"
         : p === "menu"
-          ? menuResultsPath(filters)
+          ? tableToken
+            ? "/dine-in/" +
+              encodeURIComponent(tableToken) +
+              menuFilterSearch(filters)
+            : menuResultsPath(filters)
           : p === "discover"
             ? "/discover"
             : "/";
-    history.replaceState({ backgroundPage: p }, "", next);
+    history.replaceState({ backgroundPage: p, tableToken }, "", next);
     setPath(next.split("?")[0]);
     setEditDish(null);
     setEditItem(null);
@@ -335,6 +353,7 @@ function App() {
         {
           dishOverlay: true,
           backgroundPage: page,
+          tableToken,
           menuFilters: { query, category },
         },
         "",
@@ -465,6 +484,7 @@ function App() {
           refreshKey={orders.length}
           token={tableToken}
           tableName={table}
+          tableReady={tableReady}
           onVisit={setVisit}
           openMenu={() => go("menu")}
           openCart={() => setCartOpen(true)}
@@ -651,9 +671,11 @@ function App() {
                 <div className="eyebrow">СВЕЖЕЕ. АРОМАТНОЕ. ВАШЕ.</div>
                 <h1>Наше меню</h1>
               </div>
-              {visit ? (
+              {visit || tableToken ? (
                 <span className="badge">
-                  {visit.tableName} · заказ за столом
+                  {visit
+                    ? `${visit.tableName} · заказ за столом`
+                    : "Меню за столом · введите код визита для заказа"}
                 </span>
               ) : (
                 <div className="segmented">
@@ -1108,6 +1130,7 @@ function App() {
         <CartModal
           menu={menu}
           visit={visit}
+          requireTableJoin={!!tableToken && (!tableReady || !visit)}
           user={user}
           points={points}
           cart={cart}
@@ -1489,6 +1512,7 @@ function DishModal({
 function CartModal({
   menu,
   visit,
+  requireTableJoin,
   user,
   points,
   cart,
@@ -1501,6 +1525,7 @@ function CartModal({
 }: {
   menu: MenuData;
   visit: Visit | null;
+  requireTableJoin: boolean;
   user: User | null;
   points: number;
   cart: CartItem[];
@@ -1536,7 +1561,7 @@ function CartModal({
     let cancelled = false;
     setQuote(null);
     setError("");
-    if (!cart.length || visit) {
+    if (!cart.length || visit || requireTableJoin) {
       setQuoteLoading(false);
       return;
     }
@@ -1560,10 +1585,31 @@ function CartModal({
     return () => {
       cancelled = true;
     };
-  }, [cart, fulfillment, zoneId, promo, promoAttempt, redeem, tip, visit?.id]);
+  }, [
+    cart,
+    fulfillment,
+    zoneId,
+    promo,
+    promoAttempt,
+    redeem,
+    tip,
+    visit?.id,
+    requireTableJoin,
+  ]);
   return (
     <Modal title="Ваша корзина" onClose={close} wide>
-      {visit ? (
+      {requireTableJoin ? (
+        <div className="standard-form">
+          <h3>Подключитесь к вашему столу</h3>
+          <p>
+            Блюда сохранены в корзине. Введите шестизначный код визита от
+            официанта на странице стола, затем отправьте заказ.
+          </p>
+          <button className="primary" onClick={close}>
+            Вернуться к столу
+          </button>
+        </div>
+      ) : visit ? (
         <DineCart
           userId={user?.id}
           visit={visit}

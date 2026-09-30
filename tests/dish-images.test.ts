@@ -56,10 +56,12 @@ test("Image migration preserves staff data, skips replacements and is idempotent
     throw Error("Test DB required");
   try {
     await transaction(async (db) => {
-      await db.query("UPDATE dishes SET data=$2 WHERE id=$1", [
-        original.id,
-        original,
-      ]);
+      // The preceding suite may have replaced the catalog. Seed the fixture
+      // inside this rollback transaction instead of relying on an existing row.
+      await db.query(
+        "INSERT INTO dishes(id,data,position) VALUES($1,$2,0) ON CONFLICT(id) DO UPDATE SET data=EXCLUDED.data",
+        [original.id, original],
+      );
       assert.ok((await migrateDishImages(db)).includes(original.id));
       assert.deepEqual(
         (await db.query("SELECT data FROM dishes WHERE id=$1", [original.id]))

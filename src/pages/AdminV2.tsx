@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import QRCode from "qrcode";
+import { TableQrActions, TableQrPrintDialog } from "./TableQrCards";
 import { api, money } from "../api";
 import {
   reservationWhen,
@@ -25,30 +25,6 @@ const emptyTable = {
   active: true,
 };
 type GiftRow = Gift & { buyer_name: string };
-function QrImage({ token, name }: { token: string; name: string }) {
-  const [src, setSrc] = useState("");
-  const url = location.origin + "/dine-in/" + token;
-  useEffect(() => {
-    void QRCode.toDataURL(url, {
-      width: 600,
-      margin: 3,
-      errorCorrectionLevel: "M",
-    }).then(setSrc);
-  }, [url]);
-  return (
-    <div>
-      <img className="qr-image" src={src || undefined} alt={"QR-код " + name} />
-      <a href={src} download={name + "-QR.png"}>
-        Скачать QR для печати
-      </a>
-      <p>
-        <a href={url} target="_blank" rel="noreferrer">
-          Открыть меню {name}
-        </a>
-      </p>
-    </div>
-  );
-}
 export function AdminV2({
   user,
   say,
@@ -66,6 +42,7 @@ export function AdminV2({
     [gifts, setGifts] = useState<GiftRow[]>([]),
     [reservations, setReservations] = useState<Reservation[]>([]),
     [editing, setEditing] = useState<string | null>(null),
+    [qrPrintTables, setQrPrintTables] = useState<Table[] | null>(null),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [guests, setGuests] = useState<
@@ -584,6 +561,32 @@ export function AdminV2({
               </form>
             )}
           </div>
+          <div className="table-qr-toolbar record">
+            <div>
+              <h2>Карточки для столов</h2>
+              <p>
+                Распечатайте и поставьте на каждый стол. Гости откроют меню,
+                позовут официанта, дозакажут блюда и попросят счёт. Для
+                подключения к посещению сообщите им код из раздела «Зал и
+                обслуживание».
+              </p>
+              <small>
+                QR постоянный: после закрытия посещения карточку менять не
+                нужно. Код посещения в него не включён.
+              </small>
+            </div>
+            <button
+              type="button"
+              className="primary"
+              disabled={!tables.some((t) => t.active && t.token)}
+              onClick={() =>
+                setQrPrintTables(tables.filter((t) => t.active && t.token))
+              }
+            >
+              Печатать все активные столы (
+              {tables.filter((t) => t.active && t.token).length})
+            </button>
+          </div>
           <div className="table-qr-grid">
             {tables.map((t) => (
               <article className="record" key={t.id}>
@@ -611,11 +614,24 @@ export function AdminV2({
                     Редактировать
                   </button>
                 )}
-                {t.token && <QrImage token={t.token} name={t.name} />}
+                {t.token ? (
+                  <TableQrActions
+                    table={t}
+                    onPrint={() => setQrPrintTables([t])}
+                  />
+                ) : (
+                  <p className="muted">QR появится после сохранения стола.</p>
+                )}
               </article>
             ))}
           </div>
         </>
+      )}
+      {qrPrintTables && (
+        <TableQrPrintDialog
+          tables={qrPrintTables}
+          onClose={() => setQrPrintTables(null)}
+        />
       )}
       {tab === "events" && (
         <>

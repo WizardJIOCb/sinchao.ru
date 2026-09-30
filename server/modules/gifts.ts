@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { assertNoActiveTablePayment } from "../online-payments";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { pool, transaction } from "../db";
@@ -214,6 +215,7 @@ adminGiftsRouter.post("/gifts/redeem", async (req, res) => {
       ).rows[0];
       if (!share || share.paid)
         fail(409, "SHARE_PAID", "Эта часть счёта уже оплачена.");
+      await assertNoActiveTablePayment(db, visitId!, share.id);
       if (input.amount > share.amount - share.tip - share.gift_paid)
         fail(
           400,

@@ -14,6 +14,70 @@
   vertical-align: middle;
   margin-right: 8px;
 }
+.dine-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0 12px;
+}
+.dine-actions button {
+  min-height: 64px;
+  white-space: normal;
+  line-height: 1.4;
+  justify-content: center;
+}
+.dine-actions svg,
+.online-bill-payment h3 svg {
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+.online-bill-payment {
+  border: 1px solid #cbb889;
+  border-radius: 8px;
+  padding: 18px;
+  background: #fff9e9;
+  margin: 22px 0;
+}
+.online-bill-payment h3 {
+  margin-top: 0;
+}
+.online-share {
+  border-top: 1px solid #cbb88966;
+  padding: 16px 0;
+}
+.online-share .button-row {
+  margin-top: 12px;
+}
+.visit-share {
+  padding: 12px 0;
+}
+.payment-success {
+  color: #465330;
+  font-weight: 600;
+}
+.visit-bill {
+  scroll-margin-top: 100px;
+}
+@media (max-width: 600px) {
+  .dine-actions {
+    grid-template-columns: 1fr;
+  }
+  .dine-panel {
+    padding: 18px 16px;
+  }
+  .dine-panel h2 {
+    font-size: 25px;
+  }
+  .dine-join > button {
+    width: 100%;
+  }
+  .online-bill-payment {
+    padding: 14px;
+  }
+  .online-share .button-row > button {
+    width: 100%;
+  }
+}
 .standard-form > .dine-payment-note {
   margin: 12px 0 0;
   line-height: 1.5;
