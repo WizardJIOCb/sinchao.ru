@@ -67,6 +67,13 @@
 .tip-selector input {
   width: 100%;
   min-width: 0;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #b9a776;
+  border-radius: 6px;
+  background: #fff9e9;
+  color: inherit;
+  font: inherit;
 }
 .tip-selected {
   margin-bottom: 0 !important;
