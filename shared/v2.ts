@@ -7,7 +7,7 @@ export type Table = {
   x: number;
   y: number;
   zone: string;
-  shape: "round" | "square";
+  shape: "round" | "square" | "long";
   active: boolean;
   available?: boolean;
   token?: string;
@@ -63,7 +63,17 @@ export type Preferences = {
   maxSpice: number;
   avoidAllergens: string[];
 };
+export type DishAchievement = {
+  dish: Dish;
+  name: string;
+  orders: number;
+  level: number;
+  rank: string;
+  nextTarget: number | null;
+  milestones: number[];
+};
 export type Discovery = {
+  dishAchievements: DishAchievement[];
   preferences: Preferences;
   recommendations: { dish: Dish; reason: string }[];
   journey: {

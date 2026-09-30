@@ -5,6 +5,7 @@ import { balance, config, dishes, fail } from "../lib";
 import { cartItemSchema, quoteSchema } from "../validation";
 import { priceCart, fulfillmentTimes } from "./pricing";
 import type { CartItem } from "../../shared/types";
+import { resolvePromotion } from "./marketing";
 export const cartRouter = Router();
 cartRouter.get("/", async (req, res) =>
   res.json({ data: req.session.cart, error: null }),
@@ -21,6 +22,8 @@ cartRouter.post("/quote", async (req, res) => {
       await config(pool),
       input,
       await balance(pool, req.session.user?.id),
+      true,
+      await resolvePromotion(pool, input.promo),
     ),
     error: null,
   });

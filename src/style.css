@@ -862,6 +862,33 @@ main {
 .danger {
   color: #a33d2c;
 }
+.profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 12px;
+  margin-top: 24px;
+}
+.profile-actions > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  margin: 0;
+  padding: 12px 18px;
+}
+.standard-form .profile-actions .primary {
+  margin: 0;
+}
+@media (max-width: 600px) {
+  .profile-actions {
+    flex-direction: column;
+  }
+  .profile-actions > button {
+    width: 100%;
+  }
+}
 .profile-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

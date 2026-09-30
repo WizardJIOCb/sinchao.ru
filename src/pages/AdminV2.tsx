@@ -556,6 +556,7 @@ export function AdminV2({
                   <select name="shape" defaultValue={editTable.shape}>
                     <option value="round">Круглый</option>
                     <option value="square">Прямоугольный</option>
+                    <option value="long">Длинный</option>
                   </select>
                 </label>
                 <label className="preorder-toggle">

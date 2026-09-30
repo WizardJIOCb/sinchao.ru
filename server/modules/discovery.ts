@@ -5,6 +5,8 @@ import { dishes, fail } from "../lib";
 import { requireUser } from "./auth";
 import { newCode, v2Settings } from "./v2-core";
 import type { Preferences } from "../../shared/v2";
+import { dishAchievements } from "../dish-achievements";
+import { achievementRules } from "./marketing";
 
 export const discoveryRouter = Router();
 discoveryRouter.get("/discovery", async (req, res) => {
@@ -134,6 +136,11 @@ discoveryRouter.get("/discovery", async (req, res) => {
       recommendations: ranked,
       journey,
       achievements,
+      dishAchievements: dishAchievements(
+        menu,
+        orders.map((o) => o.data),
+        await achievementRules(pool),
+      ),
       completedOrders: orders.length,
     },
     error: null,

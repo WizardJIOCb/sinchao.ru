@@ -93,10 +93,14 @@
   padding: 7px 3px;
 }
 .floor-table.round {
-  border-radius: 40%;
+  border-radius: 50%;
 }
 .floor-table.square {
   border-radius: 8px;
+}
+.floor-table.long {
+  border-radius: 8px;
+  max-width: 150px;
 }
 .floor-table.selected {
   background: #465330;
@@ -147,6 +151,109 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
   margin: 28px 0;
+}
+.dish-achievements {
+  margin: 32px 0 40px;
+}
+.dish-achievements .v2-heading {
+  align-items: flex-start;
+}
+.dish-achievement-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 245px), 1fr));
+  gap: 18px;
+  margin: 24px 0;
+}
+.dish-badge {
+  min-width: 0;
+  border: 1px solid #cbb889;
+  border-radius: 14px;
+  padding: 22px;
+  background: linear-gradient(145deg, #fff7e2, #f0e2bf);
+}
+.dish-badge.unlocked {
+  border-color: #87935b;
+  background: linear-gradient(145deg, #f6f3da, #e4e8c8);
+}
+.dish-badge-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+.dish-badge-picture {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  background: #f7eacb;
+  border: 1px solid #ceb984;
+  border-radius: 50%;
+  padding: 6px;
+}
+.dish-badge-picture > * {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.dish-badge-level {
+  font-size: 11px;
+  font-weight: 600;
+  color: #586336;
+  text-align: right;
+}
+.dish-badge h3 {
+  font: 27px var(--display);
+  margin: 18px 0 8px;
+  overflow-wrap: anywhere;
+}
+.dish-badge-name {
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.dish-badge-rank {
+  margin-top: 18px;
+  font-weight: 600;
+  font-size: 13px;
+}
+.dish-badge-stars {
+  display: flex;
+  gap: 7px;
+  margin: 10px 0;
+  color: #c8bd9e;
+  font-size: 22px;
+}
+.dish-badge-stars .lit {
+  color: #a45b28;
+}
+.dish-badge small {
+  display: block;
+  margin-top: 9px;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.marketing-admin > label {
+  display: grid;
+  gap: 8px;
+  margin: 20px 0;
+}
+.marketing-admin select {
+  width: 100%;
+  min-width: 0;
+}
+.marketing-dishes {
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid #cbb889;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 10px;
+}
+.marketing-levels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
+  gap: 12px;
 }
 .achievement {
   padding: 22px;

@@ -49,6 +49,7 @@ import {
 } from "../shared/reservation-time";
 import { Admin } from "./pages/Admin";
 import { DishPicture } from "./DishPicture";
+import { ProfileAchievements } from "./DishAchievements";
 import { Contacts } from "./Contacts";
 import {
   DiscoveryHub,
@@ -466,9 +467,7 @@ function App() {
                   <i>chào!</i>
                   <small>ВКУС ВЬЕТНАМА</small>
                 </div>
-                <span className="art-caption">
-                  Фо Бо · иллюстрация подачи
-                </span>
+                <span className="art-caption">Фо Бо · иллюстрация подачи</span>
               </div>
             </section>
             <section className="combo-banner">
@@ -2333,32 +2332,35 @@ function Profile({
               Email
               <input disabled value={user.email} />
             </label>
-            <button className="primary">Сохранить</button>
-            {user.role !== "CUSTOMER" && (
-              <button type="button" className="secondary" onClick={admin}>
-                <Settings size={18} />
-                Панель ресторана
+            <div className="profile-actions">
+              <button className="primary">Сохранить</button>
+              {user.role !== "CUSTOMER" && (
+                <button type="button" className="secondary" onClick={admin}>
+                  <Settings size={18} />
+                  Панель ресторана
+                </button>
+              )}
+              <button
+                className="text-button"
+                type="button"
+                onClick={async () => {
+                  try {
+                    await api("/auth/logout", "POST", {});
+                    await refresh();
+                    say("Вы вышли из аккаунта.");
+                  } catch (e: any) {
+                    say(e.message);
+                  }
+                }}
+              >
+                <LogOut size={16} />
+                Выйти
               </button>
-            )}
-            <button
-              className="text-button"
-              type="button"
-              onClick={async () => {
-                try {
-                  await api("/auth/logout", "POST", {});
-                  await refresh();
-                  say("Вы вышли из аккаунта.");
-                } catch (e: any) {
-                  say(e.message);
-                }
-              }}
-            >
-              <LogOut size={16} />
-              Выйти
-            </button>
+            </div>
           </form>
         </div>
       )}
+      {user && <ProfileAchievements key={user.id} userId={user.id} />}
     </section>
   );
 }

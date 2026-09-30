@@ -91,6 +91,7 @@ export type PricedItem = CartItem & {
   modifierNames: string[];
 };
 export type Quote = {
+  promoCode?: string;
   items: PricedItem[];
   subtotal: number;
   discount: number;

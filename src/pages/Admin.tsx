@@ -1,4 +1,5 @@
 import { AdminV2 } from "./AdminV2";
+import { AdminMarketing } from "./AdminMarketing";
 import { useEffect, useState } from "react";
 import { api, money } from "../api";
 import {
@@ -99,6 +100,7 @@ export function Admin({
           ["menu", "Меню"],
           ["settings", "Настройки"],
           ["v2", "V2 · Зал и гости"],
+          ...(manager ? [["marketing", "Промокоды и ачивки"]] : []),
           ["audit", "Журнал"],
         ].map(([id, name]) => (
           <button
@@ -118,6 +120,9 @@ export function Admin({
       ) : (
         <>
           {tab === "v2" && <AdminV2 user={user} say={say} refresh={refresh} />}
+          {tab === "marketing" && manager && (
+            <AdminMarketing menu={menu.dishes} />
+          )}
           {tab === "orders" && (
             <div className="records">
               {data.orders.length === 0 && <p>Заказов пока нет.</p>}

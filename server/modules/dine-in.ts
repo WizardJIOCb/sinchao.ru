@@ -7,6 +7,7 @@ import { audit, config, dishes, fail, hash, localNow, notify } from "../lib";
 import { owner, requireStaff } from "./auth";
 import { idempotency, orderView } from "./orders";
 import { priceCart } from "./pricing";
+import { resolvePromotion } from "./marketing";
 import {
   minuteTime,
   reservationWhen,
@@ -146,6 +147,13 @@ dineRouter.get("/visits/:id", async (req, res) => {
   res.json({ data: await visitView(pool, id), error: null });
 });
 dineRouter.post("/visits/:id/orders", async (req, res) => {
+  const promo = z
+    .string()
+    .trim()
+    .toUpperCase()
+    .max(30)
+    .default("")
+    .parse(req.body.promo);
   const key = idempotency(req),
     id = z.uuid().parse(req.params.id);
   const row = await transaction(async (db) => {
@@ -157,7 +165,7 @@ dineRouter.post("/visits/:id/orders", async (req, res) => {
       )
     ).rows[0];
     if (old) {
-      if (old.visit_id !== id)
+      if (old.visit_id !== id || (old.data.promoCode ?? "") !== promo)
         fail(409, "IDEMPOTENCY_CONFLICT", "Ключ уже использован.");
       return old;
     }
@@ -170,12 +178,15 @@ dineRouter.post("/visits/:id/orders", async (req, res) => {
         req.session.id,
       ])
     ).rows[0];
+    const promotion = await resolvePromotion(db, promo, true);
     const quote = priceCart(
       s.cart,
       await dishes(db),
       cfg,
-      { fulfillment: "DINE_IN", zoneId: "", promo: "", points: 0 },
+      { fulfillment: "DINE_IN", zoneId: "", promo, points: 0 },
       0,
+      true,
+      promotion,
     );
     const table = (
       await db.query(
@@ -211,6 +222,10 @@ dineRouter.post("/visits/:id/orders", async (req, res) => {
         ],
       )
     ).rows[0];
+    if (promotion)
+      await db.query("UPDATE promotions SET used=used+1 WHERE code=$1", [
+        promotion.code,
+      ]);
     await db.query("UPDATE sessions SET cart='[]' WHERE id=$1", [
       req.session.id,
     ]);

@@ -6,6 +6,7 @@ import type {
   Quote,
 } from "../../shared/types";
 import { fail, localNow } from "../lib";
+import type { Promotion } from "../../shared/marketing";
 export function priceCart(
   cart: CartItem[],
   menu: Dish[],
@@ -18,6 +19,7 @@ export function priceCart(
   },
   loyaltyBalance: number,
   enforceMinimum = true,
+  promotion?: Promotion,
 ): Quote {
   if (!cart.length) fail(400, "EMPTY_CART", "Добавьте блюда в корзину.");
   const items = cart.map((item) => {
@@ -63,12 +65,38 @@ export function priceCart(
   const subtotal = items.reduce((s, i) => s + i.lineTotal, 0);
   let discount = 0;
   if (options.promo) {
-    if (
-      !cfg.promo.enabled ||
-      options.promo.trim().toUpperCase() !== cfg.promo.code.toUpperCase()
-    )
-      fail(400, "INVALID_PROMO", "Промокод не найден или больше не действует.");
-    discount = Math.floor((subtotal * cfg.promo.percent) / 100);
+    if (promotion) {
+      if (subtotal < promotion.minSubtotal)
+        fail(
+          400,
+          "PROMO_MINIMUM",
+          `Промокод действует от ${promotion.minSubtotal / 100} ₽.`,
+        );
+      const eligible = items
+        .filter(
+          (i) =>
+            !promotion.dishIds.length || promotion.dishIds.includes(i.dishId),
+        )
+        .reduce((sum, i) => sum + i.lineTotal, 0);
+      if (!eligible)
+        fail(
+          400,
+          "PROMO_DISH",
+          "Добавьте в корзину блюдо, на которое действует промокод.",
+        );
+      discount = Math.floor((eligible * promotion.percent) / 100);
+    } else {
+      if (
+        !cfg.promo.enabled ||
+        options.promo.trim().toUpperCase() !== cfg.promo.code.toUpperCase()
+      )
+        fail(
+          400,
+          "INVALID_PROMO",
+          "Промокод не найден или больше не действует.",
+        );
+      discount = Math.floor((subtotal * cfg.promo.percent) / 100);
+    }
   }
   if (options.points > loyaltyBalance)
     fail(400, "INSUFFICIENT_POINTS", "Недостаточно бонусов.");
@@ -98,6 +126,9 @@ export function priceCart(
     items,
     subtotal,
     discount,
+    ...(options.promo.trim()
+      ? { promoCode: options.promo.trim().toUpperCase() }
+      : {}),
     loyaltyDiscount,
     deliveryFee,
     serviceFee: 0,

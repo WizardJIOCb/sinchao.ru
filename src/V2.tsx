@@ -21,6 +21,7 @@ import type {
   Visit,
 } from "../shared/v2";
 import { DishPicture } from "./DishPicture";
+import { DishAchievementCollection } from "./DishAchievements";
 import "./v2.css";
 
 export function FloorPlan({
@@ -40,7 +41,13 @@ export function FloorPlan({
           ресторан.
         </p>
       )}
-      <div className="floor-plan" aria-label="Схема зала">
+      <div
+        className="floor-plan"
+        aria-label="Схема зала"
+        style={{
+          minHeight: Math.max(340, Math.ceil(floor.tables.length / 3) * 90),
+        }}
+      >
         <span className="floor-window">Окна</span>
         <span className="floor-entry">Вход</span>
         {floor.tables.map((t) => (
@@ -48,7 +55,11 @@ export function FloorPlan({
             key={t.id}
             type="button"
             className={`floor-table ${t.shape} ${selected === t.id ? "selected" : ""}`}
-            style={{ left: t.x + "%", top: t.y + "%" }}
+            style={{
+              left: t.x + "%",
+              top: t.y + "%",
+              width: `min(${t.shape === "long" ? "28%, 150px" : "20%, 94px"}, ${100 - t.x}%)`,
+            }}
             aria-pressed={selected === t.id}
             disabled={t.available === false || !onSelect}
             onClick={() => onSelect?.(t.id)}
@@ -417,24 +428,36 @@ export function DineCart({
   refresh: () => Promise<void>;
   done: () => void;
 }) {
-  const [quote, setQuote] = useState<{ total: number } | null>(null),
+  const [quote, setQuote] = useState<{
+      total: number;
+      discount: number;
+    } | null>(null),
+    [promo, setPromo] = useState(""),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   const key = useRef(crypto.randomUUID());
   useEffect(() => {
+    let active = true;
     setQuote(null);
     setError("");
     key.current = crypto.randomUUID();
     if (cart.length)
-      api<{ total: number }>("/cart/quote", "POST", {
+      api<{ total: number; discount: number }>("/cart/quote", "POST", {
         fulfillment: "PICKUP",
         zoneId: "",
-        promo: "",
+        promo,
         points: 0,
       })
-        .then(setQuote)
-        .catch((e) => setError(e.message));
-  }, [cart]);
+        .then((q) => {
+          if (active) setQuote(q);
+        })
+        .catch((e) => {
+          if (active) setError(e.message);
+        });
+    return () => {
+      active = false;
+    };
+  }, [cart, promo]);
   return (
     <div className="standard-form">
       <h3>{visit.tableName} · заказ за столом</h3>
@@ -466,6 +489,19 @@ export function DineCart({
       ) : (
         <p>Выберите блюда в меню.</p>
       )}
+      <label>
+        Промокод
+        <input
+          value={promo}
+          maxLength={30}
+          disabled={busy}
+          onChange={(e) => setPromo(e.target.value)}
+          placeholder="Например, 480"
+        />
+      </label>
+      {!!quote?.discount && (
+        <p>Скидка по промокоду: −{money(quote.discount)}</p>
+      )}
       {!!visit.shares.length && (
         <p className="form-help">
           Счёт уже разделён. Попросите официанта отменить разделение, чтобы
@@ -484,7 +520,12 @@ export function DineCart({
           setBusy(true);
           setError("");
           try {
-            await api(`/v2/visits/${visit.id}/orders`, "POST", {}, key.current);
+            await api(
+              `/v2/visits/${visit.id}/orders`,
+              "POST",
+              { promo },
+              key.current,
+            );
             await refresh();
             done();
           } catch (e: any) {
@@ -640,6 +681,7 @@ export function DiscoveryHub({
               </article>
             ))}
           </div>
+          <DishAchievementCollection entries={data.dishAchievements} />
           {data.journey.map((j) => (
             <article className="record journey-route" key={j.region}>
               <div className="record-head">

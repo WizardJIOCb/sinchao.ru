@@ -100,3 +100,13 @@ Staff tools: `/admin` → “V2 · Зал и гости”.
 8. Referral codes are accepted before the first completed order; invitee and inviter are rewarded once on the first qualifying completion. The reward and program switch are configurable.
 
 The existing demo flag remains enabled until real operational settings are approved. Card acquiring, automatic refunds and external push/SMS are not connected; payment confirmations are staff actions. Full V2 scope and verification notes: `docs/V2.md`.
+
+### Dish achievements and promotions
+
+Profile and Food Journey show an achievement for each food dish (44 in the current catalogue), with levels at 1/3/5/10/20 paid, completed orders. A dish counts once per order regardless of portions/modifier lines. Historical orders are included. Anonymous or other customers' orders do not contribute. These badges are cosmetic, not monetary rewards.
+
+`/admin` → “Промокоды и ачивки” lets ADMIN/MANAGER create, disable and edit percentage promotions (eligible dishes, basket minimum, start/end, total usage limit) and rename, hide or change five ascending thresholds for each achievement. Dates are entered in the device timezone and stored as UTC. Rule edits recalculate historical progress. Draft code `480` (Фо Бо) starts disabled with 0%; set a discount before enabling. Existing legacy restaurant promo remains supported; a managed code of the same name takes precedence.
+
+Promotion pricing applies to eligible dish lines including modifiers, before loyalty redemption; delivery is excluded. Checkout and QR table orders revalidate server-side, lock the promotion row and increment usage once within the order transaction. Quotes reserve nothing. Cancelled orders retain usage, as disclosed in admin. Preorders do not take a promo. Edits are audit-logged.
+
+Owner-approved hall inventory: 14 rectangular tables × 4, 3 round × 2 and one long VIP × 4 = 66 seats. After migration 006, run `scripts/configure-hall-20260930.ts` once with the production environment loaded. It guards the expected original inventory, preserves existing table IDs/QR tokens and bookings, and logs changes. Positions remain an explicitly unverified example editable in the table form.

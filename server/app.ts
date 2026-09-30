@@ -15,6 +15,7 @@ import { dineRouter, adminDineRouter } from "./modules/dine-in";
 import { discoveryRouter } from "./modules/discovery";
 import { eventsRouter, adminEventsRouter } from "./modules/events";
 import { giftsRouter, adminGiftsRouter } from "./modules/gifts";
+import { marketingRouter } from "./modules/marketing";
 export const app = express();
 app.set("trust proxy", "loopback");
 app.disable("x-powered-by");
@@ -151,6 +152,7 @@ app.use(
   eventsRouter,
   giftsRouter,
 );
+app.use("/api/admin/marketing", marketingRouter);
 app.use(
   "/api/admin/v2",
   adminTablesRouter,

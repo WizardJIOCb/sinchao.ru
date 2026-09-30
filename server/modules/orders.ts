@@ -8,6 +8,7 @@ import { owner } from "./auth";
 import { priceCart, validateFulfillment } from "./pricing";
 import { payOnReceipt } from "./payments";
 import { checkBillUnlocked, rewardReferral } from "./v2-core";
+import { resolvePromotion } from "./marketing";
 import {
   orderLabels,
   type CartItem,
@@ -107,12 +108,15 @@ ordersRouter.post("/", async (req, res) => {
         req.session.id,
       ])
     ).rows[0];
+    const promotion = await resolvePromotion(db, input.promo, true);
     const quote = priceCart(
       session.cart,
       await dishes(db),
       cfg,
       input,
       await balance(db, req.session.user?.id),
+      true,
+      promotion,
     );
     validateFulfillment(cfg, input);
     const id = randomUUID();
@@ -145,6 +149,10 @@ ordersRouter.post("/", async (req, res) => {
         ],
       )
     ).rows[0];
+    if (promotion)
+      await db.query("UPDATE promotions SET used=used+1 WHERE code=$1", [
+        promotion.code,
+      ]);
     if (input.points)
       await db.query(
         "INSERT INTO loyalty_transactions(id,user_id,points,type,reference_id,description) VALUES($1,$2,$3,'REDEEM',$4,'Списание на заказ')",

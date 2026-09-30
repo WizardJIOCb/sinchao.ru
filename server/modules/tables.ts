@@ -85,7 +85,7 @@ const tableSchema = z.object({
   x: z.number().int().min(0).max(85),
   y: z.number().int().min(0).max(80),
   zone: z.string().trim().min(1).max(60),
-  shape: z.enum(["round", "square"]),
+  shape: z.enum(["round", "square", "long"]),
   active: z.boolean(),
 });
 adminTablesRouter.post("/tables", requireManager, async (req, res) => {
