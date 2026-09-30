@@ -49,6 +49,13 @@ import {
 } from "../shared/reservation-time";
 import { Admin } from "./pages/Admin";
 import { DishPicture } from "./DishPicture";
+import { ShareMenuSearch } from "./ShareMenuSearch";
+import {
+  readMenuFilters,
+  menuFilterSearch,
+  menuResultsPath,
+  type MenuFilters,
+} from "../shared/menu-search";
 import {
   SourceMenuPromo,
   SourceMenuGallery,
@@ -173,8 +180,10 @@ function App() {
       history.state?.backgroundPage ?? pageFromPath(location.pathname),
     ),
     [path, setPath] = useState(location.pathname),
-    [category, setCategory] = useState("all"),
-    [query, setQuery] = useState(""),
+    [category, setCategory] = useState(
+      () => readMenuFilters(location.search).category,
+    ),
+    [query, setQuery] = useState(() => readMenuFilters(location.search).query),
     [fulfillment, setFulfillment] = useState<Fulfillment>("DELIVERY"),
     [editDish, setEditDish] = useState<Dish | null>(null),
     [editItem, setEditItem] = useState<CartItem | null>(null),
@@ -187,9 +196,29 @@ function App() {
     [table, setTable] = useState(""),
     [visit, setVisit] = useState<Visit | null>(null);
   const sourceMenuOpen = path.replace(/\/$/, "") === photoMenuPath;
+  function updateMenuFilters(filters: MenuFilters) {
+    setQuery(filters.query);
+    setCategory(filters.category);
+    if (
+      location.pathname.replace(/\/$/, "") === "/menu" ||
+      location.pathname.startsWith("/dine-in/")
+    ) {
+      history.replaceState(
+        history.state,
+        "",
+        location.pathname +
+          menuFilterSearch(filters, location.search) +
+          location.hash,
+      );
+    }
+  }
   function openPhotoMenu() {
     history.pushState(
-      { photoMenuOverlay: true, backgroundPage: page },
+      {
+        photoMenuOverlay: true,
+        backgroundPage: page,
+        menuFilters: { query, category },
+      },
       "",
       photoMenuPath,
     );
@@ -247,6 +276,10 @@ function App() {
     const onPopState = () => {
       setPath(location.pathname);
       setPage(history.state?.backgroundPage ?? pageFromPath(location.pathname));
+      const filters =
+        history.state?.menuFilters ?? readMenuFilters(location.search);
+      setQuery(filters.query);
+      setCategory(filters.category);
       setEditDish(null);
       setEditItem(null);
     };
@@ -268,18 +301,22 @@ function App() {
     const t = setTimeout(() => setToast(""), 6000);
     return () => clearTimeout(t);
   }, [toast]);
-  function go(p: Page) {
+  function go(p: Page, filters: MenuFilters = { query, category }) {
     setPage(p);
+    if (p === "menu") {
+      setQuery(filters.query);
+      setCategory(filters.category);
+    }
     const next =
       p === "admin"
         ? "/admin"
         : p === "menu"
-          ? "/menu"
+          ? menuResultsPath(filters)
           : p === "discover"
             ? "/discover"
             : "/";
     history.replaceState({ backgroundPage: p }, "", next);
-    setPath(next);
+    setPath(next.split("?")[0]);
     setEditDish(null);
     setEditItem(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -291,7 +328,15 @@ function App() {
     if (!item) {
       const next = dishUrl(d.id);
       history.replaceState({ ...history.state, backgroundPage: page }, "");
-      history.pushState({ dishOverlay: true, backgroundPage: page }, "", next);
+      history.pushState(
+        {
+          dishOverlay: true,
+          backgroundPage: page,
+          menuFilters: { query, category },
+        },
+        "",
+        next,
+      );
       setPath(next);
     }
     track("dish_view");
@@ -515,9 +560,7 @@ function App() {
                 <button
                   className="primary"
                   onClick={() => {
-                    setCategory("combos");
-                    setQuery("");
-                    go("menu");
+                    go("menu", { query: "", category: "combos" });
                   }}
                 >
                   Выбрать комбо <ArrowRight size={18} />
@@ -640,10 +683,15 @@ function App() {
                     aria-label="Найти блюдо"
                     placeholder="Например, фо бо или креветки"
                     value={query}
-                    onChange={(e) => setQuery(e.target.value)}
+                    onChange={(e) =>
+                      updateMenuFilters({ query: e.target.value, category })
+                    }
                   />
                 </span>
               </label>
+              {(query || category !== "all") && (
+                <ShareMenuSearch query={query} category={category} />
+              )}
               <div className="categories">
                 {[{ id: "all", name: "Всё меню" }, ...menu.categories].map(
                   (c) => (
@@ -651,7 +699,7 @@ function App() {
                       key={c.id}
                       className={category === c.id ? "selected" : ""}
                       onClick={() => {
-                        setCategory(c.id);
+                        updateMenuFilters({ query, category: c.id });
                         track("category_view");
                       }}
                     >

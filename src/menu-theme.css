@@ -285,6 +285,26 @@ nav button.nav-active:after {
   font-size: 15px;
   font-weight: 600;
 }
+.menu-search-share {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  min-width: 0;
+}
+.menu-search-share button {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+.menu-search-share label {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+}
+.menu-search-share input {
+  width: 100%;
+  min-width: 0;
+}
 .menu-search-field {
   display: flex;
   align-items: center;
