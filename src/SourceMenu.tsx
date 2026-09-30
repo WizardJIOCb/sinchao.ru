@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, BookOpen } from "lucide-react";
 import { menuPages } from "./menu-pages";
 import "./source-menu.css";
@@ -52,6 +52,10 @@ export function SourceMenuPromo({ open }: { open: () => void }) {
 }
 export function SourceMenuGallery() {
   const [selected, setSelected] = useState<number | null>(null);
+  const backButton = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    backButton.current?.focus();
+  }, [selected]);
   return selected === null ? (
     <div className="source-menu-gallery">
       {menuPages.map((page, i) => (
@@ -68,7 +72,11 @@ export function SourceMenuGallery() {
   ) : (
     <div className="source-menu-full">
       <div className="button-row">
-        <button className="secondary" onClick={() => setSelected(null)}>
+        <button
+          ref={backButton}
+          className="secondary"
+          onClick={() => setSelected(null)}
+        >
           <ArrowLeft size={16} /> Все страницы
         </button>
         <a href={menuPages[selected].src} target="_blank" rel="noreferrer">
