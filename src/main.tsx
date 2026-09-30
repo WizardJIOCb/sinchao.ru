@@ -629,6 +629,21 @@ function App() {
               )}
             </div>
             <div className="menu-tools">
+              <label className="menu-search">
+                <span className="menu-search-label">Поиск по меню</span>
+                <span className="menu-search-field">
+                  <span className="menu-search-icon" aria-hidden="true">
+                    <Search size={24} />
+                  </span>
+                  <input
+                    type="search"
+                    aria-label="Найти блюдо"
+                    placeholder="Например, фо бо или креветки"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                  />
+                </span>
+              </label>
               <div className="categories">
                 {[{ id: "all", name: "Всё меню" }, ...menu.categories].map(
                   (c) => (
@@ -645,15 +660,6 @@ function App() {
                   ),
                 )}
               </div>
-              <label className="search">
-                <Search size={17} />
-                <input
-                  aria-label="Найти блюдо"
-                  placeholder="Найти любимое блюдо"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                />
-              </label>
             </div>
             <SourceMenuPromo open={openPhotoMenu} />
             <div className="filter-line">
