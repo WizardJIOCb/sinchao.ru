@@ -25,6 +25,10 @@ On 2026-09-29 the owner supplied 21 original JPGs exported from https://vk.ru/cl
 
 The real menu is published with `menuVerified=true`. Hours, delivery zones/fees, capacity, loyalty rules and promotions still require operator confirmation, so `demo=true` remains: online orders and bookings are explicitly test flows. Ingredient descriptions are transcribed from the menu; full allergen information and unspecified drink flavours/volumes must be checked with the restaurant. Online card acquiring remains unconnected.
 
+## Install on Android
+
+Open **https://food.xedoc.ru** in Chrome and tap the phone icon in the header, or use Chrome's menu → Install app / Add to Home screen. The PWA launches from its own icon; orders and bookings require internet. With no connection, it shows a retry button and the restaurant phone. Installation behaviour depends on the phone/browser. See [Android installation and optional APK packaging](docs/ANDROID.md).
+
 ## Local setup
 
 Node 22.14+ / Node 24 recommended, PostgreSQL 14+.

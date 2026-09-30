@@ -53,6 +53,8 @@ import { ProfileAchievements } from "./DishAchievements";
 import { TipSelector } from "./Tips";
 import { noTip, type TipChoice } from "../shared/tips";
 import { Contacts } from "./Contacts";
+import { InstallApp } from "./InstallApp";
+import "./pwa";
 import {
   DiscoveryHub,
   DinePanel,
@@ -63,6 +65,7 @@ import {
 import type { Visit } from "../shared/v2";
 import "./style.css";
 import "./menu-theme.css";
+import "./install-app.css";
 import "@fontsource/lobster/400.css";
 import "@fontsource/golos-text/400.css";
 import "@fontsource/golos-text/500.css";
@@ -353,6 +356,7 @@ function App() {
             ))}
           </nav>
           <div className="header-actions">
+            <InstallApp />
             <button
               className="icon-button notification-button"
               aria-label="Уведомления"

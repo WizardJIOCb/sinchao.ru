@@ -242,7 +242,16 @@ app.use("/api", (_req, res) =>
     error: { code: "NOT_FOUND", message: "Маршрут не найден." },
   }),
 );
-app.use(express.static(resolve("dist/public"), { maxAge: "1h", index: false }));
+app.use(express.static(resolve("dist/public"), {
+  maxAge: "1h",
+  index: false,
+  setHeaders(res, path) {
+    // Revalidate PWA metadata and its fallback on every release.
+    if (/[/\\](sw\.js|manifest\.webmanifest|offline\.(html|css|js))$/.test(path)) {
+      res.setHeader("Cache-Control", "no-cache");
+    }
+  },
+}));
 app.get("/{*path}", (_req, res) =>
   res.sendFile(resolve("dist/public/index.html")),
 );
