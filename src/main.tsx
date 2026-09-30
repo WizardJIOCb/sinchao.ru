@@ -1715,7 +1715,7 @@ function CartModal({
                 value={promo}
                 maxLength={30}
                 onChange={(e) => setPromo(e.target.value.toUpperCase())}
-                placeholder="Если есть"
+                placeholder="Например, PHO123"
               />
             </label>
             {user && (

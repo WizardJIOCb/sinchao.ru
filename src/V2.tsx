@@ -496,7 +496,7 @@ export function DineCart({
           maxLength={30}
           disabled={busy}
           onChange={(e) => setPromo(e.target.value)}
-          placeholder="Например, 480"
+          placeholder="Например, PHO123"
         />
       </label>
       {!!quote?.discount && (
