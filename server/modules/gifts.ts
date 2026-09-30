@@ -193,8 +193,15 @@ adminGiftsRouter.post("/gifts/redeem", async (req, res) => {
           "ORDER_STATE",
           "Выберите неоплаченный заказ доставки/самовывоза или часть счёта за столом.",
         );
-      if (input.amount > order.data.total - order.gift_paid)
-        fail(400, "GIFT_AMOUNT", "Сумма превышает остаток к оплате.");
+      if (
+        input.amount >
+        order.data.total - (order.data.tip ?? 0) - order.gift_paid
+      )
+        fail(
+          400,
+          "GIFT_AMOUNT",
+          "Сумма превышает остаток без чаевых. Чаевые оплачиваются отдельно от сертификата.",
+        );
       await db.query(
         "UPDATE orders SET gift_paid=gift_paid+$2,payment_status=CASE WHEN gift_paid+$2=(data->>'total')::int THEN 'PAID' ELSE payment_status END WHERE id=$1",
         [input.orderId, input.amount],
@@ -207,8 +214,12 @@ adminGiftsRouter.post("/gifts/redeem", async (req, res) => {
       ).rows[0];
       if (!share || share.paid)
         fail(409, "SHARE_PAID", "Эта часть счёта уже оплачена.");
-      if (input.amount > share.amount - share.gift_paid)
-        fail(400, "GIFT_AMOUNT", "Сумма превышает остаток к оплате.");
+      if (input.amount > share.amount - share.tip - share.gift_paid)
+        fail(
+          400,
+          "GIFT_AMOUNT",
+          "Сумма превышает остаток без чаевых. Чаевые оплачиваются отдельно от сертификата.",
+        );
       await db.query(
         "UPDATE bill_shares SET gift_paid=gift_paid+$2,paid=(gift_paid+$2=amount),paid_at=CASE WHEN gift_paid+$2=amount THEN now() ELSE NULL END WHERE id=$1",
         [input.shareId, input.amount],

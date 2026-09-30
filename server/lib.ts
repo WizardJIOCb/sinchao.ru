@@ -50,7 +50,7 @@ export async function balance(db: DB, userId?: string | null): Promise<number> {
 }
 export async function audit(
   db: DB,
-  actor: string,
+  actor: string | null,
   action: string,
   entity: string,
   before: unknown,

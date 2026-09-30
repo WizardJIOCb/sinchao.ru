@@ -6,7 +6,8 @@ import { requireUser } from "./auth";
 import { newCode, v2Settings } from "./v2-core";
 import type { Preferences } from "../../shared/v2";
 import { dishAchievements } from "../dish-achievements";
-import { achievementRules } from "./marketing";
+import { achievementRules, generalRules } from "./marketing";
+import { generalAchievements } from "../general-achievements";
 
 export const discoveryRouter = Router();
 discoveryRouter.get("/discovery", async (req, res) => {
@@ -35,6 +36,32 @@ discoveryRouter.get("/discovery", async (req, res) => {
     : [];
   const tried = new Set<string>(
     orders.flatMap((o) => o.data.items.map((i: any) => i.dishId)),
+  );
+  const closedVisits = userId
+    ? ((
+        await pool.query(
+          "SELECT v.id FROM dine_visits v WHERE v.status='CLOSED' AND EXISTS(SELECT 1 FROM orders o WHERE o.visit_id=v.id AND o.user_id=$1 AND o.status='COMPLETED' AND o.payment_status='PAID')",
+          [userId],
+        )
+      ).rowCount ?? 0)
+    : 0;
+  const tippedVisits = userId
+    ? ((
+        await pool.query(
+          "SELECT v.id FROM dine_visits v WHERE v.status='CLOSED' AND v.tip_user_id=$1 AND EXISTS(SELECT 1 FROM bill_shares b WHERE b.visit_id=v.id AND b.paid AND b.tip>0) AND NOT EXISTS(SELECT 1 FROM bill_shares b WHERE b.visit_id=v.id AND NOT b.paid)",
+          [userId],
+        )
+      ).rowCount ?? 0)
+    : 0;
+  const regular = orders.filter((o) => o.data.fulfillment !== "DINE_IN");
+  const common = generalAchievements(
+    {
+      bills: regular.length + closedVisits,
+      tips: regular.filter((o) => (o.data.tip ?? 0) > 0).length + tippedVisits,
+      delivery: regular.filter((o) => o.data.fulfillment === "DELIVERY").length,
+      pickup: regular.filter((o) => o.data.fulfillment === "PICKUP").length,
+    },
+    await generalRules(pool),
   );
   const liked = menu.filter(
     (d) => preferences.favorites.includes(d.id) || tried.has(d.id),
@@ -136,6 +163,7 @@ discoveryRouter.get("/discovery", async (req, res) => {
       recommendations: ranked,
       journey,
       achievements,
+      generalAchievements: common,
       dishAchievements: dishAchievements(
         menu,
         orders.map((o) => o.data),

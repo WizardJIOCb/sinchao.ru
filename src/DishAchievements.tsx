@@ -3,6 +3,59 @@ import { Trophy } from "lucide-react";
 import type { Discovery, DishAchievement } from "../shared/v2";
 import { api } from "./api";
 import { DishPicture } from "./DishPicture";
+import type { GeneralAchievement } from "../shared/marketing";
+
+export function GeneralAchievementCollection({
+  entries,
+}: {
+  entries: GeneralAchievement[];
+}) {
+  if (!entries.length) return null;
+  return (
+    <section className="dish-achievements" aria-label="Общие ачивки">
+      <div className="eyebrow">ВАШИ РЕСТОРАННЫЕ СУПЕРСИЛЫ</div>
+      <h2>За вкусные привычки — новые звания</h2>
+      <div className="dish-achievement-grid">
+        {entries.map((a) => (
+          <article
+            key={a.id}
+            className={`dish-badge general-badge ${a.level ? "unlocked" : "locked"}`}
+          >
+            <div className="dish-badge-top">
+              <span className="general-badge-icon" aria-hidden="true">
+                {a.icon}
+              </span>
+              <span className="dish-badge-level">
+                {a.level ? `Уровень ${a.level} / 5` : "Не открыта"}
+              </span>
+            </div>
+            <h3>{a.name}</h3>
+            <p>{a.description}</p>
+            <div className="dish-badge-rank">{a.rank}</div>
+            <div className="dish-badge-stars" aria-hidden="true">
+              {a.milestones.map((n, i) => (
+                <span key={n} className={i < a.level ? "lit" : ""}>
+                  ★
+                </span>
+              ))}
+            </div>
+            <small>Уровни: {a.milestones.join(" · ")}</small>
+            <progress
+              aria-label={a.name}
+              value={Math.min(a.progress, a.nextTarget ?? a.milestones[4])}
+              max={a.nextTarget ?? a.milestones[4]}
+            />
+            <small>
+              {a.nextTarget
+                ? `${a.progress} / ${a.nextTarget} · До следующего уровня: ${a.nextTarget - a.progress}`
+                : `Высший уровень! Всего: ${a.progress}`}
+            </small>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 export function DishAchievementCollection({
   entries,
@@ -88,6 +141,7 @@ export function DishAchievementCollection({
 }
 
 export function ProfileAchievements({ userId }: { userId: string }) {
+  const [general, setGeneral] = useState<GeneralAchievement[]>([]);
   const [entries, setEntries] = useState<DishAchievement[] | null>(null);
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
@@ -97,7 +151,10 @@ export function ProfileAchievements({ userId }: { userId: string }) {
     setError("");
     api<Discovery>("/v2/discovery")
       .then((data) => {
-        if (active) setEntries(data.dishAchievements);
+        if (active) {
+          setEntries(data.dishAchievements);
+          setGeneral(data.generalAchievements);
+        }
       })
       .catch(() => {
         if (active) setError("Не получилось загрузить ачивки.");
@@ -116,5 +173,10 @@ export function ProfileAchievements({ userId }: { userId: string }) {
       </div>
     );
   if (!entries) return <p role="status">Собираем вашу коллекцию вкусов…</p>;
-  return <DishAchievementCollection entries={entries} />;
+  return (
+    <>
+      <GeneralAchievementCollection entries={general} />
+      <DishAchievementCollection entries={entries} />
+    </>
+  );
 }

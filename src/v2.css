@@ -18,6 +18,81 @@
   margin: 12px 0 0;
   line-height: 1.5;
 }
+.tip-selector {
+  min-width: 0;
+  border: 1px solid #cbb889;
+  border-radius: 10px;
+  background: #f8edcf;
+  padding: 16px;
+  margin: 24px 0 12px;
+}
+.tip-selector legend {
+  font-weight: 600;
+  padding: 0 6px;
+}
+.tip-selector > p {
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 4px 0 14px;
+}
+.tip-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 8px;
+  margin: 12px 0;
+}
+.tip-options button {
+  min-height: 52px;
+  padding: 10px;
+  border: 1px solid #b9a776;
+  border-radius: 6px;
+  background: #fff7df;
+  font-size: 12px;
+}
+.tip-options button[aria-pressed="true"] {
+  background: #465330;
+  color: #fff7df;
+  border-color: #465330;
+}
+.tip-options small {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+}
+.tip-selector > label {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0;
+}
+.tip-selector input {
+  width: 100%;
+  min-width: 0;
+}
+.tip-selected {
+  margin-bottom: 0 !important;
+}
+.visit-tips {
+  margin: 24px 0;
+}
+.tip-summary {
+  margin: 20px 0;
+  padding: 14px;
+  border: 1px solid #cbb889;
+  border-radius: 8px;
+}
+.tip-unsaved {
+  display: block;
+  margin-top: 10px;
+}
+.general-badge-icon {
+  font-size: 40px;
+  line-height: 1.4;
+}
+.general-badge > p {
+  font-size: 12px;
+  line-height: 1.65;
+  min-height: 60px;
+}
 .visit-bill {
   margin-top: 20px;
 }
@@ -192,12 +267,15 @@
   background: #f7eacb;
   border: 1px solid #ceb984;
   border-radius: 50%;
+  overflow: hidden;
   padding: 6px;
 }
 .dish-badge-picture > * {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  border-radius: 50%;
+  display: block;
 }
 .dish-badge-level {
   font-size: 11px;

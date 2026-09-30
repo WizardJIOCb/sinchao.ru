@@ -332,6 +332,9 @@ export function AdminV2({
               <h3>
                 Счёт: {money(v.total)} · оплачено {money(v.paid)}
               </h3>
+              <p>
+                Блюда: {money(v.foodTotal)} · Чаевые гостей: {money(v.tip)}
+              </p>
               {!v.shares.length && v.total > 0 && (
                 <form
                   className="inline-form"
@@ -362,6 +365,7 @@ export function AdminV2({
                   <span>Часть {s.position}</span>
                   <span>
                     <b>{money(s.amount)}</b>
+                    {!!s.tip && <small> · чаевые {money(s.tip)}</small>}
                     {!!s.giftPaid && (
                       <small> · сертификатом {money(s.giftPaid)}</small>
                     )}

@@ -119,3 +119,10 @@ The owner registered Rodion and the authorized ADMIN role was assigned previousl
 - Production verification: 18 tables, 66 seats, shapes 14 square / 3 round / 1 long; all 8 previous table IDs and QR hashes retained; all 5 existing reservation-to-table references retained. Rodion remains ADMIN. No role changes or fabricated orders were made in production. Draft `480` is disabled with 0% and zero uses.
 - Live browser: operator shows 18 tables with existing occupancy/orders/bookings/calls, no demo banner. User-role screen exposes Rodion ADMIN and prevents current admin self-demotion. Profile shows 44 available achievement tracks; buttons are 48px high, aligned at desktop, 303px wide with 12px vertical gaps at 390px. No horizontal overflow or browser errors observed.
 - Public JS bundle SHA256 matches local build: `9a950a49ba6f466a32f580fdf53f231c0f576f80458f357b5ad24b2a8089964a`. Screenshots: `artifacts/operator-live-desktop.png`, `artifacts/operator-live-mobile.png`, `artifacts/profile-actions-live-desktop.png`.
+
+## Tips, general achievements and circular badge images — 2026-09-30
+
+- Added voluntary default-off tips to checkout, QR cart and shared table bill, with percentages/custom amounts and separate customer/staff totals. Migration 008 adds versioned visit choices, attributed user, share tip amounts and managed general-achievement rules. Historical records default to no tip.
+- Added four general tracks with five levels and manager controls; food badges now clip both image/SVG and their wrapper to circles.
+- All 47 isolated tests and production build pass. Coverage includes discounts/points/delivery exclusions, exact split sums, gift exclusions, idempotency, concurrent tip changes, membership/paid-bill locks, cancelled/unsettled exclusions, multi-order visit deduplication, tip attribution and rule permissions.
+- Local real-backend browser verified 10% on 470.01 rubles = 47 rubles; custom 100.01 persists, and mobile tip controls fit 390px without horizontal overflow. General cards show server-calculated history and configured thresholds. Production mutations are not used for test transactions.

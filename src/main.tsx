@@ -50,6 +50,8 @@ import {
 import { Admin } from "./pages/Admin";
 import { DishPicture } from "./DishPicture";
 import { ProfileAchievements } from "./DishAchievements";
+import { TipSelector } from "./Tips";
+import { noTip, type TipChoice } from "../shared/tips";
 import { Contacts } from "./Contacts";
 import {
   DiscoveryHub,
@@ -724,6 +726,9 @@ function App() {
                     </p>
                     <div className="record-head">
                       <b>Итого {money(o.total)}</b>
+                      {!!o.tip && (
+                        <small>В том числе чаевые: {money(o.tip)}</small>
+                      )}
                       <span>
                         {o.paymentStatus === "PAID"
                           ? "Оплата получена"
@@ -1439,6 +1444,7 @@ function CartModal({
   const cfg = menu.config;
   const [zoneId, setZoneId] = useState(cfg.zones[0]?.id ?? ""),
     [promo, setPromo] = useState(""),
+    [tip, setTip] = useState<TipChoice>(noTip),
     [redeem, setRedeem] = useState(0),
     [quote, setQuote] = useState<Quote | null>(null),
     [error, setError] = useState(""),
@@ -1466,6 +1472,7 @@ function CartModal({
       zoneId,
       promo,
       points: redeem,
+      tip,
     })
       .then((q) => {
         if (!cancelled) setQuote(q);
@@ -1479,7 +1486,7 @@ function CartModal({
     return () => {
       cancelled = true;
     };
-  }, [cart, fulfillment, zoneId, promo, redeem]);
+  }, [cart, fulfillment, zoneId, promo, redeem, tip]);
   return (
     <Modal title="Ваша корзина" onClose={close} wide>
       {visit ? (
@@ -1523,6 +1530,7 @@ function CartModal({
                   zoneId,
                   promo,
                   points: redeem,
+                  tip,
                   name: f.get("name"),
                   phone: f.get("phone"),
                   address: f.get("address") ?? "",
@@ -1731,6 +1739,19 @@ function CartModal({
                 <small>До {cfg.redemptionPercent}% стоимости блюд.</small>
               </label>
             )}
+            <TipSelector
+              base={
+                quote
+                  ? quote.subtotal - quote.discount - quote.loyaltyDiscount
+                  : 0
+              }
+              choice={tip}
+              onChange={(value) => {
+                setTip(value);
+                key.current = crypto.randomUUID();
+              }}
+              disabled={busy}
+            />
             {quote ? (
               <div className="totals">
                 <div>
@@ -1756,6 +1777,10 @@ function CartModal({
                   <b>
                     {quote.deliveryFee ? money(quote.deliveryFee) : "Бесплатно"}
                   </b>
+                </div>
+                <div>
+                  <span>Чаевые</span>
+                  <b>{money(quote.tip ?? 0)}</b>
                 </div>
                 <div className="grand-total">
                   <span>Итого</span>

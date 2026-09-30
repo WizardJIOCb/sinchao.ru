@@ -174,7 +174,8 @@ export function OperatorPanel({ go }: { go: (tab: string) => void }) {
                 Гости за столом · Код визита: <b>{visit.joinCode}</b>
               </p>
               <p>
-                Счёт {money(visit.total)} · оплачено {money(visit.paid)}
+                Счёт {money(visit.total)} · чаевые {money(visit.tip)} · оплачено{" "}
+                {money(visit.paid)}
               </p>
               <button className="primary" onClick={() => go("v2")}>
                 Счёт и обслуживание

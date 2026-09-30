@@ -7,6 +7,7 @@ import type {
 } from "../../shared/types";
 import { fail, localNow } from "../lib";
 import type { Promotion } from "../../shared/marketing";
+import { calculateTip, type TipChoice } from "../../shared/tips";
 export function priceCart(
   cart: CartItem[],
   menu: Dish[],
@@ -16,6 +17,7 @@ export function priceCart(
     zoneId: string;
     promo: string;
     points: number;
+    tip?: TipChoice;
   },
   loyaltyBalance: number,
   enforceMinimum = true,
@@ -122,10 +124,12 @@ export function priceCart(
       );
     deliveryFee = zone.fee;
   }
+  const tip = calculateTip(subtotal - discount - loyaltyDiscount, options.tip);
   return {
     items,
     subtotal,
     discount,
+    tip,
     ...(options.promo.trim()
       ? { promoCode: options.promo.trim().toUpperCase() }
       : {}),
@@ -133,7 +137,7 @@ export function priceCart(
     deliveryFee,
     serviceFee: 0,
     tax: 0,
-    total: subtotal - discount - loyaltyDiscount + deliveryFee,
+    total: subtotal - discount - loyaltyDiscount + deliveryFee + tip,
   };
 }
 export function fulfillmentTimes(cfg: Config) {

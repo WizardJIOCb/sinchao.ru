@@ -182,6 +182,9 @@ export function Admin({
                     )}
                     <div className="record-head">
                       <b>{money(o.total)}</b>
+                      {!!o.tip && (
+                        <small>В том числе чаевые: {money(o.tip)}</small>
+                      )}
                       <span>
                         {o.paymentStatus === "PAID"
                           ? "Оплачено"

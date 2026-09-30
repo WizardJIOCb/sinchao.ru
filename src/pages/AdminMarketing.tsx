@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import type { Dish } from "../../shared/types";
-import type { AchievementRule, Promotion } from "../../shared/marketing";
+import type {
+  AchievementRule,
+  GeneralAchievementRule,
+  Promotion,
+} from "../../shared/marketing";
 import { api } from "../api";
 
 const emptyPromo: Promotion = {
@@ -25,11 +29,13 @@ export function AdminMarketing({ menu }: { menu: Dish[] }) {
   const [data, setData] = useState<{
     promotions: Promotion[];
     rules: AchievementRule[];
+    generalRules: GeneralAchievementRule[];
   } | null>(null);
   const [tab, setTab] = useState("promos");
   const [promo, setPromo] = useState<Promotion | null>(null);
   const [editingCode, setEditingCode] = useState<string | null>(null);
   const [rule, setRule] = useState<AchievementRule | null>(null);
+  const [general, setGeneral] = useState<GeneralAchievementRule | null>(null);
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [message, setMessage] = useState("");
@@ -78,6 +84,15 @@ export function AdminMarketing({ menu }: { menu: Dish[] }) {
         >
           Ачивки по блюдам
         </button>
+        <button
+          className={tab === "general" ? "selected" : ""}
+          onClick={() => {
+            setTab("general");
+            setMessage("");
+          }}
+        >
+          Общие ачивки
+        </button>
       </div>
       {error && (
         <p className="error" role="alert">
@@ -86,6 +101,93 @@ export function AdminMarketing({ menu }: { menu: Dish[] }) {
       )}
       {message && <p role="status">{message}</p>}
       {!data && <p>Загружаем настройки…</p>}
+      {data && tab === "general" && (
+        <>
+          <p>
+            Оплаченные завершённые заказы и закрытые счета учитываются
+            автоматически. Чаевые за столом получает в прогресс тот
+            зарегистрированный гость, который сохранил итоговый выбор. Пять
+            порогов задаются по возрастанию.
+          </p>
+          <label>
+            Выберите общее достижение
+            <select
+              value={general?.id ?? ""}
+              onChange={(e) => {
+                setGeneral(
+                  data.generalRules.find((r) => r.id === e.target.value) ??
+                    null,
+                );
+                setMessage("");
+              }}
+            >
+              <option value="">Выберите…</option>
+              {data.generalRules.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.name}
+                  {r.enabled ? "" : " · скрыта"}
+                </option>
+              ))}
+            </select>
+          </label>
+          {general && (
+            <form
+              className="record standard-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void save("general-achievements/" + general.id, general);
+              }}
+            >
+              <label>
+                Название общего достижения
+                <input
+                  required
+                  maxLength={100}
+                  value={general.name}
+                  onChange={(e) =>
+                    setGeneral({ ...general, name: e.target.value })
+                  }
+                />
+              </label>
+              <div className="marketing-levels">
+                {general.milestones.map((n, i) => (
+                  <label key={i}>
+                    Уровень {i + 1}: действий
+                    <input
+                      required
+                      type="number"
+                      min={1}
+                      max={10000}
+                      value={n}
+                      onChange={(e) =>
+                        setGeneral({
+                          ...general,
+                          milestones: general.milestones.map((v, j) =>
+                            i === j ? Number(e.target.value) : v,
+                          ),
+                        })
+                      }
+                    />
+                  </label>
+                ))}
+              </div>
+              <label className="check-label">
+                <input
+                  type="checkbox"
+                  checked={general.enabled}
+                  onChange={(e) =>
+                    setGeneral({ ...general, enabled: e.target.checked })
+                  }
+                />
+                Показывать достижение
+              </label>
+              <button className="primary" disabled={busy}>
+                Сохранить общее достижение
+              </button>
+            </form>
+          )}
+        </>
+      )}
       {data && tab === "promos" && (
         <>
           <p>

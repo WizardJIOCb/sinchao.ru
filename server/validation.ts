@@ -1,4 +1,14 @@
 import { z } from "zod";
+export const tipSchema = z
+  .object({
+    kind: z.enum(["none", "percent", "amount"]),
+    value: z.number().int().min(0).max(500000),
+  })
+  .refine(
+    (t) =>
+      t.kind === "none" ? t.value === 0 : t.kind !== "percent" || t.value <= 30,
+    "Проверьте сумму чаевых (до 5000 ₽ или 30%).",
+  );
 export const cartItemSchema = z.object({
   id: z.string().uuid().optional(),
   dishId: z.string().min(1).max(80),
@@ -7,6 +17,7 @@ export const cartItemSchema = z.object({
   notes: z.string().max(300).default(""),
 });
 export const checkoutSchema = z.object({
+  tip: tipSchema.default({ kind: "none", value: 0 }),
   fulfillment: z.enum(["DELIVERY", "PICKUP"]),
   zoneId: z.string().max(80).default(""),
   promo: z.string().max(30).default(""),
@@ -18,6 +29,7 @@ export const checkoutSchema = z.object({
   notes: z.string().max(500).default(""),
 });
 export const quoteSchema = checkoutSchema.pick({
+  tip: true,
   fulfillment: true,
   zoneId: true,
   promo: true,

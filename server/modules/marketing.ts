@@ -4,6 +4,13 @@ import { pool, transaction, type DB } from "../db";
 import { audit, dishes, fail } from "../lib";
 import { requireManager } from "./auth";
 import { dishAchievements } from "../dish-achievements";
+import { generalDefaults } from "../general-achievements";
+import type { GeneralAchievementRule } from "../../shared/marketing";
+export async function generalRules(db: DB): Promise<GeneralAchievementRule[]> {
+  return (
+    await db.query("SELECT data FROM general_achievement_rules")
+  ).rows.map((r) => r.data);
+}
 import type { AchievementRule, Promotion } from "../../shared/marketing";
 
 export async function achievementRules(db: DB): Promise<AchievementRule[]> {
@@ -79,9 +86,19 @@ export const marketingRouter = Router();
 marketingRouter.use(requireManager);
 marketingRouter.get("/", async (_req, res) => {
   const rules = await achievementRules(pool);
+  const common = await generalRules(pool);
   const defaults = dishAchievements(await dishes(pool), []);
   res.json({
     data: {
+      generalRules: generalDefaults.map(
+        (d) =>
+          common.find((r) => r.id === d.id) ?? {
+            id: d.id,
+            name: d.name,
+            enabled: true,
+            milestones: d.milestones,
+          },
+      ),
       promotions: (
         await pool.query("SELECT data,used FROM promotions ORDER BY code")
       ).rows.map((r) => ({ ...r.data, used: r.used })),
@@ -97,6 +114,40 @@ marketingRouter.get("/", async (_req, res) => {
     },
     error: null,
   });
+});
+marketingRouter.put("/general-achievements/:id", async (req, res) => {
+  const input = ruleSchema
+    .omit({ dishId: true })
+    .extend({ id: z.string() })
+    .parse(req.body);
+  if (
+    input.id !== req.params.id ||
+    !generalDefaults.some((d) => d.id === input.id)
+  )
+    fail(400, "ACHIEVEMENT_ID", "Достижение не найдено.");
+  await transaction(async (db) => {
+    await db.query("SELECT pg_advisory_xact_lock(hashtext($1))", [
+      "general-achievement:" + input.id,
+    ]);
+    const before = (
+      await db.query("SELECT data FROM general_achievement_rules WHERE id=$1", [
+        input.id,
+      ])
+    ).rows[0];
+    await db.query(
+      "INSERT INTO general_achievement_rules(id,data) VALUES($1,$2) ON CONFLICT(id) DO UPDATE SET data=$2",
+      [input.id, JSON.stringify(input)],
+    );
+    await audit(
+      db,
+      req.session.user!.id,
+      "GENERAL_ACHIEVEMENT_UPDATE",
+      input.id,
+      before?.data ?? null,
+      input,
+    );
+  });
+  res.json({ data: input, error: null });
 });
 marketingRouter.put("/promotions/:code", async (req, res) => {
   const p = promoSchema.parse(req.body);

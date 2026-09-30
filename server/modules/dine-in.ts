@@ -14,6 +14,8 @@ import {
   restaurantClock,
 } from "../../shared/reservation-time";
 import { checkBillUnlocked, equalShares, v2Settings } from "./v2-core";
+import { tipSchema } from "../validation";
+import { calculateTip, splitTip } from "../../shared/tips";
 
 export async function visitView(db: DB, id: string, staff = false) {
   const v = (
@@ -39,11 +41,19 @@ export async function visitView(db: DB, id: string, staff = false) {
   ).rows;
   const shares = (
     await db.query(
-      'SELECT id,position,amount,paid,gift_paid AS "giftPaid" FROM bill_shares WHERE visit_id=$1 ORDER BY position',
+      'SELECT id,position,amount,tip,paid,gift_paid AS "giftPaid" FROM bill_shares WHERE visit_id=$1 ORDER BY position',
       [id],
     )
   ).rows;
+  const foodTotal = rows
+    .filter((r) => r.status !== "CANCELLED")
+    .reduce((s, r) => s + r.data.total, 0);
+  const tip = calculateTip(foodTotal, v.tip_choice);
   return {
+    foodTotal,
+    tip,
+    tipChoice: v.tip_choice,
+    tipVersion: v.tip_version,
     id: v.id,
     reservation: booking
       ? {
@@ -71,9 +81,7 @@ export async function visitView(db: DB, id: string, staff = false) {
             },
           };
     }),
-    total: rows
-      .filter((r) => r.status !== "CANCELLED")
-      .reduce((s, r) => s + r.data.total, 0),
+    total: foodTotal + tip,
     paid: shares.reduce((s, r) => s + (r.paid ? r.amount : r.giftPaid), 0),
     shares,
     calls: (
@@ -265,6 +273,48 @@ dineRouter.post("/visits/:id/split", async (req, res) => {
   res.json({ data: await visitView(pool, req.params.id), error: null });
 });
 
+dineRouter.put("/visits/:id/tip", async (req, res) => {
+  const id = z.uuid().parse(req.params.id);
+  const input = z
+    .object({
+      choice: tipSchema,
+      expectedVersion: z.number().int().nonnegative(),
+    })
+    .parse(req.body);
+  await transaction(async (db) => {
+    const v = await member(db, req, id, true);
+    await checkBillUnlocked(db, id);
+    if (v.tip_version !== input.expectedVersion)
+      fail(
+        409,
+        "TIP_CHANGED",
+        "Чаевые уже изменены другим гостем. Обновите счёт.",
+      );
+    if (
+      (
+        await db.query(
+          "SELECT id FROM orders WHERE visit_id=$1 AND status<>'CANCELLED' AND payment_status='PAID' LIMIT 1",
+          [id],
+        )
+      ).rowCount
+    )
+      fail(409, "BILL_PAID", "Заказы уже оплачены. Обратитесь к официанту.");
+    await db.query(
+      "UPDATE dine_visits SET tip_choice=$2,tip_version=tip_version+1,tip_user_id=$3 WHERE id=$1",
+      [id, JSON.stringify(input.choice), req.session.user?.id ?? null],
+    );
+    await audit(
+      db,
+      req.session.user?.id ?? null,
+      "VISIT_TIP_CHANGED",
+      id,
+      v.tip_choice,
+      input.choice,
+    );
+  });
+  res.json({ data: await visitView(pool, id), error: null });
+});
+
 async function createShares(db: DB, id: string, count: number) {
   const existing = (
     await db.query("SELECT id FROM bill_shares WHERE visit_id=$1", [id])
@@ -285,11 +335,17 @@ async function createShares(db: DB, id: string, count: number) {
   ).rows;
   if (!orders.length || orders.some((o) => o.payment_status === "PAID"))
     fail(409, "BILL_STATE", "Счёт пуст или уже оплачен.");
-  const total = orders.reduce((s, r) => s + r.data.total, 0);
+  const foodTotal = orders.reduce((s, r) => s + r.data.total, 0);
+  const v = (
+    await db.query("SELECT tip_choice FROM dine_visits WHERE id=$1", [id])
+  ).rows[0];
+  const tip = calculateTip(foodTotal, v.tip_choice);
+  const total = foodTotal + tip;
+  const tips = splitTip(tip, count);
   for (const [i, amount] of equalShares(total, count).entries())
     await db.query(
-      "INSERT INTO bill_shares(id,visit_id,position,amount) VALUES($1,$2,$3,$4)",
-      [randomUUID(), id, i + 1, amount],
+      "INSERT INTO bill_shares(id,visit_id,position,amount,tip) VALUES($1,$2,$3,$4,$5)",
+      [randomUUID(), id, i + 1, amount, tips[i]],
     );
 }
 export const adminDineRouter = Router();
@@ -538,6 +594,7 @@ adminDineRouter.post("/visits/:id/shares/:shareId/pay", async (req, res) => {
       );
     await audit(db, req.session.user!.id, "BILL_SHARE_PAID", shareId, null, {
       amount: share.amount - share.gift_paid,
+      tip: share.tip,
       visitId: id,
     });
   });

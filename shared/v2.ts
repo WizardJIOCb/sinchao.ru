@@ -1,5 +1,7 @@
 import type { Dish, Order, Quote } from "./types";
 import type { ReservationTime } from "./reservation-time";
+import type { TipChoice } from "./tips";
+import type { GeneralAchievement } from "./marketing";
 export type Table = {
   id: string;
   name: string;
@@ -20,6 +22,7 @@ export type V2Settings = {
 };
 export type Floor = { tables: Table[]; verified: boolean };
 export type Share = {
+  tip: number;
   giftPaid: number;
   id: string;
   position: number;
@@ -27,6 +30,10 @@ export type Share = {
   paid: boolean;
 };
 export type Visit = {
+  tip: number;
+  tipChoice: TipChoice;
+  tipVersion: number;
+  foodTotal: number;
   reservation: ReservationTime | null;
   id: string;
   tableName: string;
@@ -73,6 +80,7 @@ export type DishAchievement = {
   milestones: number[];
 };
 export type Discovery = {
+  generalAchievements: GeneralAchievement[];
   dishAchievements: DishAchievement[];
   preferences: Preferences;
   recommendations: { dish: Dish; reason: string }[];

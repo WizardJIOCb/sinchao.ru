@@ -21,7 +21,11 @@ import type {
   Visit,
 } from "../shared/v2";
 import { DishPicture } from "./DishPicture";
-import { DishAchievementCollection } from "./DishAchievements";
+import {
+  DishAchievementCollection,
+  GeneralAchievementCollection,
+} from "./DishAchievements";
+import { VisitTips } from "./Tips";
 import "./v2.css";
 
 export function FloorPlan({
@@ -354,6 +358,11 @@ export function DinePanel({
                 ))}
               </div>
             ))}
+            <p>
+              Блюда: {money(visit.foodTotal)} · Чаевые: {money(visit.tip)} ·
+              Всего: {money(visit.total)}
+            </p>
+            <VisitTips visit={visit} onSaved={load} />
             {!!visit.total && !visit.shares.length && (
               <form
                 className="inline-form"
@@ -389,6 +398,7 @@ export function DinePanel({
                 <span>Часть {s.position}</span>
                 <b>
                   {money(s.amount)}
+                  {!!s.tip && <small> · чаевые {money(s.tip)}</small>}
                   {s.giftPaid > 0 && (
                     <small> · сертификатом {money(s.giftPaid)}</small>
                   )}
@@ -542,6 +552,7 @@ export function DineCart({
       <small className="dine-payment-note">
         Оплата официанту по общему или разделённому счёту.
       </small>
+      <VisitTips visit={visit} />
     </div>
   );
 }
@@ -662,27 +673,7 @@ export function DiscoveryHub({
               </p>
             </div>
           </div>
-          <div className="achievement-grid">
-            {data.achievements.map((a) => (
-              <article
-                className={"achievement " + (a.earned ? "earned" : "")}
-                key={a.id}
-              >
-                <span>{a.earned ? <Check /> : "✦"}</span>
-                <h3>{a.name}</h3>
-                <p>{a.description}</p>
-                <progress
-                  aria-label="Прогресс достижения"
-                  value={a.progress}
-                  max={a.target}
-                />
-                <small>
-                  {a.progress} / {a.target}
-                  {a.earned ? " · Получено" : ""}
-                </small>
-              </article>
-            ))}
-          </div>
+          <GeneralAchievementCollection entries={data.generalAchievements} />
           <DishAchievementCollection entries={data.dishAchievements} />
           {data.journey.map((j) => (
             <article className="record journey-route" key={j.region}>
