@@ -21,6 +21,7 @@ import type {
   Visit,
 } from "../shared/v2";
 import { DishPicture } from "./DishPicture";
+import { PromoCodeField } from "./PromoCodeField";
 import { DishFeatures } from "./DishFeatures";
 import {
   DishAchievementCollection,
@@ -445,6 +446,8 @@ export function DineCart({
       discount: number;
     } | null>(null),
     [promo, setPromo] = useState(""),
+    [promoAttempt, setPromoAttempt] = useState(0),
+    [quoteLoading, setQuoteLoading] = useState(false),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   const key = useRef(crypto.randomUUID());
@@ -453,6 +456,7 @@ export function DineCart({
     setQuote(null);
     setError("");
     key.current = crypto.randomUUID();
+    setQuoteLoading(!!cart.length);
     if (cart.length)
       api<{ total: number; discount: number }>("/cart/quote", "POST", {
         fulfillment: "PICKUP",
@@ -465,11 +469,14 @@ export function DineCart({
         })
         .catch((e) => {
           if (active) setError(e.message);
+        })
+        .finally(() => {
+          if (active) setQuoteLoading(false);
         });
     return () => {
       active = false;
     };
-  }, [cart, promo]);
+  }, [cart, promo, promoAttempt]);
   return (
     <div className="standard-form">
       <h3>{visit.tableName} · заказ за столом</h3>
@@ -501,26 +508,29 @@ export function DineCart({
       ) : (
         <p>Выберите блюда в меню.</p>
       )}
-      <label>
-        Промокод
-        <input
-          value={promo}
-          maxLength={30}
-          disabled={busy}
-          onChange={(e) => setPromo(e.target.value)}
-          placeholder="Например, PHO123"
-        />
-      </label>
-      {!!quote?.discount && (
-        <p>Скидка по промокоду: −{money(quote.discount)}</p>
-      )}
+      <PromoCodeField
+        code={promo}
+        pending={quoteLoading}
+        disabled={busy || !cart.length}
+        valid={!!quote}
+        discount={quote?.discount ?? 0}
+        error={!quote ? error : ""}
+        onApply={(code) => {
+          setQuote(null);
+          setQuoteLoading(true);
+          setError("");
+          setPromo(code);
+          setPromoAttempt((n) => n + 1);
+          key.current = crypto.randomUUID();
+        }}
+      />
       {!!visit.shares.length && (
         <p className="form-help">
           Счёт уже разделён. Попросите официанта отменить разделение, чтобы
           добавить блюда.
         </p>
       )}
-      {error && (
+      {error && (!promo || quote) && (
         <p className="error" role="alert">
           {error}
         </p>

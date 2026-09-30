@@ -1,0 +1,51 @@
+.promo-code {
+  margin-bottom: 20px;
+  min-width: 0;
+}
+.promo-code > label {
+  margin-bottom: 8px;
+}
+.promo-code-controls {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+.promo-code-controls input {
+  flex: 1 1 160px;
+  min-width: 0;
+  width: 100%;
+}
+.modal .promo-code-controls input:not([type="checkbox"]):not([type="radio"]) {
+  margin-top: 0;
+  min-height: 46px;
+}
+.promo-code-controls .promo-code-apply {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 46px;
+  flex: 0 0 auto;
+}
+.promo-code-success {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  color: #354326;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 10px 0 0;
+}
+.promo-code-success svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.promo-code .form-help,
+.promo-code .error {
+  margin: 10px 0 0;
+}
+.promo-code-remove {
+  margin-top: 8px;
+  min-height: 36px;
+}

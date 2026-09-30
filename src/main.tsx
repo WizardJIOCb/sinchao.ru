@@ -49,6 +49,7 @@ import {
 } from "../shared/reservation-time";
 import { Admin } from "./pages/Admin";
 import { DishPicture } from "./DishPicture";
+import { PromoCodeField } from "./PromoCodeField";
 import { ShareMenuSearch } from "./ShareMenuSearch";
 import {
   readMenuFilters,
@@ -1507,6 +1508,7 @@ function CartModal({
   const cfg = menu.config;
   const [zoneId, setZoneId] = useState(cfg.zones[0]?.id ?? ""),
     [promo, setPromo] = useState(""),
+    [promoAttempt, setPromoAttempt] = useState(0),
     [tip, setTip] = useState<TipChoice>(noTip),
     [redeem, setRedeem] = useState(0),
     [quote, setQuote] = useState<Quote | null>(null),
@@ -1528,7 +1530,10 @@ function CartModal({
     let cancelled = false;
     setQuote(null);
     setError("");
-    if (!cart.length) return;
+    if (!cart.length || visit) {
+      setQuoteLoading(false);
+      return;
+    }
     setQuoteLoading(true);
     api<Quote>("/cart/quote", "POST", {
       fulfillment,
@@ -1549,7 +1554,7 @@ function CartModal({
     return () => {
       cancelled = true;
     };
-  }, [cart, fulfillment, zoneId, promo, redeem, tip]);
+  }, [cart, fulfillment, zoneId, promo, promoAttempt, redeem, tip, visit?.id]);
   return (
     <Modal title="Ваша корзина" onClose={close} wide>
       {visit ? (
@@ -1780,15 +1785,22 @@ function CartModal({
           </div>
           <aside className="checkout-summary">
             <h3>Ваш заказ</h3>
-            <label>
-              Промокод
-              <input
-                value={promo}
-                maxLength={30}
-                onChange={(e) => setPromo(e.target.value.toUpperCase())}
-                placeholder="Например, PHO123"
-              />
-            </label>
+            <PromoCodeField
+              code={promo}
+              pending={quoteLoading}
+              disabled={busy}
+              valid={!!quote}
+              discount={quote?.discount ?? 0}
+              error={!quote ? error : ""}
+              onApply={(code) => {
+                setQuote(null);
+                setQuoteLoading(true);
+                setError("");
+                setPromo(code);
+                setPromoAttempt((n) => n + 1);
+                key.current = crypto.randomUUID();
+              }}
+            />
             {user && (
               <label>
                 Списать бонусы · доступно {points}
@@ -1864,7 +1876,7 @@ function CartModal({
                 </small>
               </span>
             </div>
-            {error && (
+            {error && (!promo || quote) && (
               <p className="error" role="alert">
                 {error}
               </p>
