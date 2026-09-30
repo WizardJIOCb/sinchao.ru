@@ -27,6 +27,7 @@ function workerHarness() {
   const opened: string[] = [];
   const deleted: string[] = [];
   const fetchRequests: RequestLike[] = [];
+  const fetchOptions: (RequestInit | undefined)[] = [];
   const cacheWrites: unknown[][] = [];
   const offline = new Response("Offline fallback", {
     headers: { "Content-Type": "text/html" },
@@ -36,7 +37,10 @@ function workerHarness() {
   ]);
   let names: string[] = [];
   let claimCalls = 0;
-  let fetchImpl = async (_request: RequestLike): Promise<Response> =>
+  let fetchImpl = async (
+    _request: RequestLike,
+    _options?: RequestInit,
+  ): Promise<Response> =>
     new Response("Online response");
   const match = async (request: string | { url: string }) => {
     const url = typeof request === "string" ? request : request.url;
@@ -56,9 +60,10 @@ function workerHarness() {
     {
       URL,
       Response,
-      fetch: async (request: RequestLike) => {
+      fetch: async (request: RequestLike, options?: RequestInit) => {
         fetchRequests.push(request);
-        return fetchImpl(request);
+        fetchOptions.push(options);
+        return fetchImpl(request, options);
       },
       caches: {
         open: async (name: string) => {
@@ -109,6 +114,7 @@ function workerHarness() {
     opened,
     deleted,
     fetchRequests,
+    fetchOptions,
     cacheWrites,
     offline,
     cachedResponses,
@@ -224,19 +230,30 @@ test("online navigations preserve server responses without caching personal HTML
     assert.equal(result.response, online);
   }
   assert.equal(worker.fetchRequests.length, 3);
+  for (const options of worker.fetchOptions) {
+    assert.equal(
+      options?.cache,
+      "no-store",
+      "Navigation must reach the network instead of reusing an HTTP-cached shell",
+    );
+  }
   assert.equal(worker.opened.length, 0);
   assert.equal(worker.cacheWrites.length, 0);
 });
 
-test("a failed navigation gets the cached public offline page", async () => {
+test("a failed navigation bypasses an HTTP-cached shell and gets the offline page", async () => {
   const worker = workerHarness();
-  worker.setFetch(async () => {
-    throw new TypeError("Network unavailable");
+  worker.setFetch(async (_request, options) => {
+    if (options?.cache === "no-store") {
+      throw new TypeError("Network unavailable");
+    }
+    return new Response("Stale React shell from the browser HTTP cache");
   });
   const result = await worker.dispatch("fetch", request("/menu/some-dish"));
   assert.equal(result.intercepted, true);
   assert.equal(result.response, worker.offline);
   assert.equal(worker.fetchRequests.length, 1);
+  assert.equal(worker.fetchOptions[0]?.cache, "no-store");
   assert.equal(worker.cacheWrites.length, 0);
 });
 

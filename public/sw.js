@@ -1,5 +1,5 @@
 // Only a public offline screen is stored. Live pages and API data stay on the network.
-const CACHE = "sinchao-offline-v1";
+const CACHE = "sinchao-offline-v2";
 const OFFLINE_ASSETS = [
   "/offline.html",
   "/offline.css",
@@ -39,7 +39,7 @@ self.addEventListener("fetch", (event) => {
 
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request).catch(async () => {
+      fetch(request, { cache: "no-store" }).catch(async () => {
         const cache = await caches.open(CACHE);
         return (await cache.match("/offline.html")) ?? Response.error();
       }),
