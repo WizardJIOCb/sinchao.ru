@@ -167,8 +167,8 @@ export const menuPages = [
     width: 991,
     height: 1435,
     x: 0,
-    y: 20,
-    cropWidth: 989,
-    cropHeight: 1404,
+    y: 22,
+    cropWidth: 987,
+    cropHeight: 1400,
   },
 ];

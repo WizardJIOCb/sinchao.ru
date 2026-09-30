@@ -1,4 +1,5 @@
 .source-menu-promo {
+  text-decoration: none;
   display: flex;
   width: 100%;
   align-items: center;
@@ -11,6 +12,27 @@
   background: linear-gradient(110deg, #e4e8ca, #faf0d6);
   box-shadow: 0 5px 16px #51442212;
   color: #354326;
+}
+.source-menu-share {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+}
+.source-menu-share button {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+.source-menu-share label {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+}
+.source-menu-promo-wrap > .source-menu-share {
+  margin: 10px 0 22px;
+}
+.source-menu-share-toolbar {
+  padding: 0 20px 12px;
 }
 .source-menu-promo:hover {
   border-color: #4d5c34;

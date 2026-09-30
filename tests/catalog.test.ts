@@ -24,7 +24,7 @@ const quote = (dishId: string, modifiers: string[]) =>
 test("Supplied VK menu has valid, unique items and local source photographs", () => {
   assert.equal(menu.length, 56);
   assert.equal(new Set(menu.map((d) => d.id)).size, menu.length);
-  assert.equal(new Set(menu.map((d) => d.image)).size, 19);
+  assert.equal(new Set(menu.map((d) => d.image)).size, 56);
   for (const dish of menu) {
     assert.ok(dishSchema.safeParse(dish).success, dish.id);
     assert.ok(
@@ -32,7 +32,8 @@ test("Supplied VK menu has valid, unique items and local source photographs", ()
       dish.id,
     );
     assert.ok(existsSync("public" + dish.image), dish.image);
-    assert.ok(dish.imageCrop, dish.id);
+    assert.equal(dish.imageCrop, undefined, dish.id);
+    assert.ok(dish.image.startsWith("/images/dishes/"), dish.id);
   }
   for (const path of [
     contentSettings.logoImage,

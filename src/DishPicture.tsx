@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import type { Dish } from "../shared/types";
 
-/** Show an unmodified photograph from its original menu page, clipped in the UI. */
+/** Standalone photograph; legacy/custom page crops remain supported in the editor. */
 export function DishPicture({
   dish,
   className = "",
@@ -35,10 +35,11 @@ export function DishPicture({
   if (!crop)
     return (
       <img
-        className={className}
+        className={"dish-photo " + className}
         src={dish.image}
         alt={dish.localizedName}
         loading={eager ? "eager" : "lazy"}
+        style={{ objectFit: "contain" }}
       />
     );
   return (

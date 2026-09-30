@@ -49,7 +49,12 @@ import {
 } from "../shared/reservation-time";
 import { Admin } from "./pages/Admin";
 import { DishPicture } from "./DishPicture";
-import { SourceMenuPromo, SourceMenuGallery } from "./SourceMenu";
+import {
+  SourceMenuPromo,
+  SourceMenuGallery,
+  CopyPhotoMenuLink,
+  photoMenuPath,
+} from "./SourceMenu";
 import { DishFeatures } from "./DishFeatures";
 import { ProfileAchievements } from "./DishAchievements";
 import { TipSelector } from "./Tips";
@@ -85,6 +90,7 @@ type MenuData = { config: Config; categories: Category[]; dishes: Dish[] };
 
 const dishUrl = (id: string) => "/menu/" + encodeURIComponent(id);
 function dishIdFromPath(path: string) {
+  if (path.replace(/\/$/, "") === photoMenuPath) return null;
   const match = path.match(/^\/menu\/([^/]+)\/?$/);
   try {
     return match ? decodeURIComponent(match[1]) : null;
@@ -169,7 +175,6 @@ function App() {
     [path, setPath] = useState(location.pathname),
     [category, setCategory] = useState("all"),
     [query, setQuery] = useState(""),
-    [sourceMenuOpen, setSourceMenuOpen] = useState(false),
     [fulfillment, setFulfillment] = useState<Fulfillment>("DELIVERY"),
     [editDish, setEditDish] = useState<Dish | null>(null),
     [editItem, setEditItem] = useState<CartItem | null>(null),
@@ -181,6 +186,19 @@ function App() {
     [error, setError] = useState(""),
     [table, setTable] = useState(""),
     [visit, setVisit] = useState<Visit | null>(null);
+  const sourceMenuOpen = path.replace(/\/$/, "") === photoMenuPath;
+  function openPhotoMenu() {
+    history.pushState(
+      { photoMenuOverlay: true, backgroundPage: page },
+      "",
+      photoMenuPath,
+    );
+    setPath(photoMenuPath);
+  }
+  function closePhotoMenu() {
+    if (history.state?.photoMenuOverlay) history.back();
+    else go("menu");
+  }
   const [tableToken] = useState(
     () => location.pathname.match(/^\/dine-in\/([^/]+)$/)?.[1] ?? "",
   );
@@ -239,10 +257,12 @@ function App() {
     editDish ?? menu?.dishes.find((d) => d.id === dishIdFromPath(path));
   useEffect(() => {
     if (menu)
-      document.title = dish
-        ? `${dish.name} — ${menu.config.name}`
-        : `${menu.config.name} — вьетнамская кухня`;
-  }, [dish, menu]);
+      document.title = sourceMenuOpen
+        ? `Меню на фотографиях — ${menu.config.name}`
+        : dish
+          ? `${dish.name} — ${menu.config.name}`
+          : `${menu.config.name} — вьетнамская кухня`;
+  }, [dish, menu, sourceMenuOpen]);
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(""), 6000);
@@ -635,7 +655,7 @@ function App() {
                 />
               </label>
             </div>
-            <SourceMenuPromo open={() => setSourceMenuOpen(true)} />
+            <SourceMenuPromo open={openPhotoMenu} />
             <div className="filter-line">
               <span>Позиций: {filtered.length}</span>
             </div>
@@ -989,15 +1009,14 @@ function App() {
         ))}
       </div>
       {sourceMenuOpen && (
-        <Modal
-          title="Оригинальное меню Син Чао"
-          onClose={() => setSourceMenuOpen(false)}
-          wide
-        >
+        <Modal title="Оригинальное меню Син Чао" onClose={closePhotoMenu} wide>
           <p className="source-menu-note">
             Страницы меню, предоставленные рестораном. Нажмите на страницу,
             чтобы открыть её в полном размере.
           </p>
+          <div className="source-menu-share-toolbar">
+            <CopyPhotoMenuLink />
+          </div>
           <SourceMenuGallery />
         </Modal>
       )}
@@ -1018,7 +1037,7 @@ function App() {
           }}
         />
       )}
-      {path.startsWith("/menu/") && !dish && (
+      {path.startsWith("/menu/") && !sourceMenuOpen && !dish && (
         <Modal title="Блюдо не найдено" onClose={closeDish}>
           <div className="modal-dish-body">
             <p>Возможно, блюдо убрали из меню или в ссылке есть ошибка.</p>

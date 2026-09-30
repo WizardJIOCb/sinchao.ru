@@ -1,4 +1,5 @@
 import type { Category, Dish, ModifierGroup } from "../../shared/types";
+import { extractedDishImage } from "../dish-image-migration";
 
 // Transcribed from the owner's local VK menu pages, 2026-09-29.
 // Coordinates select the real dish photograph on its unchanged source page.
@@ -154,7 +155,7 @@ function dish(
 ): Dish {
   const [file, sourceWidth, sourceHeight] = sources[source];
   const [x, y, width, height] = crop;
-  return {
+  return extractedDishImage({
     id,
     categoryId,
     name,
@@ -183,7 +184,7 @@ function dish(
     featured,
     region: "",
     modifiers,
-  };
+  });
 }
 export const menu: Dish[] = [
   dish(

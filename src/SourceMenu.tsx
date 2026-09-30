@@ -1,7 +1,54 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, BookOpen } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, Link, Check } from "lucide-react";
 import { menuPages } from "./menu-pages";
 import "./source-menu.css";
+
+export const photoMenuPath = "/menu/photos";
+
+export function CopyPhotoMenuLink() {
+  const [copied, setCopied] = useState(false);
+  const [fallback, setFallback] = useState(false);
+  const url = new URL(photoMenuPath, location.origin).href;
+  useEffect(() => {
+    if (!copied) return;
+    const timer = setTimeout(() => setCopied(false), 4000);
+    return () => clearTimeout(timer);
+  }, [copied]);
+  return (
+    <div className="source-menu-share">
+      <button
+        type="button"
+        className="secondary"
+        aria-label={copied ? "Ссылка скопирована" : "Скопировать ссылку"}
+        onClick={async () => {
+          try {
+            await navigator.clipboard.writeText(url);
+            setCopied(true);
+            setFallback(false);
+          } catch {
+            setFallback(true);
+          }
+        }}
+      >
+        {copied ? <Check size={16} /> : <Link size={16} />}
+        <span role="status">
+          {copied ? "Ссылка скопирована" : "Скопировать ссылку"}
+        </span>
+      </button>
+      {fallback && (
+        <label>
+          Скопируйте ссылку из поля
+          <input
+            aria-label="Ссылка на фотоменю"
+            readOnly
+            value={url}
+            onFocus={(e) => e.currentTarget.select()}
+          />
+        </label>
+      )}
+    </div>
+  );
+}
 
 function PageImage({
   page,
@@ -31,23 +78,41 @@ function PageImage({
 }
 export function SourceMenuPromo({ open }: { open: () => void }) {
   return (
-    <button className="source-menu-promo" onClick={open}>
-      <span className="source-menu-previews" aria-hidden="true">
-        {menuPages.slice(0, 2).map((page, i) => (
-          <PageImage key={page.src} page={page} index={i} />
-        ))}
-      </span>
-      <span className="source-menu-promo-copy">
-        <span className="eyebrow">
-          <BookOpen size={16} /> КАК ЗА СТОЛИКОМ
+    <div className="source-menu-promo-wrap">
+      <a
+        href={photoMenuPath}
+        className="source-menu-promo"
+        onClick={(e) => {
+          if (
+            e.button !== 0 ||
+            e.ctrlKey ||
+            e.metaKey ||
+            e.shiftKey ||
+            e.altKey
+          )
+            return;
+          e.preventDefault();
+          open();
+        }}
+      >
+        <span className="source-menu-previews" aria-hidden="true">
+          {menuPages.slice(0, 2).map((page, i) => (
+            <PageImage key={page.src} page={page} index={i} />
+          ))}
         </span>
-        <strong>Меню на фотографиях</strong>
-        <span>Полистайте {menuPages.length} страниц ресторанного меню</span>
-      </span>
-      <span className="source-menu-promo-action">
-        Открыть меню <ArrowRight size={19} />
-      </span>
-    </button>
+        <span className="source-menu-promo-copy">
+          <span className="eyebrow">
+            <BookOpen size={16} /> КАК ЗА СТОЛИКОМ
+          </span>
+          <strong>Меню на фотографиях</strong>
+          <span>Полистайте {menuPages.length} страниц ресторанного меню</span>
+        </span>
+        <span className="source-menu-promo-action">
+          Открыть меню <ArrowRight size={19} />
+        </span>
+      </a>
+      <CopyPhotoMenuLink />
+    </div>
   );
 }
 export function SourceMenuGallery() {

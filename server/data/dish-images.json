@@ -1,0 +1,842 @@
+[
+  {
+    "id": "tom-yam",
+    "categoryId": "soups",
+    "source": "/images/vk-group/8k3sTl9rZCIs9SvtDPio2R4B9JIHvpWLyR_lWafbwVCayOWN2gyWoArPlMmbNUJR1jovaSi2QUwbwioNqWTHM4CL.jpg",
+    "crop": {
+      "x": 155,
+      "y": 205,
+      "width": 300,
+      "height": 300,
+      "sourceWidth": 1033,
+      "sourceHeight": 1426
+    },
+    "image": "/images/dishes/tom-yam-2659acb8ef2d.webp",
+    "sha256": "2659acb8ef2de8702d3e75c2214245d85b550d869cf2355957f7b254a7295a31"
+  },
+  {
+    "id": "pho-bo",
+    "categoryId": "soups",
+    "source": "/images/vk-group/8k3sTl9rZCIs9SvtDPio2R4B9JIHvpWLyR_lWafbwVCayOWN2gyWoArPlMmbNUJR1jovaSi2QUwbwioNqWTHM4CL.jpg",
+    "crop": {
+      "x": 590,
+      "y": 638,
+      "width": 360,
+      "height": 238,
+      "sourceWidth": 1033,
+      "sourceHeight": 1426
+    },
+    "image": "/images/dishes/pho-bo-1bf3e7cb1c29.webp",
+    "sha256": "1bf3e7cb1c294a5337cbc0532e64ef4ca53c3dd098d2adc16d34eec2b835827c"
+  },
+  {
+    "id": "pho-ga",
+    "categoryId": "soups",
+    "source": "/images/vk-group/8k3sTl9rZCIs9SvtDPio2R4B9JIHvpWLyR_lWafbwVCayOWN2gyWoArPlMmbNUJR1jovaSi2QUwbwioNqWTHM4CL.jpg",
+    "crop": {
+      "x": 153,
+      "y": 1039,
+      "width": 384,
+      "height": 225,
+      "sourceWidth": 1033,
+      "sourceHeight": 1426
+    },
+    "image": "/images/dishes/pho-ga-766be4277057.webp",
+    "sha256": "766be4277057ad2e02ebe15a49280170aca63f717d608507bf47ae4dce8f015e"
+  },
+  {
+    "id": "lau-hai-san",
+    "categoryId": "soups",
+    "source": "/images/vk-group/MI60HBGBPzuP1zz-eqJVJ1goWtwcW_AV7rsWKf-MWjkUvh0NnHVIkUjr3gPADVBQO8SWSWYdSt8pzePxhHI-1RCs.jpg",
+    "crop": {
+      "x": 595,
+      "y": 210,
+      "width": 305,
+      "height": 302,
+      "sourceWidth": 991,
+      "sourceHeight": 1401
+    },
+    "image": "/images/dishes/lau-hai-san-1b22cedb3797.webp",
+    "sha256": "1b22cedb37971cb211636a0f02b768a7c616d426e09c1bb66780bc43b56d03e6"
+  },
+  {
+    "id": "lau-assorti",
+    "categoryId": "soups",
+    "source": "/images/vk-group/MI60HBGBPzuP1zz-eqJVJ1goWtwcW_AV7rsWKf-MWjkUvh0NnHVIkUjr3gPADVBQO8SWSWYdSt8pzePxhHI-1RCs.jpg",
+    "crop": {
+      "x": 74,
+      "y": 623,
+      "width": 308,
+      "height": 304,
+      "sourceWidth": 991,
+      "sourceHeight": 1401
+    },
+    "image": "/images/dishes/lau-assorti-dd1f1da88b12.webp",
+    "sha256": "dd1f1da88b12efd164696b0e4eef8709f999801833ca21f84ed2bf6c03e0aa0c"
+  },
+  {
+    "id": "bun-ca",
+    "categoryId": "soups",
+    "source": "/images/vk-group/MI60HBGBPzuP1zz-eqJVJ1goWtwcW_AV7rsWKf-MWjkUvh0NnHVIkUjr3gPADVBQO8SWSWYdSt8pzePxhHI-1RCs.jpg",
+    "crop": {
+      "x": 575,
+      "y": 1020,
+      "width": 358,
+      "height": 273,
+      "sourceWidth": 991,
+      "sourceHeight": 1401
+    },
+    "image": "/images/dishes/bun-ca-9303bdc72a33.webp",
+    "sha256": "9303bdc72a33ec9a3b643e30ce327b8a2cd2a4433ba2d9e277478024fe179bb5"
+  },
+  {
+    "id": "thit-sao-nam",
+    "categoryId": "hot",
+    "source": "/images/vk-group/1afjPrUh1BgAL26qXSGrZd6RzX6Vtm9HJPyqmxxa7VtSjE_AVszDKYIe3YDL8ikUdyIX7AhGyZi0rxbLiodsrJCo.jpg",
+    "crop": {
+      "x": 85,
+      "y": 206,
+      "width": 382,
+      "height": 177,
+      "sourceWidth": 992,
+      "sourceHeight": 1399
+    },
+    "image": "/images/dishes/thit-sao-nam-bd6dff69bf15.webp",
+    "sha256": "bd6dff69bf151767157e14bc5e9fe46265990e9dcd787cfaaff84ec5197d326e"
+  },
+  {
+    "id": "ga-sao-nam",
+    "categoryId": "hot",
+    "source": "/images/vk-group/1afjPrUh1BgAL26qXSGrZd6RzX6Vtm9HJPyqmxxa7VtSjE_AVszDKYIe3YDL8ikUdyIX7AhGyZi0rxbLiodsrJCo.jpg",
+    "crop": {
+      "x": 529,
+      "y": 570,
+      "width": 389,
+      "height": 182,
+      "sourceWidth": 992,
+      "sourceHeight": 1399
+    },
+    "image": "/images/dishes/ga-sao-nam-572c399f5688.webp",
+    "sha256": "572c399f56887c9ba36cc1be63846a07f21b10e8820eafafae619a43ff1c0c92"
+  },
+  {
+    "id": "hai-san-sao-nam",
+    "categoryId": "hot",
+    "source": "/images/vk-group/1afjPrUh1BgAL26qXSGrZd6RzX6Vtm9HJPyqmxxa7VtSjE_AVszDKYIe3YDL8ikUdyIX7AhGyZi0rxbLiodsrJCo.jpg",
+    "crop": {
+      "x": 118,
+      "y": 1038,
+      "width": 390,
+      "height": 176,
+      "sourceWidth": 992,
+      "sourceHeight": 1399
+    },
+    "image": "/images/dishes/hai-san-sao-nam-52bcb0bdbaa5.webp",
+    "sha256": "52bcb0bdbaa5fc4ec8ade19b006ec025ec15221528cda5809ceaeef24e827bea"
+  },
+  {
+    "id": "thit-chua-ngot",
+    "categoryId": "hot",
+    "source": "/images/vk-group/6P86D5k4pR5gIVRs1jp_vUteoBJz8VJeZuPPQ0BMIX0UuEwILlsYMs7xA64rjmfxprkW89iRZ6ljVCImOl755llZ.jpg",
+    "crop": {
+      "x": 487,
+      "y": 225,
+      "width": 424,
+      "height": 173,
+      "sourceWidth": 992,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/thit-chua-ngot-ce28fe7d4e2a.webp",
+    "sha256": "ce28fe7d4e2a69732b47b5160ee36cd4b32ea164054c3014e51d0e2f1b14a030"
+  },
+  {
+    "id": "ga-chua-ngot",
+    "categoryId": "hot",
+    "source": "/images/vk-group/6P86D5k4pR5gIVRs1jp_vUteoBJz8VJeZuPPQ0BMIX0UuEwILlsYMs7xA64rjmfxprkW89iRZ6ljVCImOl755llZ.jpg",
+    "crop": {
+      "x": 66,
+      "y": 622,
+      "width": 423,
+      "height": 186,
+      "sourceWidth": 992,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/ga-chua-ngot-b7edb15a3d36.webp",
+    "sha256": "b7edb15a3d366ffb8bfc3285d8f52935ba301b19fe8ed02495075ec01822d479"
+  },
+  {
+    "id": "myk-sao-chua-ngot",
+    "categoryId": "hot",
+    "source": "/images/vk-group/6P86D5k4pR5gIVRs1jp_vUteoBJz8VJeZuPPQ0BMIX0UuEwILlsYMs7xA64rjmfxprkW89iRZ6ljVCImOl755llZ.jpg",
+    "crop": {
+      "x": 516,
+      "y": 1058,
+      "width": 394,
+      "height": 194,
+      "sourceWidth": 992,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/myk-sao-chua-ngot-8385a3b7ef35.webp",
+    "sha256": "8385a3b7ef35b17ce3692bdd4d8349a8e0cef43287ed673eb0ef15d40373fa47"
+  },
+  {
+    "id": "bo-steak",
+    "categoryId": "hot",
+    "source": "/images/vk-group/fWK3G_3z4Xp50W_sgKqtlzXa7FumeaqhTPN8JZXP17DmcV6M6WHK2NFp8HkfcciTrdRDDumCB85ZScGvMfLkZcdF.jpg",
+    "crop": {
+      "x": 155,
+      "y": 211,
+      "width": 395,
+      "height": 168,
+      "sourceWidth": 991,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/bo-steak-ebae4f8d8331.webp",
+    "sha256": "ebae4f8d8331bd397edd29b41accc7cbec93118faf4faaa74479b368ea46dd9f"
+  },
+  {
+    "id": "canh-ga",
+    "categoryId": "hot",
+    "source": "/images/vk-group/fWK3G_3z4Xp50W_sgKqtlzXa7FumeaqhTPN8JZXP17DmcV6M6WHK2NFp8HkfcciTrdRDDumCB85ZScGvMfLkZcdF.jpg",
+    "crop": {
+      "x": 110,
+      "y": 1050,
+      "width": 418,
+      "height": 174,
+      "sourceWidth": 991,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/canh-ga-6b32e7403a7f.webp",
+    "sha256": "6b32e7403a7fe6142a1704be08c47e16579dce4ad391a447b5e8dbe0c5bc6b4f"
+  },
+  {
+    "id": "tom-sao-dua",
+    "categoryId": "hot",
+    "source": "/images/vk-group/rw5Ab_denVlhSVTXqB_nlTDvW5aMmZdxp2bngcD3dKfLsldrf7lhhbfcRcp-7hUd2QORrX9XwvavEUunfkHk0BpO.jpg",
+    "crop": {
+      "x": 114,
+      "y": 218,
+      "width": 368,
+      "height": 176,
+      "sourceWidth": 991,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/tom-sao-dua-82152e57a85a.webp",
+    "sha256": "82152e57a85a22fa1bd97b82f62ab9583ef44cf23b6077e6ea222b8069d17776"
+  },
+  {
+    "id": "myk-sao-dua",
+    "categoryId": "hot",
+    "source": "/images/vk-group/rw5Ab_denVlhSVTXqB_nlTDvW5aMmZdxp2bngcD3dKfLsldrf7lhhbfcRcp-7hUd2QORrX9XwvavEUunfkHk0BpO.jpg",
+    "crop": {
+      "x": 518,
+      "y": 620,
+      "width": 372,
+      "height": 177,
+      "sourceWidth": 991,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/myk-sao-dua-7dbdc1dabc45.webp",
+    "sha256": "7dbdc1dabc459b2f85f942e6de0b7a8d509bbdd814275dae7240052aecd896f3"
+  },
+  {
+    "id": "mi-sao-bo",
+    "categoryId": "noodles",
+    "source": "/images/vk-group/AB0oY04B-EYKEPcezeqSqepzJT8MKrE0y9lvuZ2geH_XDUZ7lqw8bgTGJgqPs0shF-4z0xU_yRtNefqQvkyvg368.jpg",
+    "crop": {
+      "x": 92,
+      "y": 215,
+      "width": 414,
+      "height": 192,
+      "sourceWidth": 992,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/mi-sao-bo-50da2196f80b.webp",
+    "sha256": "50da2196f80b0474faf5de860501efe1c57e77a4e5dd5cc185cf4c4396d4cea5"
+  },
+  {
+    "id": "mi-sao-ga",
+    "categoryId": "noodles",
+    "source": "/images/vk-group/AB0oY04B-EYKEPcezeqSqepzJT8MKrE0y9lvuZ2geH_XDUZ7lqw8bgTGJgqPs0shF-4z0xU_yRtNefqQvkyvg368.jpg",
+    "crop": {
+      "x": 491,
+      "y": 633,
+      "width": 407,
+      "height": 183,
+      "sourceWidth": 992,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/mi-sao-ga-01ecb4248808.webp",
+    "sha256": "01ecb4248808d8fda957aa2e271a0ca76285401bfc0ad8c46a7d094807b74a0e"
+  },
+  {
+    "id": "mi-sao-hai-san",
+    "categoryId": "noodles",
+    "source": "/images/vk-group/AB0oY04B-EYKEPcezeqSqepzJT8MKrE0y9lvuZ2geH_XDUZ7lqw8bgTGJgqPs0shF-4z0xU_yRtNefqQvkyvg368.jpg",
+    "crop": {
+      "x": 101,
+      "y": 1047,
+      "width": 384,
+      "height": 181,
+      "sourceWidth": 992,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/mi-sao-hai-san-777e3150b3a9.webp",
+    "sha256": "777e3150b3a90d2daf05b8d41cbe831d42fc209f9ec31ccae06a91682e126c18"
+  },
+  {
+    "id": "mien-sao-bo",
+    "categoryId": "noodles",
+    "source": "/images/vk-group/rw5Ab_denVlhSVTXqB_nlTDvW5aMmZdxp2bngcD3dKfLsldrf7lhhbfcRcp-7hUd2QORrX9XwvavEUunfkHk0BpO.jpg",
+    "crop": {
+      "x": 71,
+      "y": 1022,
+      "width": 392,
+      "height": 189,
+      "sourceWidth": 991,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/mien-sao-bo-b0b435b95424.webp",
+    "sha256": "b0b435b954243cd50c038a6c2118b7dff392fa573295cc436c31f6a8f0a19e7d"
+  },
+  {
+    "id": "mien-sao-ga",
+    "categoryId": "noodles",
+    "source": "/images/vk-group/yvF-yh7oUPkF4tBpd74O-U6xHbEjpnPT_KGBIYn-tC2xPVLGl8IsPTdIMH2wyq4br7ejaaO5ocv4qO__RWkXHv2b.jpg",
+    "crop": {
+      "x": 509,
+      "y": 199,
+      "width": 390,
+      "height": 199,
+      "sourceWidth": 979,
+      "sourceHeight": 1390
+    },
+    "image": "/images/dishes/mien-sao-ga-07ad7efd2bb5.webp",
+    "sha256": "07ad7efd2bb5b48469996f012050bb111155afd559726460c05d0b468ce9ff0f"
+  },
+  {
+    "id": "pho-sao-ga",
+    "categoryId": "noodles",
+    "source": "/images/vk-group/yvF-yh7oUPkF4tBpd74O-U6xHbEjpnPT_KGBIYn-tC2xPVLGl8IsPTdIMH2wyq4br7ejaaO5ocv4qO__RWkXHv2b.jpg",
+    "crop": {
+      "x": 118,
+      "y": 623,
+      "width": 385,
+      "height": 199,
+      "sourceWidth": 979,
+      "sourceHeight": 1390
+    },
+    "image": "/images/dishes/pho-sao-ga-cdf615a248d1.webp",
+    "sha256": "cdf615a248d1d3bf4236e28a828fa7abadaac009dbf7ec5bfb313a80b1ce3d3c"
+  },
+  {
+    "id": "pho-sao-bo",
+    "categoryId": "noodles",
+    "source": "/images/vk-group/yvF-yh7oUPkF4tBpd74O-U6xHbEjpnPT_KGBIYn-tC2xPVLGl8IsPTdIMH2wyq4br7ejaaO5ocv4qO__RWkXHv2b.jpg",
+    "crop": {
+      "x": 518,
+      "y": 1067,
+      "width": 389,
+      "height": 174,
+      "sourceWidth": 979,
+      "sourceHeight": 1390
+    },
+    "image": "/images/dishes/pho-sao-bo-1f4a298d546b.webp",
+    "sha256": "1f4a298d546b67c3db71f06bfa499eea97af30956a1654bb4e27c4f3ca60ddea"
+  },
+  {
+    "id": "com-trung",
+    "categoryId": "rice",
+    "source": "/images/vk-group/2xbHCTxmo3cZpPhEefOV4n25hdrWC3UsZHuP9kLOMpJChLS0qYmtxSoc03PVwDq6MGkefmGJM32X-rUdKJ2zbdmT.jpg",
+    "crop": {
+      "x": 458,
+      "y": 205,
+      "width": 434,
+      "height": 217,
+      "sourceWidth": 991,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/com-trung-50fc6367e26d.webp",
+    "sha256": "50fc6367e26d0fd9ce5b6bbc353378697333787792476250a582210651e738b4"
+  },
+  {
+    "id": "com-ga",
+    "categoryId": "rice",
+    "source": "/images/vk-group/2xbHCTxmo3cZpPhEefOV4n25hdrWC3UsZHuP9kLOMpJChLS0qYmtxSoc03PVwDq6MGkefmGJM32X-rUdKJ2zbdmT.jpg",
+    "crop": {
+      "x": 128,
+      "y": 583,
+      "width": 454,
+      "height": 249,
+      "sourceWidth": 991,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/com-ga-58a236ec24cd.webp",
+    "sha256": "58a236ec24cd4b693a0acfe7926dd4792957e67b78c930b6c118949f6c9da3ec"
+  },
+  {
+    "id": "com-ca",
+    "categoryId": "rice",
+    "source": "/images/vk-group/2xbHCTxmo3cZpPhEefOV4n25hdrWC3UsZHuP9kLOMpJChLS0qYmtxSoc03PVwDq6MGkefmGJM32X-rUdKJ2zbdmT.jpg",
+    "crop": {
+      "x": 418,
+      "y": 1033,
+      "width": 460,
+      "height": 242,
+      "sourceWidth": 991,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/com-ca-5d76209c26ec.webp",
+    "sha256": "5d76209c26ece88d0871bcd418be2cfc73e574affc428351c236de7d8ab14367"
+  },
+  {
+    "id": "com-chien-ga",
+    "categoryId": "rice",
+    "source": "/images/vk-group/BnqHqGcDwgXTuPWdTq7MFEj_wsZ67JfCtf7TTKQTcig-RFS823-yKKtSWFJJcNqezzpYJZM-5JuJsiCZfwiUEOXm.jpg",
+    "crop": {
+      "x": 492,
+      "y": 215,
+      "width": 385,
+      "height": 210,
+      "sourceWidth": 991,
+      "sourceHeight": 1401
+    },
+    "image": "/images/dishes/com-chien-ga-dd4881fa1c18.webp",
+    "sha256": "dd4881fa1c18148d75d06b2532a75918937ce636bdc2eed7bd7e10384304f53b"
+  },
+  {
+    "id": "com-chien-bo",
+    "categoryId": "rice",
+    "source": "/images/vk-group/BnqHqGcDwgXTuPWdTq7MFEj_wsZ67JfCtf7TTKQTcig-RFS823-yKKtSWFJJcNqezzpYJZM-5JuJsiCZfwiUEOXm.jpg",
+    "crop": {
+      "x": 89,
+      "y": 652,
+      "width": 391,
+      "height": 193,
+      "sourceWidth": 991,
+      "sourceHeight": 1401
+    },
+    "image": "/images/dishes/com-chien-bo-91b95fe452d5.webp",
+    "sha256": "91b95fe452d55ede7cc6ba28912f3949f3ae4af25f890922ea37305b7f956d5c"
+  },
+  {
+    "id": "com-chien-hai-san",
+    "categoryId": "rice",
+    "source": "/images/vk-group/BnqHqGcDwgXTuPWdTq7MFEj_wsZ67JfCtf7TTKQTcig-RFS823-yKKtSWFJJcNqezzpYJZM-5JuJsiCZfwiUEOXm.jpg",
+    "crop": {
+      "x": 525,
+      "y": 1047,
+      "width": 391,
+      "height": 204,
+      "sourceWidth": 991,
+      "sourceHeight": 1401
+    },
+    "image": "/images/dishes/com-chien-hai-san-f69a383482d1.webp",
+    "sha256": "f69a383482d1da034fb910d32c4114200297a11f38e85caac9a04df65934320b"
+  },
+  {
+    "id": "com-tron",
+    "categoryId": "rice",
+    "source": "/images/vk-group/fWK3G_3z4Xp50W_sgKqtlzXa7FumeaqhTPN8JZXP17DmcV6M6WHK2NFp8HkfcciTrdRDDumCB85ZScGvMfLkZcdF.jpg",
+    "crop": {
+      "x": 598,
+      "y": 605,
+      "width": 271,
+      "height": 295,
+      "sourceWidth": 991,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/com-tron-5e27bb888569.webp",
+    "sha256": "5e27bb888569123bf1c87aca03306b81587783ae4bdcc80ed75f6a577ef59027"
+  },
+  {
+    "id": "nem-hanoi",
+    "categoryId": "snacks",
+    "source": "/images/vk-group/6GCwk-pyKD14eFgiUvjcAUfTTQYLHZkGJMC1MmDmqjVAY8vG5dYmQab0MquIM-xD-D7c-QC_0wOrZ_SoRQPsyAdy.jpg",
+    "crop": {
+      "x": 126,
+      "y": 199,
+      "width": 292,
+      "height": 289,
+      "sourceWidth": 991,
+      "sourceHeight": 1401
+    },
+    "image": "/images/dishes/nem-hanoi-aad67f31baca.webp",
+    "sha256": "aad67f31bacaea5084d812a37193ece208ec57d6db74e278f03b1535965253fc"
+  },
+  {
+    "id": "nem-hai-san",
+    "categoryId": "snacks",
+    "source": "/images/vk-group/6GCwk-pyKD14eFgiUvjcAUfTTQYLHZkGJMC1MmDmqjVAY8vG5dYmQab0MquIM-xD-D7c-QC_0wOrZ_SoRQPsyAdy.jpg",
+    "crop": {
+      "x": 567,
+      "y": 607,
+      "width": 294,
+      "height": 287,
+      "sourceWidth": 991,
+      "sourceHeight": 1401
+    },
+    "image": "/images/dishes/nem-hai-san-d0359052f02c.webp",
+    "sha256": "d0359052f02c9ebcc6b69041d6b70ba1bcb4328945c654b5fc457f0110a5303f"
+  },
+  {
+    "id": "nem-cuon",
+    "categoryId": "snacks",
+    "source": "/images/vk-group/6GCwk-pyKD14eFgiUvjcAUfTTQYLHZkGJMC1MmDmqjVAY8vG5dYmQab0MquIM-xD-D7c-QC_0wOrZ_SoRQPsyAdy.jpg",
+    "crop": {
+      "x": 149,
+      "y": 1015,
+      "width": 324,
+      "height": 287,
+      "sourceWidth": 991,
+      "sourceHeight": 1401
+    },
+    "image": "/images/dishes/nem-cuon-7637c36dbd9b.webp",
+    "sha256": "7637c36dbd9b79f961caa6d84319fd03adb9b1da1de5fd1958597208b7a2038a"
+  },
+  {
+    "id": "myk-chien-su",
+    "categoryId": "snacks",
+    "source": "/images/vk-group/pC0pXBsQhB-UBHwOy_sUW2LDnWgqUghxFDsOYhoy7xtKElzciwWB5Pa80QMtxmSIuLNaRI9DLrSBpaKHs0y_LFbq.jpg",
+    "crop": {
+      "x": 536,
+      "y": 180,
+      "width": 309,
+      "height": 301,
+      "sourceWidth": 991,
+      "sourceHeight": 1401
+    },
+    "image": "/images/dishes/myk-chien-su-71b382022031.webp",
+    "sha256": "71b382022031077bb5d05dfc05fb6539612443dff0b16935c9a75e39d743b9d8"
+  },
+  {
+    "id": "tom-chien-su",
+    "categoryId": "snacks",
+    "source": "/images/vk-group/pC0pXBsQhB-UBHwOy_sUW2LDnWgqUghxFDsOYhoy7xtKElzciwWB5Pa80QMtxmSIuLNaRI9DLrSBpaKHs0y_LFbq.jpg",
+    "crop": {
+      "x": 176,
+      "y": 617,
+      "width": 334,
+      "height": 274,
+      "sourceWidth": 991,
+      "sourceHeight": 1401
+    },
+    "image": "/images/dishes/tom-chien-su-bf6b6ec475d2.webp",
+    "sha256": "bf6b6ec475d2eb2b1066c78ac7ce3cb046ef0417e2b201cdbe1da4d6542de6f2"
+  },
+  {
+    "id": "khoai-tau-chien",
+    "categoryId": "snacks",
+    "source": "/images/vk-group/pC0pXBsQhB-UBHwOy_sUW2LDnWgqUghxFDsOYhoy7xtKElzciwWB5Pa80QMtxmSIuLNaRI9DLrSBpaKHs0y_LFbq.jpg",
+    "crop": {
+      "x": 489,
+      "y": 1049,
+      "width": 385,
+      "height": 311,
+      "sourceWidth": 991,
+      "sourceHeight": 1401
+    },
+    "image": "/images/dishes/khoai-tau-chien-392232899c4f.webp",
+    "sha256": "392232899c4f7d9bd87082d5fb0c4a4d554361f9afd757795b8f6ae3bc474660"
+  },
+  {
+    "id": "salad-soai-tom",
+    "categoryId": "salads",
+    "source": "/images/vk-group/Btfq92p1QesnmctO10XqdGkhWIw-LqeuY5xOAVSDNnrhtHRzADvI6op5WoxHbLOD2yjTwBBPbUWGhY1tJk07jOuR.jpg",
+    "crop": {
+      "x": 120,
+      "y": 211,
+      "width": 286,
+      "height": 272,
+      "sourceWidth": 992,
+      "sourceHeight": 1401
+    },
+    "image": "/images/dishes/salad-soai-tom-f735a52e3343.webp",
+    "sha256": "f735a52e3343707629667e80161f7d3930aad6b8e56fd55952bb2663b76f1016"
+  },
+  {
+    "id": "salad-ga",
+    "categoryId": "salads",
+    "source": "/images/vk-group/Btfq92p1QesnmctO10XqdGkhWIw-LqeuY5xOAVSDNnrhtHRzADvI6op5WoxHbLOD2yjTwBBPbUWGhY1tJk07jOuR.jpg",
+    "crop": {
+      "x": 529,
+      "y": 615,
+      "width": 355,
+      "height": 260,
+      "sourceWidth": 992,
+      "sourceHeight": 1401
+    },
+    "image": "/images/dishes/salad-ga-8975c2714aa2.webp",
+    "sha256": "8975c2714aa2270591f080e1c67380ad935de1003f0fe1827d0a3f17be83f589"
+  },
+  {
+    "id": "salad-mien",
+    "categoryId": "salads",
+    "source": "/images/vk-group/Btfq92p1QesnmctO10XqdGkhWIw-LqeuY5xOAVSDNnrhtHRzADvI6op5WoxHbLOD2yjTwBBPbUWGhY1tJk07jOuR.jpg",
+    "crop": {
+      "x": 103,
+      "y": 1006,
+      "width": 286,
+      "height": 251,
+      "sourceWidth": 992,
+      "sourceHeight": 1401
+    },
+    "image": "/images/dishes/salad-mien-503eadf2e401.webp",
+    "sha256": "503eadf2e40158ff5d22b343b3b7ac0f53222283a082c59179cf48a1ee7cb583"
+  },
+  {
+    "id": "salad-myk",
+    "categoryId": "salads",
+    "source": "/images/vk-group/pOiUeMD5Jkpq0uOD3F9hc8mU3XFpbDABN8rio-NMm9K4-GH9IyVObhheoyu39_AanydY8SLqClRBWHgoNXdOZsD0.jpg",
+    "crop": {
+      "x": 105,
+      "y": 313,
+      "width": 434,
+      "height": 238,
+      "sourceWidth": 991,
+      "sourceHeight": 1401
+    },
+    "image": "/images/dishes/salad-myk-3d1222fff9e9.webp",
+    "sha256": "3d1222fff9e9d9c67071ecda157ab9fc3697a96e37e0b3184896d5877ee3a53e"
+  },
+  {
+    "id": "salad-bo",
+    "categoryId": "salads",
+    "source": "/images/vk-group/pOiUeMD5Jkpq0uOD3F9hc8mU3XFpbDABN8rio-NMm9K4-GH9IyVObhheoyu39_AanydY8SLqClRBWHgoNXdOZsD0.jpg",
+    "crop": {
+      "x": 470,
+      "y": 788,
+      "width": 399,
+      "height": 228,
+      "sourceWidth": 991,
+      "sourceHeight": 1401
+    },
+    "image": "/images/dishes/salad-bo-6992f53bb644.webp",
+    "sha256": "6992f53bb6449b497037caf7da6307c0766a6650ad49d70d6bc6918c2c6bed3c"
+  },
+  {
+    "id": "combo-pho-bo",
+    "categoryId": "combos",
+    "source": "/images/vk-group/123.jpg",
+    "crop": {
+      "x": 83,
+      "y": 616,
+      "width": 256,
+      "height": 292,
+      "sourceWidth": 992,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/combo-pho-bo-20198cebcd15.webp",
+    "sha256": "20198cebcd15b6279d818dd74f242116475117c330296102e3fff37fb5d749a1"
+  },
+  {
+    "id": "combo-lau",
+    "categoryId": "combos",
+    "source": "/images/vk-group/123.jpg",
+    "crop": {
+      "x": 363,
+      "y": 620,
+      "width": 260,
+      "height": 277,
+      "sourceWidth": 992,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/combo-lau-87c21820ee73.webp",
+    "sha256": "87c21820ee73fc420b1e46e86a086040ffc3ea5ee3408d83ee1dc4ae4c4e32ed"
+  },
+  {
+    "id": "combo-tom-yam",
+    "categoryId": "combos",
+    "source": "/images/vk-group/123.jpg",
+    "crop": {
+      "x": 660,
+      "y": 620,
+      "width": 256,
+      "height": 277,
+      "sourceWidth": 992,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/combo-tom-yam-f6bf5d917725.webp",
+    "sha256": "f6bf5d917725d9ffe0d7e581cfed51deea044bee3367c5bd9bf4f0a5784adac2"
+  },
+  {
+    "id": "milk-tea",
+    "categoryId": "drinks",
+    "source": "/images/vk-group/3e2i6AUvnjDwhXAzTK7HA2i9PCBdBiar54-cTQ8GECAB5nGum3OZQSrQNHWtqimvQjymOHUgzGSY6HbKOx-_CCx6.jpg",
+    "crop": {
+      "x": 460,
+      "y": 239,
+      "width": 447,
+      "height": 286,
+      "sourceWidth": 955,
+      "sourceHeight": 1415
+    },
+    "image": "/images/dishes/milk-tea-05afd38984d4.webp",
+    "sha256": "05afd38984d45baa0046238a91f2cecc8b29ca093494ac4b148b0431379c272d"
+  },
+  {
+    "id": "juice-pearls",
+    "categoryId": "drinks",
+    "source": "/images/vk-group/3e2i6AUvnjDwhXAzTK7HA2i9PCBdBiar54-cTQ8GECAB5nGum3OZQSrQNHWtqimvQjymOHUgzGSY6HbKOx-_CCx6.jpg",
+    "crop": {
+      "x": 59,
+      "y": 633,
+      "width": 319,
+      "height": 327,
+      "sourceWidth": 955,
+      "sourceHeight": 1415
+    },
+    "image": "/images/dishes/juice-pearls-df7bd82f96c8.webp",
+    "sha256": "df7bd82f96c8515a7be81ff6b385668d2341e3e7c9a710916521b8ede8f94d0a"
+  },
+  {
+    "id": "water",
+    "categoryId": "drinks",
+    "source": "/images/vk-group/3e2i6AUvnjDwhXAzTK7HA2i9PCBdBiar54-cTQ8GECAB5nGum3OZQSrQNHWtqimvQjymOHUgzGSY6HbKOx-_CCx6.jpg",
+    "crop": {
+      "x": 677,
+      "y": 973,
+      "width": 112,
+      "height": 337,
+      "sourceWidth": 955,
+      "sourceHeight": 1415
+    },
+    "image": "/images/dishes/water-ac1c0d06ec5f.webp",
+    "sha256": "ac1c0d06ec5f335d4ceeaad51870f9d8c239401d80cca57269309bc0bb58eb7d"
+  },
+  {
+    "id": "fruit-tea",
+    "categoryId": "drinks",
+    "source": "/images/vk-group/3VvOWWiNplD8-SNZwwt34q94BZ1h9CXHcH-mzCjRjbA9veq0HEfx-1nSOuSgkpKCeQb8CSy0w93_RA6vqJGk0o73.jpg",
+    "crop": {
+      "x": 107,
+      "y": 222,
+      "width": 156,
+      "height": 292,
+      "sourceWidth": 991,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/fruit-tea-3bef9510599f.webp",
+    "sha256": "3bef9510599fc6b7167fdf5b0f3c28187ff5368e9762e63a6885fa06eec66945"
+  },
+  {
+    "id": "coffee",
+    "categoryId": "drinks",
+    "source": "/images/vk-group/3VvOWWiNplD8-SNZwwt34q94BZ1h9CXHcH-mzCjRjbA9veq0HEfx-1nSOuSgkpKCeQb8CSy0w93_RA6vqJGk0o73.jpg",
+    "crop": {
+      "x": 735,
+      "y": 562,
+      "width": 177,
+      "height": 294,
+      "sourceWidth": 991,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/coffee-a5c82b591726.webp",
+    "sha256": "a5c82b5917263b2ed74c52312222fccc926bd2c44615b3b8af6f971c705a6f9e"
+  },
+  {
+    "id": "tea-pot",
+    "categoryId": "drinks",
+    "source": "/images/vk-group/3VvOWWiNplD8-SNZwwt34q94BZ1h9CXHcH-mzCjRjbA9veq0HEfx-1nSOuSgkpKCeQb8CSy0w93_RA6vqJGk0o73.jpg",
+    "crop": {
+      "x": 168,
+      "y": 1048,
+      "width": 241,
+      "height": 265,
+      "sourceWidth": 991,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/tea-pot-d42e0a55032f.webp",
+    "sha256": "d42e0a55032fbb35e1455098fc8bd988fcf610e0d93dc8010283744126263d8a"
+  },
+  {
+    "id": "soda-can",
+    "categoryId": "drinks",
+    "source": "/images/vk-group/CWECOlPOMfyHOiHIoSnOcCRTQu9PTwSwunRORaFrUETM6ddFX0r21MGjql7acmAcdVIUqkJYojzzN4FiSm5_iqvf.jpg",
+    "crop": {
+      "x": 494,
+      "y": 213,
+      "width": 411,
+      "height": 223,
+      "sourceWidth": 992,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/soda-can-44df3db7936c.webp",
+    "sha256": "44df3db7936cda5da7663016a75d4e14bef5810982d2de65a30a8946019281e7"
+  },
+  {
+    "id": "fruit-juice",
+    "categoryId": "drinks",
+    "source": "/images/vk-group/CWECOlPOMfyHOiHIoSnOcCRTQu9PTwSwunRORaFrUETM6ddFX0r21MGjql7acmAcdVIUqkJYojzzN4FiSm5_iqvf.jpg",
+    "crop": {
+      "x": 103,
+      "y": 566,
+      "width": 415,
+      "height": 367,
+      "sourceWidth": 992,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/fruit-juice-c3639ecddbe6.webp",
+    "sha256": "c3639ecddbe63ffe57debdf9eed8ba6dbecccbe3a3ab698e3a60061ee1ffee54"
+  },
+  {
+    "id": "fruit-juice-cup",
+    "categoryId": "drinks",
+    "source": "/images/vk-group/CWECOlPOMfyHOiHIoSnOcCRTQu9PTwSwunRORaFrUETM6ddFX0r21MGjql7acmAcdVIUqkJYojzzN4FiSm5_iqvf.jpg",
+    "crop": {
+      "x": 449,
+      "y": 1067,
+      "width": 455,
+      "height": 261,
+      "sourceWidth": 992,
+      "sourceHeight": 1400
+    },
+    "image": "/images/dishes/fruit-juice-cup-0dc995da1395.webp",
+    "sha256": "0dc995da13957916c9bd991943be9cf7e54ad20e18e49070111953796cd83bd0"
+  },
+  {
+    "id": "soda-bottle",
+    "categoryId": "drinks",
+    "source": "/images/vk-group/ObXkHMhpx9Sj9m5KnBHNbKmMxH0iPjA62d_K0G7xKZ9faa-gQzuFB8JnfgB01azM_ZI5l7uR89nZDeVnxix3uV2S.jpg",
+    "crop": {
+      "x": 134,
+      "y": 249,
+      "width": 326,
+      "height": 276,
+      "sourceWidth": 991,
+      "sourceHeight": 1435
+    },
+    "image": "/images/dishes/soda-bottle-eb1de86e5076.webp",
+    "sha256": "eb1de86e50762a1be87261a6b79dcbf0cf0105176508c38848043bc538323f11"
+  },
+  {
+    "id": "burn",
+    "categoryId": "drinks",
+    "source": "/images/vk-group/ObXkHMhpx9Sj9m5KnBHNbKmMxH0iPjA62d_K0G7xKZ9faa-gQzuFB8JnfgB01azM_ZI5l7uR89nZDeVnxix3uV2S.jpg",
+    "crop": {
+      "x": 476,
+      "y": 668,
+      "width": 394,
+      "height": 261,
+      "sourceWidth": 991,
+      "sourceHeight": 1435
+    },
+    "image": "/images/dishes/burn-213a5d6d5f1d.webp",
+    "sha256": "213a5d6d5f1dc784c541808ac2d27fc4148147e58fafb47ecbed55b61e9afb18"
+  },
+  {
+    "id": "baltika",
+    "categoryId": "restaurant-only",
+    "source": "/images/vk-group/ObXkHMhpx9Sj9m5KnBHNbKmMxH0iPjA62d_K0G7xKZ9faa-gQzuFB8JnfgB01azM_ZI5l7uR89nZDeVnxix3uV2S.jpg",
+    "crop": {
+      "x": 155,
+      "y": 1049,
+      "width": 320,
+      "height": 294,
+      "sourceWidth": 991,
+      "sourceHeight": 1435
+    },
+    "image": "/images/dishes/baltika-7dbe12058d7b.webp",
+    "sha256": "7dbe12058d7b7f6abfff09795619c00e96d1d94b9e3f6693ed2fda06c703678d"
+  }
+]
