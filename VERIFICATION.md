@@ -126,3 +126,10 @@ The owner registered Rodion and the authorized ADMIN role was assigned previousl
 - Added four general tracks with five levels and manager controls; food badges now clip both image/SVG and their wrapper to circles.
 - All 47 isolated tests and production build pass. Coverage includes discounts/points/delivery exclusions, exact split sums, gift exclusions, idempotency, concurrent tip changes, membership/paid-bill locks, cancelled/unsettled exclusions, multi-order visit deduplication, tip attribution and rule permissions.
 - Local real-backend browser verified 10% on 470.01 rubles = 47 rubles; custom 100.01 persists, and mobile tip controls fit 390px without horizontal overflow. General cards show server-calculated history and configured thresholds. Production mutations are not used for test transactions.
+- Published tips/general release `d61228f809154c3b6457af18331c15b03f7c07e8`; CI passed: https://github.com/WizardJIOCb/vietnam/actions/runs/36700948208. Backup `/var/backups/food-sinchao/food-sinchao-20260930-131315.sql.gz`; migration 008 applied. Existing visits/shares retain zero tips. Health OK, active/running, NRestarts=0; public JS/CSS hashes match local. Live profile confirms four general tracks and 50% radius/hidden overflow for dish badge images.
+
+## Illustrated Food Journey — 2026-09-30
+
+- Generated eight matching pho-bowl mascots with built-in image_gen: four Food Journey milestones and four general achievement tracks. Food Journey milestone cards are retained alongside the new general tracks; progress remains server calculated.
+- Original selected PNGs are saved locally under artifacts/achievement-originals. Eight 512px WebP website assets total 419,304 bytes, lazy-loaded and clipped to circles. Prompts and mapping are documented in docs/ACHIEVEMENT_ART.md.
+- Production build passes. Local browser confirms all eight assets load, circular geometry and no desktop overflow.

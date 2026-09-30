@@ -24,6 +24,7 @@ import { DishPicture } from "./DishPicture";
 import {
   DishAchievementCollection,
   GeneralAchievementCollection,
+  JourneyAchievementCollection,
 } from "./DishAchievements";
 import { VisitTips } from "./Tips";
 import "./v2.css";
@@ -673,6 +674,7 @@ export function DiscoveryHub({
               </p>
             </div>
           </div>
+          <JourneyAchievementCollection entries={data.achievements} />
           <GeneralAchievementCollection entries={data.generalAchievements} />
           <DishAchievementCollection entries={data.dishAchievements} />
           {data.journey.map((j) => (

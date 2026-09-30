@@ -5,6 +5,48 @@ import { api } from "./api";
 import { DishPicture } from "./DishPicture";
 import type { GeneralAchievement } from "../shared/marketing";
 
+export function AchievementArt({ id }: { id: string }) {
+  return (
+    <img
+      className="achievement-art"
+      src={`/images/achievements/${id === "variety" ? "categories" : id}.webp`}
+      alt=""
+      width={128}
+      height={128}
+      loading="lazy"
+    />
+  );
+}
+
+export function JourneyAchievementCollection({
+  entries,
+}: {
+  entries: Discovery["achievements"];
+}) {
+  return (
+    <section
+      className="achievement-grid journey-achievements"
+      aria-label="Ачивки Food Journey"
+    >
+      {entries.map((a) => (
+        <article
+          key={a.id}
+          className={`achievement ${a.earned ? "earned" : ""}`}
+        >
+          <AchievementArt id={a.id} />
+          <h3>{a.name}</h3>
+          <p>{a.description}</p>
+          <progress aria-label={a.name} value={a.progress} max={a.target} />
+          <small>
+            {a.progress} / {a.target}
+            {a.earned ? " · Открыта!" : ""}
+          </small>
+        </article>
+      ))}
+    </section>
+  );
+}
+
 export function GeneralAchievementCollection({
   entries,
 }: {
@@ -22,9 +64,7 @@ export function GeneralAchievementCollection({
             className={`dish-badge general-badge ${a.level ? "unlocked" : "locked"}`}
           >
             <div className="dish-badge-top">
-              <span className="general-badge-icon" aria-hidden="true">
-                {a.icon}
-              </span>
+              <AchievementArt id={a.id} />
               <span className="dish-badge-level">
                 {a.level ? `Уровень ${a.level} / 5` : "Не открыта"}
               </span>

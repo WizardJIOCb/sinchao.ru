@@ -441,6 +441,24 @@
   font-family: var(--display);
   font-size: 25px;
 }
+.achievement-art {
+  display: block;
+  width: 128px;
+  height: auto;
+  aspect-ratio: 1;
+  max-width: 100%;
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: 50%;
+  background: #f7eacb;
+  border: 1px solid #ceb984;
+}
+.general-badge .dish-badge-top {
+  flex-wrap: wrap;
+}
+.journey-achievements {
+  margin: 28px 0 40px;
+}
 .achievement p {
   font-size: 12px;
   min-height: 44px;
