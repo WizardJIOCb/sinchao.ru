@@ -539,7 +539,9 @@ export function DineCart({
           ? "Передаём заказ…"
           : `Заказать за столом${quote ? " · " + money(quote.total) : ""}`}
       </button>
-      <small>Оплата официанту по общему или разделённому счёту.</small>
+      <small className="dine-payment-note">
+        Оплата официанту по общему или разделённому счёту.
+      </small>
     </div>
   );
 }

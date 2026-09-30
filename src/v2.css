@@ -14,6 +14,10 @@
   vertical-align: middle;
   margin-right: 8px;
 }
+.standard-form > .dine-payment-note {
+  margin: 12px 0 0;
+  line-height: 1.5;
+}
 .visit-bill {
   margin-top: 20px;
 }
