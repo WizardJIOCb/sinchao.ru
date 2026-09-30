@@ -2,6 +2,7 @@ import { AdminV2 } from "./AdminV2";
 import { AdminMarketing } from "./AdminMarketing";
 import { AdminUsers } from "./AdminUsers";
 import { OperatorPanel } from "./OperatorPanel";
+import { Modal } from "../Modal";
 import { useEffect, useState } from "react";
 import { api, money } from "../api";
 import {
@@ -45,8 +46,10 @@ export function Admin({
     [data, setData] = useState<Dashboard | null>(null),
     [editing, setEditing] = useState<string | null>(null),
     [json, setJson] = useState(""),
+    [editorError, setEditorError] = useState(""),
     [busy, setBusy] = useState(false);
   const manager = user && ["ADMIN", "MANAGER"].includes(user.role);
+  useEffect(() => setEditorError(""), [editing]);
   async function load() {
     try {
       setData(await api<Dashboard>("/admin/dashboard"));
@@ -69,8 +72,11 @@ export function Admin({
       await load();
       await refresh();
       say("Изменения сохранены.");
+      return true;
     } catch (e: any) {
       say(e.message);
+      if (tab === "menu" && editing) setEditorError(e.message);
+      return false;
     } finally {
       setBusy(false);
     }
@@ -403,45 +409,72 @@ export function Admin({
                   </div>
                 ))}
               </div>
-              {editing && (
-                <form
-                  className="record"
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    try {
-                      const value = JSON.parse(json);
-                      await mutate(
-                        editing === "categories"
-                          ? "/categories"
-                          : "/dishes/" + value.id,
-                        "PUT",
-                        value,
-                      );
-                    } catch {
-                      say("Проверьте формат JSON.");
-                    }
-                  }}
+              {manager && editing && (
+                <Modal
+                  title={
+                    editing === "categories"
+                      ? "Категории меню"
+                      : editing === "new"
+                        ? "Добавить блюдо"
+                        : `Редактировать: ${menu.dishes.find((d) => d.id === editing)?.name ?? "блюдо"}`
+                  }
+                  onClose={() => setEditing(null)}
+                  wide
                 >
-                  <label>
-                    Данные {editing === "categories" ? "категорий" : "блюда"}
-                    <textarea
-                      className="json-editor"
-                      value={json}
-                      onChange={(e) => setJson(e.target.value)}
-                      spellCheck={false}
-                    />
-                  </label>
-                  <button disabled={busy} className="primary">
-                    Сохранить
-                  </button>
-                  <button
-                    className="text-button"
-                    type="button"
-                    onClick={() => setEditing(null)}
+                  <form
+                    className="standard-form admin-menu-editor"
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      setEditorError("");
+                      try {
+                        const value = JSON.parse(json);
+                        const saved = await mutate(
+                          editing === "categories"
+                            ? "/categories"
+                            : "/dishes/" + value.id,
+                          "PUT",
+                          value,
+                        );
+                        if (saved) setEditing(null);
+                      } catch {
+                        setEditorError("Проверьте формат JSON.");
+                      }
+                    }}
                   >
-                    Закрыть редактор
-                  </button>
-                </form>
+                    <p className="muted">
+                      Цены указываются в копейках. Изменения сохранятся после
+                      нажатия «Сохранить».
+                    </p>
+                    <label>
+                      Данные {editing === "categories" ? "категорий" : "блюда"}
+                      <textarea
+                        className="json-editor"
+                        value={json}
+                        onChange={(e) => setJson(e.target.value)}
+                        spellCheck={false}
+                        autoFocus
+                        data-initial-focus
+                      />
+                    </label>
+                    {editorError && (
+                      <p className="error" role="alert">
+                        {editorError}
+                      </p>
+                    )}
+                    <div className="button-row">
+                      <button disabled={busy} className="primary">
+                        Сохранить
+                      </button>
+                      <button
+                        className="text-button"
+                        type="button"
+                        onClick={() => setEditing(null)}
+                      >
+                        Закрыть редактор
+                      </button>
+                    </div>
+                  </form>
+                </Modal>
               )}
             </>
           )}

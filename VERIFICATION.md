@@ -134,3 +134,9 @@ The owner registered Rodion and the authorized ADMIN role was assigned previousl
 - Original selected PNGs are saved locally under artifacts/achievement-originals. Eight 512px WebP website assets total 419,304 bytes, lazy-loaded and clipped to circles. Prompts and mapping are documented in docs/ACHIEVEMENT_ART.md.
 - Production build passes. Local browser confirms all eight assets load, circular geometry and no desktop overflow.
 - Published artwork release `420e88c115a045c65ae045f6e805ec112b8955be`; CI passed https://github.com/WizardJIOCb/vietnam/actions/runs/36702022714. Backup `/var/backups/food-sinchao/food-sinchao-20260930-132403.sql.gz`. Service active/running, NRestarts=0; all eight public images and JS/CSS match local SHA256. Live browser confirms eight loaded circular illustrations, no console errors or overflow, including 390px. Screenshots: `artifacts/journey-art-live-desktop.png`, `artifacts/journey-art-live-mobile.png`.
+
+## Menu editor visibility — 2026-09-30
+
+- Reproduced all three menu buttons opening an editor below the entire dish list (textarea top 5424px at a 720px viewport), so no immediate change was visible.
+- Edit dish, Categories and Add dish now open a named native modal dialog with initial textarea focus, scroll lock, close/Escape and responsive height. Invalid JSON and server validation errors stay inside the editor; successful saves close it and refresh the menu.
+- Production build and 47 isolated tests pass. Local real-backend browser changed a dish name, changed a category name and created a dish; all persisted after reopening/reload. Malformed JSON shows an inline error and preserves the open editor. No production menu records were changed during verification.

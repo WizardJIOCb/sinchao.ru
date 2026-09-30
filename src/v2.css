@@ -241,6 +241,11 @@
 .dish-achievements {
   margin: 32px 0 40px;
 }
+.modal .admin-menu-editor .json-editor {
+  min-height: 240px;
+  height: clamp(240px, 45dvh, 480px);
+  font-family: monospace;
+}
 .dish-achievements .v2-heading {
   align-items: flex-start;
 }
