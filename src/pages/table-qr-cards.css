@@ -194,8 +194,16 @@
     size: A4 portrait;
     margin: 12mm;
   }
+  html:has(> body.printing-table-qr) {
+    page: table-qr-cards;
+    background: #fff !important;
+  }
   body.printing-table-qr {
+    page: table-qr-cards;
     margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
     overflow: visible !important;
     background: #fff !important;
   }
@@ -203,7 +211,11 @@
     display: none !important;
   }
   .table-qr-overlay {
+    page: table-qr-cards;
+    display: contents;
     position: static;
+    inset: auto;
+    z-index: auto;
     overflow: visible;
     padding: 0;
     background: #fff;
@@ -214,13 +226,13 @@
     display: none;
   }
   .table-qr-print-pages {
-    display: block;
+    display: contents;
   }
   .table-qr-print-sheet {
     page: table-qr-cards;
-    display: grid;
-    grid-template-columns: repeat(2, 89mm);
-    grid-template-rows: repeat(2, 127mm);
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
     gap: 8mm;
     width: 186mm;
     min-height: 0;
@@ -228,6 +240,8 @@
     margin: 0;
     padding: 0;
     box-shadow: none;
+    break-inside: avoid;
+    page-break-inside: avoid;
     break-after: page;
     page-break-after: always;
   }
@@ -236,6 +250,7 @@
     page-break-after: auto;
   }
   .table-qr-print-card {
+    flex: 0 0 89mm;
     width: 89mm;
     height: 127mm;
   }
