@@ -383,3 +383,60 @@ test("marketing permissions, discounts, expiry, concurrent last-use, replay and 
     },
   );
 });
+
+test("operator dashboard and role management enforce access, immediate revocation and last-admin safety", async () => {
+  assert.equal((await anon.call("/admin/operator")).status, 403);
+  assert.equal((await alice.call("/admin/users")).status, 403);
+  const list = await admin.call("/admin/users?q=bob");
+  assert.equal(list.status, 200);
+  assert.equal(list.data.users.length, 1);
+  assert.ok(!("password_hash" in list.data.users[0]));
+  const role = (
+    actor: Client,
+    target: Client,
+    value: string,
+    expectedRole: string,
+  ) =>
+    actor.call(`/admin/users/${target.id}/role`, "PATCH", {
+      role: value,
+      expectedRole,
+    });
+  assert.equal((await role(alice, alice, "ADMIN", "CUSTOMER")).status, 403);
+  assert.equal((await role(admin, admin, "CUSTOMER", "ADMIN")).status, 409);
+  assert.equal((await role(admin, bob, "STAFF", "CUSTOMER")).status, 200);
+  const state = await bob.call("/admin/operator");
+  assert.equal(state.status, 200);
+  assert.ok(state.data.tables.length > 0);
+  assert.ok(state.data.visits.length > 0);
+  assert.ok(state.data.now.timezone);
+  assert.ok(
+    state.data.orders.every(
+      (o: any) => !["COMPLETED", "CANCELLED"].includes(o.status),
+    ),
+  );
+  assert.equal((await bob.call("/admin/users")).status, 403);
+  assert.equal((await role(bob, alice, "ADMIN", "CUSTOMER")).status, 403);
+  assert.equal((await role(admin, bob, "MANAGER", "CUSTOMER")).status, 409);
+  assert.equal((await role(admin, bob, "MANAGER", "STAFF")).status, 200);
+  assert.equal((await bob.call("/admin/users")).status, 403);
+  assert.equal((await role(admin, bob, "CUSTOMER", "MANAGER")).status, 200);
+  assert.equal((await bob.call("/admin/operator")).status, 403);
+  assert.equal((await role(admin, bob, "ADMIN", "CUSTOMER")).status, 200);
+  const parallel = await Promise.all([
+    role(admin, bob, "CUSTOMER", "ADMIN"),
+    role(bob, admin, "CUSTOMER", "ADMIN"),
+  ]);
+  assert.deepEqual(parallel.map((r) => r.status).sort(), [200, 403]);
+  assert.equal(
+    (await pool.query("SELECT count(*)::int n FROM users WHERE role='ADMIN'"))
+      .rows[0].n,
+    1,
+  );
+  assert.ok(
+    (
+      await pool.query(
+        "SELECT id FROM audit_logs WHERE action='USER_ROLE_CHANGED'",
+      )
+    ).rowCount! >= 5,
+  );
+});

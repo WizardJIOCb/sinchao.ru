@@ -1,5 +1,7 @@
 import { AdminV2 } from "./AdminV2";
 import { AdminMarketing } from "./AdminMarketing";
+import { AdminUsers } from "./AdminUsers";
+import { OperatorPanel } from "./OperatorPanel";
 import { useEffect, useState } from "react";
 import { api, money } from "../api";
 import {
@@ -39,7 +41,7 @@ export function Admin({
   refresh: () => Promise<void>;
   say: (s: string) => void;
 }) {
-  const [tab, setTab] = useState("orders"),
+  const [tab, setTab] = useState("operator"),
     [data, setData] = useState<Dashboard | null>(null),
     [editing, setEditing] = useState<string | null>(null),
     [json, setJson] = useState(""),
@@ -80,8 +82,8 @@ export function Admin({
         <div className="empty">
           <h2>Вход для сотрудников</h2>
           <p>
-            Права управляющего назначаются на сервере по email
-            зарегистрированного аккаунта.
+            Зарегистрируйтесь на сайте. Администратор назначит вам роль в
+            разделе «Пользователи и права».
           </p>
           <button className="primary" onClick={login}>
             Войти
@@ -95,12 +97,14 @@ export function Admin({
       <h1>Всё под рукой</h1>
       <div className="categories admin-tabs">
         {[
+          ["operator", "Панель оператора"],
           ["orders", "Заказы"],
           ["reservations", "Брони"],
           ["menu", "Меню"],
           ["settings", "Настройки"],
           ["v2", "V2 · Зал и гости"],
           ...(manager ? [["marketing", "Промокоды и ачивки"]] : []),
+          ...(user.role === "ADMIN" ? [["users", "Пользователи и права"]] : []),
           ["audit", "Журнал"],
         ].map(([id, name]) => (
           <button
@@ -119,6 +123,8 @@ export function Admin({
         <p>Загружаем…</p>
       ) : (
         <>
+          {tab === "operator" && <OperatorPanel go={setTab} />}
+          {tab === "users" && user.role === "ADMIN" && <AdminUsers me={user} />}
           {tab === "v2" && <AdminV2 user={user} say={say} refresh={refresh} />}
           {tab === "marketing" && manager && (
             <AdminMarketing menu={menu.dishes} />

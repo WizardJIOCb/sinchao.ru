@@ -384,16 +384,6 @@ function App() {
         </div>
       </header>
       <main>
-        {cfg.demo && (
-          <div className="demo-note">
-            <Sparkles size={15} />
-            <span>
-              {cfg.menuVerified
-                ? "Меню и цены — из меню ресторана. Онлайн-заказы и брони пока тестовые. Для заказа позвоните нам."
-                : "Знакомимся с новым сайтом. Меню, заказы и брони пока тестовые."}
-            </span>
-          </div>
-        )}
         <DinePanel
           key={user?.id ?? "guest"}
           refreshKey={orders.length}

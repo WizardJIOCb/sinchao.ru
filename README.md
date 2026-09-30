@@ -110,3 +110,9 @@ Profile and Food Journey show an achievement for each food dish (44 in the curre
 Promotion pricing applies to eligible dish lines including modifiers, before loyalty redemption; delivery is excluded. Checkout and QR table orders revalidate server-side, lock the promotion row and increment usage once within the order transaction. Quotes reserve nothing. Cancelled orders retain usage, as disclosed in admin. Preorders do not take a promo. Edits are audit-logged.
 
 Owner-approved hall inventory: 14 rectangular tables × 4, 3 round × 2 and one long VIP × 4 = 66 seats. After migration 006, run `scripts/configure-hall-20260930.ts` once with the production environment loaded. It guards the expected original inventory, preserves existing table IDs/QR tokens and bookings, and logs changes. Positions remain an explicitly unverified example editable in the table form.
+
+### Operator and staff access
+
+Admin opens the operator dashboard by default: all active orders, today's reservations, active tables/visits and waiter calls, refreshed every 10 seconds while visible. Select a table to seat guests with or without a booking; existing seating/conflict checks apply. Follow links to the order, reservation and bill controls. Dates use restaurant time. The global demo notice is removed at the owner's request; this visual change does not toggle operational configuration.
+
+ADMIN → “Пользователи и права”: search registered accounts by name/email and assign CUSTOMER (guest), STAFF (operator), MANAGER or ADMIN with an explicit confirmation. Only ADMIN may read this directory or change roles. Role edits are audit-logged, reject stale expected roles and re-check the actor in a serialized transaction. Self-demotion is blocked; simultaneous cross-demotions cannot remove the final administrator. Current rights are read from the database on every API request; refresh the client UI after a role change.

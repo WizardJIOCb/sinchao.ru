@@ -16,6 +16,7 @@ import { discoveryRouter } from "./modules/discovery";
 import { eventsRouter, adminEventsRouter } from "./modules/events";
 import { giftsRouter, adminGiftsRouter } from "./modules/gifts";
 import { marketingRouter } from "./modules/marketing";
+import { staffAdminRouter } from "./modules/staff-admin";
 export const app = express();
 app.set("trust proxy", "loopback");
 app.disable("x-powered-by");
@@ -153,6 +154,7 @@ app.use(
   giftsRouter,
 );
 app.use("/api/admin/marketing", marketingRouter);
+app.use("/api/admin", staffAdminRouter);
 app.use(
   "/api/admin/v2",
   adminTablesRouter,
