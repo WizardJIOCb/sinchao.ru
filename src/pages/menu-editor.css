@@ -133,20 +133,48 @@
 }
 .modifier-option {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto;
   gap: 14px;
   align-items: start;
   border-top: 1px solid #e4d5b3;
   padding-top: 18px;
   margin-top: 12px;
 }
-.menu-editor .editor-toggle {
+.modifier-option-actions {
   display: flex;
   align-items: center;
-  padding-top: 30px;
+  gap: 16px;
+  margin-top: 23px;
+  min-height: 44px;
 }
-.modifier-option > button {
-  margin-top: 30px;
+.modal .menu-editor .editor-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  min-height: 44px;
+}
+.modifier-option-actions > button {
+  margin: 0;
+  min-height: 44px;
+}
+.modal .menu-editor input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  min-height: 18px;
+  margin: 0;
+  padding: 0;
+}
+.modal .menu-editor .modifier-option > label {
+  display: grid;
+  gap: 7px;
+}
+.modal .menu-editor .modifier-option > label > span {
+  line-height: 16px;
+}
+.modal .menu-editor .modifier-option > label > input {
+  margin-top: 0;
 }
 .menu-editor-actions {
   position: sticky;
@@ -274,10 +302,10 @@
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 10px;
   }
-  .modifier-option .editor-toggle,
-  .modifier-option > button {
-    margin: 0;
-    padding-top: 0;
+  .modifier-option-actions {
+    grid-column: 1 / -1;
+    margin-top: 0;
+    justify-content: space-between;
   }
   .menu-editor .editor-photo-row {
     align-items: start;

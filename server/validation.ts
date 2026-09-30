@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { dishFeatureIds } from "../shared/dish-features";
 export const tipSchema = z
   .object({
     kind: z.enum(["none", "percent", "amount"]),
@@ -75,6 +76,14 @@ export const dishSchema = z.object({
     )
     .optional(),
   tags: z.array(z.string().max(60)).max(30),
+  features: z
+    .array(z.enum(dishFeatureIds))
+    .max(dishFeatureIds.length)
+    .refine(
+      (values) => new Set(values).size === values.length,
+      "Значки не должны повторяться.",
+    )
+    .optional(),
   spice: z.number().int().min(0).max(3),
   available: z.boolean(),
   featured: z.boolean(),

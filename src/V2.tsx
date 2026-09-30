@@ -21,6 +21,7 @@ import type {
   Visit,
 } from "../shared/v2";
 import { DishPicture } from "./DishPicture";
+import { DishFeatures } from "./DishFeatures";
 import {
   DishAchievementCollection,
   GeneralAchievementCollection,
@@ -723,6 +724,7 @@ export function DiscoveryHub({
                 <div>
                   <small>{reason}</small>
                   <h3>{dish.name}</h3>
+                  <DishFeatures dish={dish} />
                   <b>от {money(dish.price)}</b>
                 </div>
               </a>

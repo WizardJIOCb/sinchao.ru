@@ -1,0 +1,73 @@
+.dish-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0;
+  margin: 12px 0;
+  list-style: none;
+}
+.dish-features li {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 7px;
+  border: 1px solid #d9c596;
+  border-radius: 6px;
+  color: #5d593d;
+  background: #fff6df;
+  font-size: 11px;
+  line-height: 1.3;
+}
+.dish-features svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+.dish-features .feature-spicy {
+  color: #a63829;
+  background: #fbe7d4;
+  border-color: #dfb196;
+}
+.dish-features .feature-vegetarian,
+.dish-features .feature-vegan {
+  color: #445f30;
+  background: #e9edd1;
+  border-color: #bbc99c;
+}
+.menu-editor .feature-choices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.menu-editor .feature-choices label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #d9c596;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 0;
+  font-size: 13px;
+  cursor: pointer;
+}
+.menu-editor .feature-choices input {
+  margin: 0;
+  flex-shrink: 0;
+}
+.menu-editor .feature-choices svg {
+  flex-shrink: 0;
+}
+.menu-editor .feature-choices label:has(input:checked) {
+  background: #e9edd1;
+  border-color: #8c9d62;
+}
+@media (max-width: 700px) {
+  .menu-editor .feature-choices {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 380px) {
+  .menu-editor .feature-choices {
+    grid-template-columns: 1fr;
+  }
+}

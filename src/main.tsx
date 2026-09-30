@@ -49,6 +49,7 @@ import {
 } from "../shared/reservation-time";
 import { Admin } from "./pages/Admin";
 import { DishPicture } from "./DishPicture";
+import { DishFeatures } from "./DishFeatures";
 import { ProfileAchievements } from "./DishAchievements";
 import { TipSelector } from "./Tips";
 import { noTip, type TipChoice } from "../shared/tips";
@@ -1139,14 +1140,7 @@ function DishCard({ dish: d, onClick }: { dish: Dish; onClick: () => void }) {
         aria-label={"Подробнее: " + d.localizedName}
       >
         <DishPicture dish={d} />
-        {d.spice > 0 ? (
-          <span className="dish-tag spicy">
-            <Flame size={12} />
-            Острое
-          </span>
-        ) : (
-          d.tags[0] && <span className="dish-tag">{d.tags[0]}</span>
-        )}
+        {d.tags[0] && <span className="dish-tag">{d.tags[0]}</span>}
         <span className="portion">{d.portion}</span>
       </a>
       <div className="dish-info">
@@ -1155,6 +1149,7 @@ function DishCard({ dish: d, onClick }: { dish: Dish; onClick: () => void }) {
           <span>{d.localizedName}</span>
         </a>
         <p>{d.description}</p>
+        <DishFeatures dish={d} />
         <div className="dish-bottom">
           <strong>
             {d.modifiers.some((g) => g.options.some((o) => o.price > 0))
@@ -1282,6 +1277,7 @@ function DishModal({
           <span className="muted">{dish.portion}</span>
         </div>
         <p>{dish.description}</p>
+        <DishFeatures dish={dish} />
         <div className="tags">
           {dish.tags.map((t) => (
             <span key={t}>{t}</span>

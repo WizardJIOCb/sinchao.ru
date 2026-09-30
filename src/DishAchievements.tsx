@@ -3,6 +3,7 @@ import { Trophy } from "lucide-react";
 import type { Discovery, DishAchievement } from "../shared/v2";
 import { api } from "./api";
 import { DishPicture } from "./DishPicture";
+import { isBeverage } from "../shared/beverages";
 import type { GeneralAchievement } from "../shared/marketing";
 
 export function AchievementArt({ id }: { id: string }) {
@@ -102,24 +103,51 @@ export function DishAchievementCollection({
 }: {
   entries: DishAchievement[];
 }) {
+  return (
+    <>
+      <TasteCollection entries={entries.filter((a) => !isBeverage(a.dish))} />
+      <TasteCollection
+        entries={entries.filter((a) => isBeverage(a.dish))}
+        beverages
+      />
+    </>
+  );
+}
+
+function TasteCollection({
+  entries,
+  beverages = false,
+}: {
+  entries: DishAchievement[];
+  beverages?: boolean;
+}) {
   const [expanded, setExpanded] = useState(false);
   const earned = entries.filter((a) => a.level > 0).length;
   return (
-    <section className="dish-achievements" aria-label="Ачивки по блюдам">
+    <section
+      className="dish-achievements"
+      aria-label={beverages ? "Ачивки по напиткам" : "Ачивки по блюдам"}
+    >
       <div className="v2-heading">
         <Trophy aria-hidden="true" />
         <div>
-          <div className="eyebrow">ВАША КОЛЛЕКЦИЯ ВКУСОВ</div>
-          <h2>Вкусно. Ещё вкуснее. Легендарно.</h2>
+          <div className="eyebrow">
+            {beverages ? "КОЛЛЕКЦИЯ НАСТРОЕНИЯ" : "ВАША КОЛЛЕКЦИЯ ВКУСОВ"}
+          </div>
+          <h2>
+            {beverages
+              ? "Глоток — и своя история."
+              : "Вкусно. Ещё вкуснее. Легендарно."}
+          </h2>
           <p>
-            Открыто {earned} из {entries.length} ачивок. У любимого блюда — своя
-            история.
+            Открыто {earned} из {entries.length} ачивок. У любимого{" "}
+            {beverages ? "напитка" : "блюда"} — своя история.
           </p>
         </div>
       </div>
       <p className="form-help">
         Уровни растут с оплаченными и завершёнными заказами. Один заказ — один
-        шаг по каждому блюду, независимо от числа порций. Прошлые заказы тоже
+        шаг по каждой позиции, независимо от числа порций. Прошлые заказы тоже
         учитываются.
       </p>
       <div className="dish-achievement-grid">
@@ -144,6 +172,12 @@ export function DishAchievementCollection({
               {a.dish.name}
             </a>
             <div className="dish-badge-rank">{a.rank}</div>
+            {a.dish.orderable === false && (
+              <p className="form-help">
+                Только в ресторане. Прогресс появится, когда эта позиция будет
+                учтена в оплаченном и завершённом заказе.
+              </p>
+            )}
             <div className="dish-badge-stars" aria-hidden="true">
               {a.milestones.map((target, i) => (
                 <span key={target} className={i < a.level ? "lit" : ""}>
@@ -160,7 +194,7 @@ export function DishAchievementCollection({
             <small>
               {a.nextTarget
                 ? `${a.orders} / ${a.nextTarget} · До следующего уровня: ${a.nextTarget - a.orders}`
-                : `Высший уровень! Заказов с блюдом: ${a.orders}`}
+                : `Высший уровень! Заказов с позицией: ${a.orders}`}
             </small>
           </article>
         ))}
@@ -173,7 +207,7 @@ export function DishAchievementCollection({
         >
           {expanded
             ? "Свернуть коллекцию"
-            : `Вся коллекция · ${entries.length}`}
+            : `${beverages ? "Все напитки" : "Вся коллекция"} · ${entries.length}`}
         </button>
       )}
     </section>

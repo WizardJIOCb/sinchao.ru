@@ -1,6 +1,7 @@
 import type { Dish } from "../shared/types";
 import type { DishAchievement } from "../shared/v2";
 import type { AchievementRule } from "../shared/marketing";
+import { isBeverage } from "../shared/beverages";
 
 export const dishMilestones = [1, 3, 5, 10, 20];
 const ranks = [
@@ -55,6 +56,18 @@ const names: Record<string, string> = {
   "combo-pho-bo": "Фо-лный комплект",
   "combo-lau": "Лау-комплект",
   "combo-tom-yam": "Том-ям по полной",
+  "milk-tea": "Бабл и точка",
+  "juice-pearls": "Жемчужина компании",
+  water: "Водный дзен",
+  "fruit-tea": "Чайный фрукт",
+  coffee: "Кофе-режим включён",
+  "tea-pot": "Чайник со стажем",
+  "soda-can": "Пшик — и шик",
+  "fruit-juice": "Сочный персонаж",
+  "fruit-juice-cup": "Сокровище в стакане",
+  "soda-bottle": "Газированная личность",
+  burn: "Бёрнный характер",
+  baltika: "Пенный философ",
 };
 
 // Count a dish once per order, regardless of portions or modifier variants.
@@ -71,8 +84,7 @@ export function dishAchievements(
   return menu
     .filter(
       (d) =>
-        d.orderable !== false &&
-        !/drink|napit/i.test(d.categoryId) &&
+        (d.orderable !== false || isBeverage(d)) &&
         rules.find((r) => r.dishId === d.id)?.enabled !== false,
     )
     .map((dish) => {
@@ -82,7 +94,10 @@ export function dishAchievements(
       const level = milestones.filter((target) => orders >= target).length;
       return {
         dish,
-        name: rule?.name ?? names[dish.id] ?? `На своей волне: ${dish.name}`,
+        name:
+          rule?.name ??
+          names[dish.id] ??
+          `${isBeverage(dish) ? "Глоток настроения" : "На своей волне"}: ${dish.name}`,
         orders,
         level,
         rank: level ? ranks[level - 1] : "Ещё впереди",

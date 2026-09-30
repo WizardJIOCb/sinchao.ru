@@ -82,7 +82,7 @@ export function AdminMarketing({ menu }: { menu: Dish[] }) {
             setMessage("");
           }}
         >
-          Ачивки по блюдам
+          Ачивки по блюдам и напиткам
         </button>
         <button
           className={tab === "general" ? "selected" : ""}
@@ -394,10 +394,10 @@ export function AdminMarketing({ menu }: { menu: Dish[] }) {
       {data && tab === "badges" && (
         <>
           <p>
-            Настройте имя и пять уровней для каждого блюда. Прогресс считается
-            по оплаченным завершённым заказам. Изменение порогов пересчитывает
-            уровни по всей истории; выключенная ачивка скрывается, заказы
-            сохраняются.
+            Настройте имя и пять уровней для каждого блюда или напитка. Прогресс
+            считается по оплаченным завершённым заказам. Изменение порогов
+            пересчитывает уровни по всей истории; выключенная ачивка скрывается,
+            заказы сохраняются.
           </p>
           <label>
             Выберите ачивку
@@ -410,7 +410,7 @@ export function AdminMarketing({ menu }: { menu: Dish[] }) {
                 setMessage("");
               }}
             >
-              <option value="">Выберите блюдо…</option>
+              <option value="">Выберите блюдо или напиток…</option>
               {data.rules.map((r) => (
                 <option key={r.dishId} value={r.dishId}>
                   {menu.find((d) => d.id === r.dishId)?.name} · {r.name}

@@ -1,3 +1,4 @@
+import type { DishFeature } from "./dish-features";
 export type Fulfillment = "DELIVERY" | "PICKUP" | "DINE_IN";
 export type Modifier = {
   id: string;
@@ -33,6 +34,7 @@ export type Dish = {
   orderable?: boolean;
   allergens: string[];
   tags: string[];
+  features?: DishFeature[];
   spice: number;
   available: boolean;
   featured: boolean;

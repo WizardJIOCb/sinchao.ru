@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { Category, Dish, ModifierGroup } from "../../shared/types";
 import { DishPicture } from "../DishPicture";
+import { DishFeatures, DishFeatureIcon } from "../DishFeatures";
+import {
+  dishFeatures,
+  dishFeatureIds,
+  dishFeatureLabels,
+} from "../../shared/dish-features";
 import "./menu-editor.css";
 
 const uid = (prefix: string) => `${prefix}-${crypto.randomUUID()}`;
@@ -125,7 +131,9 @@ export function DishEditor({
   close: () => void;
 }) {
   const [dish, setDish] = useState<Dish>(() =>
-    initial ? structuredClone(initial) : newDish(categories),
+    initial
+      ? { ...structuredClone(initial), features: dishFeatures(initial) }
+      : { ...newDish(categories), features: [] },
   );
   const [ingredients, setIngredients] = useState(dish.ingredients.join("\n"));
   const [allergens, setAllergens] = useState(dish.allergens.join("\n"));
@@ -335,6 +343,52 @@ export function DishEditor({
               <small>Показывать среди избранных блюд ресторана.</small>
             </label>
           </div>
+        </section>
+        <section>
+          <h3>Значки на карточке</h3>
+          <p className="muted">
+            Выберите особенности, которые увидят гости рядом с блюдом. Для
+            старых позиций значки предварительно подобраны по указанному
+            составу; их можно изменить или убрать. Вегетарианские и веганские
+            блюда отмечайте после проверки полного состава.
+          </p>
+          <div className="feature-choices">
+            <label>
+              <input
+                type="checkbox"
+                checked={dish.spice > 0}
+                onChange={(e) =>
+                  change({
+                    spice: e.target.checked ? Math.max(1, dish.spice) : 0,
+                  })
+                }
+              />
+              <DishFeatureIcon id="spicy" />
+              Острое
+            </label>
+            {dishFeatureIds.map((id) => (
+              <label key={id}>
+                <input
+                  type="checkbox"
+                  checked={dish.features?.includes(id) ?? false}
+                  onChange={(e) =>
+                    change({
+                      features: e.target.checked
+                        ? [...(dish.features ?? []), id]
+                        : (dish.features?.filter((f) => f !== id) ?? []),
+                    })
+                  }
+                />
+                <DishFeatureIcon id={id} />
+                {dishFeatureLabels[id]}
+              </label>
+            ))}
+          </div>
+          <p className="form-help">
+            Степень остроты задаётся полем «Острота» выше. Остальные значки
+            выбираются независимо.
+          </p>
+          <DishFeatures dish={dish} />
         </section>
         <section>
           <h3>Фотография</h3>
@@ -571,34 +625,36 @@ export function DishEditor({
                       })
                     }
                   />
-                  <label className="editor-toggle">
-                    <input
-                      type="checkbox"
-                      checked={o.available}
-                      onChange={(e) =>
+                  <div className="modifier-option-actions">
+                    <label className="editor-toggle">
+                      <input
+                        type="checkbox"
+                        checked={o.available}
+                        onChange={(e) =>
+                          groupChange(g.id, {
+                            options: g.options.map((v) =>
+                              v.id === o.id
+                                ? { ...v, available: e.target.checked }
+                                : v,
+                            ),
+                          })
+                        }
+                      />
+                      Доступен
+                    </label>
+                    <button
+                      type="button"
+                      className="text-button"
+                      aria-label={`Удалить вариант ${i + 1} из группы ${index + 1}`}
+                      onClick={() =>
                         groupChange(g.id, {
-                          options: g.options.map((v) =>
-                            v.id === o.id
-                              ? { ...v, available: e.target.checked }
-                              : v,
-                          ),
+                          options: g.options.filter((v) => v.id !== o.id),
                         })
                       }
-                    />
-                    Доступен
-                  </label>
-                  <button
-                    type="button"
-                    className="text-button"
-                    aria-label={`Удалить вариант ${i + 1} из группы ${index + 1}`}
-                    onClick={() =>
-                      groupChange(g.id, {
-                        options: g.options.filter((v) => v.id !== o.id),
-                      })
-                    }
-                  >
-                    Удалить
-                  </button>
+                    >
+                      Удалить
+                    </button>
+                  </div>
                 </div>
               ))}
               <div className="button-row">
