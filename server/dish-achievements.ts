@@ -76,6 +76,7 @@ export function dishAchievements(
   menu: Dish[],
   orders: { items: { dishId: string }[] }[],
   rules: AchievementRule[] = [],
+  awarded: Record<string, number> = {},
 ): DishAchievement[] {
   const counts = new Map<string, number>();
   for (const order of orders)
@@ -90,7 +91,8 @@ export function dishAchievements(
     .map((dish) => {
       const rule = rules.find((r) => r.dishId === dish.id);
       const milestones = rule?.milestones ?? dishMilestones;
-      const orders = counts.get(dish.id) ?? 0;
+      const awardedProgress = awarded[dish.id] ?? 0;
+      const orders = (counts.get(dish.id) ?? 0) + awardedProgress;
       const level = milestones.filter((target) => orders >= target).length;
       return {
         dish,
@@ -99,6 +101,7 @@ export function dishAchievements(
           names[dish.id] ??
           `${isBeverage(dish) ? "Глоток настроения" : "На своей волне"}: ${dish.name}`,
         orders,
+        awardedProgress,
         level,
         rank: level ? ranks[level - 1] : "Ещё впереди",
         nextTarget: milestones[level] ?? null,

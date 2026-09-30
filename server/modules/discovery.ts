@@ -37,6 +37,16 @@ discoveryRouter.get("/discovery", async (req, res) => {
   const tried = new Set<string>(
     orders.flatMap((o) => o.data.items.map((i: any) => i.dishId)),
   );
+  const awarded: Record<string, number> = userId
+    ? Object.fromEntries(
+        (
+          await pool.query(
+            "SELECT dish_id, sum(progress)::integer AS progress FROM achievement_grants WHERE user_id=$1 GROUP BY dish_id",
+            [userId],
+          )
+        ).rows.map((r) => [r.dish_id, r.progress]),
+      )
+    : {};
   const closedVisits = userId
     ? ((
         await pool.query(
@@ -168,6 +178,7 @@ discoveryRouter.get("/discovery", async (req, res) => {
         menu,
         orders.map((o) => o.data),
         await achievementRules(pool),
+        awarded,
       ),
       completedOrders: orders.length,
     },

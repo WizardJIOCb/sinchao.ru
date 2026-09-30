@@ -440,3 +440,48 @@ test("operator dashboard and role management enforce access, immediate revocatio
     ).rowCount! >= 5,
   );
 });
+
+test("gifted achievement progress is private, additive and does not fabricate activity", async () => {
+  const before = (await alice.call("/v2/discovery")).data;
+  const original = before.dishAchievements.find(
+    (a: any) => a.dish.id === dish.id,
+  );
+  const otherBefore = (await bob.call("/v2/discovery")).data;
+  const activity = async () =>
+    (
+      await pool.query(
+        "SELECT (SELECT count(*) FROM orders)::integer AS orders, (SELECT count(*) FROM loyalty_transactions)::integer AS loyalty",
+      )
+    ).rows[0];
+  const countsBefore = await activity();
+  for (let i = 0; i < 2; i++)
+    await pool.query(
+      "INSERT INTO achievement_grants(user_id,grant_key,dish_id,progress,reason) VALUES($1,$2,$3,7,$4) ON CONFLICT DO NOTHING",
+      [alice.id, "test-gift", dish.id, "Test gift"],
+    );
+  const after = (await alice.call("/v2/discovery")).data;
+  const gifted = after.dishAchievements.find((a: any) => a.dish.id === dish.id);
+  assert.equal(gifted.orders, original.orders + 7);
+  assert.equal(gifted.awardedProgress, 7);
+  assert.equal(
+    gifted.level,
+    gifted.milestones.filter((n: number) => gifted.orders >= n).length,
+  );
+  assert.deepEqual(after.generalAchievements, before.generalAchievements);
+  assert.deepEqual(after.achievements, before.achievements);
+  assert.deepEqual(after.journey, before.journey);
+  assert.equal(after.completedOrders, before.completedOrders);
+  assert.deepEqual(
+    (await bob.call("/v2/discovery")).data.dishAchievements,
+    otherBefore.dishAchievements,
+  );
+  assert.ok(
+    (await anon.call("/v2/discovery")).data.dishAchievements.every(
+      (a: any) => a.awardedProgress === 0,
+    ),
+  );
+  assert.deepEqual(await activity(), countsBefore);
+  await pool.query("DELETE FROM achievement_grants WHERE user_id=$1", [
+    alice.id,
+  ]);
+});

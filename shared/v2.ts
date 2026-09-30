@@ -74,6 +74,7 @@ export type DishAchievement = {
   dish: Dish;
   name: string;
   orders: number;
+  awardedProgress: number;
   level: number;
   rank: string;
   nextTarget: number | null;

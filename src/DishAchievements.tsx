@@ -148,7 +148,7 @@ function TasteCollection({
       <p className="form-help">
         Уровни растут с оплаченными и завершёнными заказами. Один заказ — один
         шаг по каждой позиции, независимо от числа порций. Прошлые заказы тоже
-        учитываются.
+        учитываются. Подарочный прогресс от ресторана отмечен отдельно.
       </p>
       <div className="dish-achievement-grid">
         {(expanded ? entries : entries.slice(0, 6)).map((a) => (
@@ -172,6 +172,11 @@ function TasteCollection({
               {a.dish.name}
             </a>
             <div className="dish-badge-rank">{a.rank}</div>
+            {a.awardedProgress > 0 && (
+              <p className="form-help">
+                Подарено рестораном: {a.awardedProgress} шагов
+              </p>
+            )}
             {a.dish.orderable === false && (
               <p className="form-help">
                 Только в ресторане. Прогресс появится, когда эта позиция будет
@@ -185,16 +190,19 @@ function TasteCollection({
                 </span>
               ))}
             </div>
-            <small>Уровни: {a.milestones.join(" · ")} заказов</small>
+            <small>
+              Уровни: {a.milestones.join(" · ")}{" "}
+              {a.awardedProgress ? "шагов" : "заказов"}
+            </small>
             <progress
-              aria-label={`${a.name}: заказов до следующего уровня`}
+              aria-label={`${a.name}: прогресс до следующего уровня`}
               value={Math.min(a.orders, a.nextTarget ?? a.milestones[4])}
               max={a.nextTarget ?? a.milestones[4]}
             />
             <small>
               {a.nextTarget
                 ? `${a.orders} / ${a.nextTarget} · До следующего уровня: ${a.nextTarget - a.orders}`
-                : `Высший уровень! Заказов с позицией: ${a.orders}`}
+                : `Высший уровень! ${a.awardedProgress ? "Шагов" : "Заказов с позицией"}: ${a.orders}`}
             </small>
           </article>
         ))}
