@@ -96,3 +96,10 @@ The owner registered Rodion and the authorized ADMIN role was assigned previousl
 - Deployed application commit `0e0a61c682f7396fe4ffc9757118b468f3bdc0d7`; CI success: https://github.com/WizardJIOCb/vietnam/actions/runs/36606886584. Backup `/var/backups/food-sinchao/food-sinchao-20260929-204410.sql.gz`; migration 005 updated all 4 existing bookings with Asia/Yekaterinburg timezone. Existing dates and intervals retained.
 - Public health is OK, service active with NRestarts=0. Live browser confirms hero → combo → ordering options → featured dishes, new image at 1254px, no horizontal overflow, booking preview 30.09.2026 · 12:00–13:30 with UTC+5. Verification did not submit a production booking.
 - Public hero matches local WebP SHA256 `8584949e20a5e1c4948cbb0e17815c27341e39ade2bb102f79cc2943c41ff66f`.
+
+## Table editor and responsive QR cards — 2026-09-30
+
+- Added explicit Edit actions to every table card and a table selector, including disabled tables; selecting a table brings the name/position form into view. Saving an existing table keeps the editor open and confirms success.
+- QR cards use their own responsive grid. Images preserve a square aspect ratio and cannot exceed card width; printable QR output remains 600px.
+- TypeScript/build and all 35 existing integration tests pass. Local real-backend browser flow: create a table, reopen with Edit, rename to "Стол у окна", set X=65/Y=55, save, reload, select it from the dropdown and confirm all values persist.
+- Responsive browser verification at 320, 390, 600 and 900px: no horizontal document overflow; every QR remains square and within its card. No browser errors observed. Test table mutations ran only in the isolated local database.

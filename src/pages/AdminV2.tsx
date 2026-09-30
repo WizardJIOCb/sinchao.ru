@@ -78,6 +78,15 @@ export function AdminV2({
       body: unknown;
     } | null>(null);
   const redeemKey = useRef(crypto.randomUUID());
+  const tableForm = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    if (tab === "tables" && editing && tableForm.current) {
+      tableForm.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      tableForm.current
+        .querySelector<HTMLInputElement>('[name="name"]')
+        ?.focus({ preventScroll: true });
+    }
+  }, [editing, tab]);
   const manager = ["ADMIN", "MANAGER"].includes(user.role);
   async function load() {
     const [t, v, e, g, d] = await Promise.all([
@@ -424,6 +433,23 @@ export function AdminV2({
           <div className="table-admin-grid">
             <div>
               <h2>Схема зала</h2>
+              {manager && (
+                <label className="table-selector">
+                  Выберите стол для редактирования
+                  <select
+                    value={editing && editing !== "new" ? editing : ""}
+                    onChange={(e) => setEditing(e.target.value || null)}
+                  >
+                    <option value="">Выбрать стол</option>
+                    {tables.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.name}
+                        {t.active ? "" : " · выключен"}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
               <FloorPlan
                 floor={{
                   tables,
@@ -440,6 +466,7 @@ export function AdminV2({
             </div>
             {manager && editing && (
               <form
+                ref={tableForm}
                 key={editing}
                 className="record standard-form"
                 onSubmit={async (e) => {
@@ -459,10 +486,21 @@ export function AdminV2({
                       active: f.get("active") === "on",
                     },
                   );
-                  if (ok) setEditing(null);
+                  if (ok) {
+                    say("Стол сохранён");
+                    if (editing === "new") setEditing(null);
+                  }
                 }}
               >
-                <h3>{editing === "new" ? "Новый стол" : "Настройки стола"}</h3>
+                <h3>
+                  {editing === "new"
+                    ? "Новый стол"
+                    : `Настройки: ${editTable.name}`}
+                </h3>
+                <p className="muted">
+                  X — положение слева направо, Y — сверху вниз. Изменения
+                  применяются кнопкой «Сохранить стол».
+                </p>
                 <label>
                   Название
                   <input
@@ -541,13 +579,33 @@ export function AdminV2({
               </form>
             )}
           </div>
-          <div className="achievement-grid">
+          <div className="table-qr-grid">
             {tables.map((t) => (
               <article className="record" key={t.id}>
                 <h3>
                   {t.name} · {t.seats} мест
                 </h3>
                 <p>{t.active ? t.zone : "Выключен"}</p>
+                <p className="muted">
+                  X: {t.x}% · Y: {t.y}%
+                </p>
+                {manager && (
+                  <button
+                    type="button"
+                    className="secondary"
+                    aria-label={`Редактировать ${t.name}`}
+                    onClick={() => {
+                      setEditing(t.id);
+                      if (editing === t.id)
+                        tableForm.current?.scrollIntoView({
+                          behavior: "smooth",
+                          block: "center",
+                        });
+                    }}
+                  >
+                    Редактировать
+                  </button>
+                )}
                 {t.token && <QrImage token={t.token} name={t.name} />}
               </article>
             ))}
