@@ -1,3 +1,14 @@
+# Metrica and staff order dates — 2026-10-19
+
+- Published application commit: `a93f7c11942b66c099b228f14a8fdaf074d15842`, branch `codex/metrika-order-times`.
+- Active release: `/opt/food-sinchao/releases/20261019-metrika-orders-a93f7c1`. Baseline server bundle matched production byte-for-byte before the patch; archive checksums passed before switching releases. No database migrations or configuration changes were applied.
+- Database backup: `/var/backups/food-sinchao/food-sinchao-20261019-214713.sql.gz`.
+- Public HTTPS page and `/api/health` return HTTP 200. Counter **113678160** initializes and sends a successful `/watch/113678160/1` request; the isolated browser reports no CSP violations or JavaScript errors. Inline JavaScript remains disallowed.
+- Existing protected test-admin access was used to inspect seven real historical orders and three active operator orders. Creation timestamps and requested fulfillment dates match the saved data in `Asia/Yekaterinburg`, even with browser timezone `America/Los_Angeles`. No test orders or payments were created in production.
+- Desktop and 390px screenshots were inspected; order timing fields are legible, with no mobile horizontal overflow. Local evidence: `artifacts/metrika-orders-live.json`, `artifacts/admin-order-times-desktop.png`, `artifacts/admin-order-times-mobile.png`.
+- Production build and focused order-time/reservation-time/PWA checks pass, including the UTC midnight date boundary and ASAP/table/preorder semantics. Ecommerce is only configured to use `dataLayer`; purchase/cart event integration was not part of this change. Receipt of a visit is verified; dashboard reports and Webvisor playback were not inspected in a Yandex account.
+- Rollback: point `/opt/food-sinchao/current` to `/opt/food-sinchao/releases/dc51410`, then restart `food-sinchao` and check `/api/health`.
+
 # Initial deployment acceptance — 2026-09-29 (historical)
 
 ## Delivered
