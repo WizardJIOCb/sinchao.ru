@@ -20,21 +20,51 @@ import { staffAdminRouter } from "./modules/staff-admin";
 import { serveAchievementImage } from "./achievement-images";
 import { grantedPromotions } from "./registration-promotions";
 import { tablePaymentRouter, yooKassaWebhook } from "./modules/table-payments";
+// Explicit Metrica endpoints from https://yandex.ru/support/metrica/ru/code/install-counter-csp
+const metricaOrigins = [
+  "https://mc.yandex.ru", "https://mc.yandex.az", "https://mc.yandex.by",
+  "https://mc.yandex.co.il", "https://mc.yandex.com", "https://mc.yandex.com.am",
+  "https://mc.yandex.com.ge", "https://mc.yandex.com.tr", "https://mc.yandex.ee",
+  "https://mc.yandex.fr", "https://mc.yandex.kg", "https://mc.yandex.kz",
+  "https://mc.yandex.lt", "https://mc.yandex.lv", "https://mc.yandex.md",
+  "https://mc.yandex.tj", "https://mc.yandex.tm", "https://mc.yandex.uz",
+  "https://mc.webvisor.com", "https://mc.webvisor.org", "https://yastatic.net",
+];
+const metricaViewers = [
+  "metrika.yandex.ru", "analytics.yandex.by", "analytics.yandex.com",
+  "analytics.yandex.com.tr", "analytics.yandex.kz", "analytics.yandex.ru",
+  "metr.yandex.by", "metr.yandex.com", "metr.yandex.com.tr", "metr.yandex.kz",
+  "metr.yandex.ru", "metrica.ya.ru", "metrica.yandex", "metrica.yandex.by",
+  "metrica.yandex.com", "metrica.yandex.com.tr", "metrica.yandex.kz",
+  "metrica.yandex.ru", "metrika.ya.ru", "metrika.yandex", "metrika.yandex.by",
+  "metrika.yandex.com", "metrika.yandex.com.tr", "metrika.yandex.kz",
+  "metrika.yandex.uz",
+].map((host) => `https://${host}`);
+const metricaFrames = [
+  "'self'", "blob:", "https://mc.yandex.ru", "https://mc.yandex.com",
+  "https://mc.webvisor.com", "https://mc.webvisor.org",
+];
 export const app = express();
 app.set("trust proxy", "loopback");
 app.disable("x-powered-by");
 app.use(
   helmet({
+    // CSP below permits framing only by the site's own origin and Metrica viewers.
+    xFrameOptions: false,
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'"],
+        scriptSrc: ["'self'", ...metricaOrigins],
         styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", "https:", "data:"],
-        connectSrc: ["'self'"],
+        connectSrc: ["'self'", ...metricaOrigins,
+          ...metricaOrigins.filter((origin) => origin !== "https://yastatic.net")
+            .map((origin) => origin.replace("https:", "wss:"))],
         fontSrc: ["'self'"],
         objectSrc: ["'none'"],
-        frameAncestors: ["'none'"],
+        childSrc: metricaFrames,
+        frameSrc: metricaFrames,
+        frameAncestors: ["'self'", ...metricaViewers],
         upgradeInsecureRequests:
           process.env.NODE_ENV === "production" ? [] : null,
       },

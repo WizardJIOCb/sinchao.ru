@@ -2,6 +2,7 @@ import { AdminV2 } from "./AdminV2";
 import { AdminMarketing } from "./AdminMarketing";
 import { AdminUsers } from "./AdminUsers";
 import { OperatorPanel } from "./OperatorPanel";
+import { OrderTiming } from "../OrderTiming";
 import { Modal } from "../Modal";
 import { DishEditor, CategoriesEditor } from "./MenuEditor";
 import { useEffect, useState } from "react";
@@ -161,6 +162,7 @@ export function Admin({
           )}
           {tab === "orders" && (
             <div className="records">
+              <p>{restaurantClock(menu.config.timezone, new Date().toISOString().slice(0, 10))}</p>
               {data.orders.length === 0 && <p>Заказов пока нет.</p>}
               {data.orders.map((o) => {
                 const next: Record<string, string[]> = {
@@ -188,9 +190,10 @@ export function Admin({
                         : o.fulfillment === "DINE_IN"
                           ? o.tableName || "За столом"
                           : "Самовывоз"}{" "}
-                      · {o.contact.time} ·{" "}
+                      ·{" "}
                       <a href={"tel:" + o.contact.phone}>{o.contact.phone}</a>
                     </p>
+                    <OrderTiming order={o} timezone={menu.config.timezone} />
                     <p>{o.contact.address}</p>
                     <small>ID заказа: {o.id}</small>
                     {!!o.giftPaid && (

@@ -782,6 +782,24 @@ main {
   gap: 20px;
   margin: 25px 0;
 }
+.order-timing {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  margin: 12px 0;
+}
+.order-timing dt {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.order-timing dd {
+  margin: 3px 0 0;
+  font-weight: 600;
+}
+.operator-order + .operator-order {
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
 .record {
   border: 1px solid var(--line);
   padding: 25px;

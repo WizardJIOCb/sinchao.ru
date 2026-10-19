@@ -117,6 +117,10 @@ Owner-approved hall inventory: 14 rectangular tables × 4, 3 round × 2 and one 
 
 ### Operator and staff access
 
+Order cards in both the operator dashboard and the Orders tab show the full creation date/time and the requested delivery/pickup date/time in the configured restaurant timezone. Scheduled slots use the original order day; ASAP is shown as “Как можно скорее” without inventing a deadline.
+
+Yandex Metrica counter **113678160** is loaded by `public/metrika.js`, with Webvisor, click/link maps, accurate bounce tracking and the `dataLayer` ecommerce option enabled. The external bootstrap preserves the ban on inline JavaScript; the server CSP permits the explicit Metrica endpoints and HTTPS replay viewers documented by Yandex. Ecommerce events require separate `dataLayer` integration.
+
 Admin opens the operator dashboard by default: all active orders, today's reservations, active tables/visits and waiter calls, refreshed every 10 seconds while visible. Select a table to seat guests with or without a booking; existing seating/conflict checks apply. Follow links to the order, reservation and bill controls. Dates use restaurant time. The global demo notice is removed at the owner's request; this visual change does not toggle operational configuration.
 
 ADMIN → “Пользователи и права”: search registered accounts by name/email and assign CUSTOMER (guest), STAFF (operator), MANAGER or ADMIN with an explicit confirmation. Only ADMIN may read this directory or change roles. Role edits are audit-logged, reject stale expected roles and re-check the actor in a serialized transaction. Self-demotion is blocked; simultaneous cross-demotions cannot remove the final administrator. Current rights are read from the database on every API request; refresh the client UI after a role change.

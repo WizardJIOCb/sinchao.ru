@@ -7,6 +7,7 @@ import {
   restaurantClock,
 } from "../../shared/reservation-time";
 import { api, money } from "../api";
+import { OrderTiming } from "../OrderTiming";
 
 type State = {
   tables: Table[];
@@ -223,14 +224,17 @@ export function OperatorPanel({ go }: { go: (tab: string) => void }) {
           <h3>Заказы в работе</h3>
           {data.orders.length ? (
             data.orders.map((o) => (
-              <p key={o.id}>
-                №{o.number} ·{" "}
-                {o.tableName ||
-                  (o.fulfillment === "DELIVERY"
-                    ? "Доставка"
-                    : "Самовывоз")}{" "}
-                · {orderLabels[o.status]} · {money(o.total)}
-              </p>
+              <div className="operator-order" key={o.id}>
+                <p>
+                  №{o.number} ·{" "}
+                  {o.tableName ||
+                    (o.fulfillment === "DELIVERY"
+                      ? "Доставка"
+                      : "Самовывоз")}{" "}
+                  · {orderLabels[o.status]} · {money(o.total)}
+                </p>
+                <OrderTiming order={o} timezone={data.now.timezone} />
+              </div>
             ))
           ) : (
             <p>Активных заказов нет.</p>
