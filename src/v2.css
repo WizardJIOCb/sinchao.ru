@@ -724,6 +724,9 @@ progress {
 .preorder-preview p {
   margin: 5px 0;
 }
+.standard-form > .preorder-preview + label {
+  margin-top: 16px;
+}
 .modal .preorder-toggle {
   display: flex;
   gap: 12px;
