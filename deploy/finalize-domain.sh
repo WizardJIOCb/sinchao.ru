@@ -16,14 +16,19 @@ if (( now - $(cat "$state/started") > 86400 )); then
     systemctl disable --now sinchao-domain-activation.timer
     exit 1
 fi
-for resolver in 1.1.1.1 8.8.8.8; do
-    for domain in sinchao.ru www.sinchao.ru; do
-        address=$(dig +time=3 +tries=1 +short "$domain" A @"$resolver")
-        if [[ "$address" != 82.146.42.213 ]]; then
-            echo "Waiting for public DNS: $domain via $resolver."
-            exit 0
+for domain in sinchao.ru www.sinchao.ru; do
+    resolved=false
+    for resolver in 1.1.1.1 8.8.8.8; do
+        address=$(dig +time=3 +tries=1 +short "$domain" A @"$resolver" || true)
+        if [[ "$address" == 82.146.42.213 ]]; then
+            resolved=true
+            break
         fi
     done
+    if [[ "$resolved" != true ]]; then
+        echo "Waiting for public DNS: $domain."
+        exit 0
+    fi
 done
 # Limit ACME retries even if DNS is ready but validation fails elsewhere.
 if test -f "$state/last-acme" && (( now - $(cat "$state/last-acme") < 1200 )); then
