@@ -1,0 +1,10 @@
+[Unit]
+Description=Finish Sin Chao domain activation once DNS is public
+Wants=network-online.target
+After=network-online.target nginx.service food-sinchao.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /var/www/sinchao.ru/current/deploy/finalize-domain.sh
+TimeoutStartSec=10min
+UMask=0077

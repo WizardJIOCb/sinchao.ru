@@ -1,0 +1,11 @@
+[Unit]
+Description=Retry pending Sin Chao DNS and HTTPS activation
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=5min
+AccuracySec=15s
+Unit=sinchao-domain-activation.service
+
+[Install]
+WantedBy=timers.target
