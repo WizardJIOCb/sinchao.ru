@@ -40,11 +40,13 @@ backup=$(mktemp -d /var/backups/food-sinchao/domain-activation-XXXXXXXX)
 cp -a /etc/food-sinchao.env "$backup/environment"
 cp -a /etc/nginx/sites-available/sinchao.ru "$backup/sinchao.ru"
 cp -a /etc/nginx/sites-available/food.xedoc.ru "$backup/food.xedoc.ru"
+cp -a /etc/letsencrypt/renewal/food.xedoc.ru.conf "$backup/old-certificate-renewal.conf"
 rollback() {
     trap - ERR
     cp -a "$backup/environment" /etc/food-sinchao.env
     cp -a "$backup/sinchao.ru" /etc/nginx/sites-available/sinchao.ru
     cp -a "$backup/food.xedoc.ru" /etc/nginx/sites-available/food.xedoc.ru
+    cp -a "$backup/old-certificate-renewal.conf" /etc/letsencrypt/renewal/food.xedoc.ru.conf
     systemctl restart food-sinchao
     nginx -t && systemctl reload nginx
     echo "Domain activation rolled back; backup: $backup"
