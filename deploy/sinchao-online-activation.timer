@@ -1,0 +1,11 @@
+[Unit]
+Description=Retry pending sinchao.online alias activation
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+AccuracySec=15s
+Unit=sinchao-online-activation.service
+
+[Install]
+WantedBy=timers.target

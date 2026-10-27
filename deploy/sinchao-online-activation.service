@@ -1,0 +1,10 @@
+[Unit]
+Description=Activate sinchao.online alias after DNS and canonical HTTPS
+Wants=network-online.target
+After=network-online.target nginx.service food-sinchao.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /var/www/sinchao.ru/current/deploy/finalize-online-alias.sh
+TimeoutStartSec=10min
+UMask=0077

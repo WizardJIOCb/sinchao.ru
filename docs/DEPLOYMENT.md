@@ -32,6 +32,14 @@ For the initial registration's DNS delay, `sinchao-domain-activation.timer` runs
 
 Accounts, passwords, orders, menu edits, table tokens, uploaded images and loyalty remain in the same database. Browser cookies and installed PWAs are tied to an origin: guests and staff need to sign in again on the new domain and reinstall the PWA there if used. Previously recorded verification files describe their historical deployments.
 
+## Additional domain: sinchao.online
+
+`sinchao.online` and `www.sinchao.online` redirect with HTTP 308 to `https://sinchao.ru`, preserving the complete path and query string, including table QR links. The application keeps a single canonical origin and database.
+
+Both alias A records must point to `82.146.42.213`. The registrar must delegate the domain to the DNS servers serving those records, rather than its parking/status-page servers. The DNS-master zone uses `ns3-l2.nic.ru`, `ns4-l2.nic.ru`, `ns8-l2.nic.ru`, `ns4-cloud.nic.ru` and `ns8-cloud.nic.ru`.
+
+Initially install `deploy/nginx-online-bootstrap.conf` as the separate `sinchao.online` Nginx vhost. It serves ACME challenges and returns a temporary HTTP 503 for other paths. `sinchao-online-activation.timer` runs `deploy/finalize-online-alias.sh` every five minutes. Once the primary activation has completed, the primary health endpoint works and both alias names resolve correctly through both public resolvers, it issues a separate certificate, installs `deploy/nginx-online-redirect.conf`, and tests all four HTTP/HTTPS redirects and certificate renewal. It rolls back its own vhost on failure, limits ACME attempts and stops itself on completion or after 24 hours. Inspect `/var/lib/food-sinchao-online-domain/complete`, `expired` and its service journal. The existing Certbot timer and Nginx reload hooks renew the certificate.
+
 ## Rollback
 
 Before activation, save the active symlink target, service units, Nginx vhost and root-only environment configuration into a root-only dated directory under `/var/backups/food-sinchao`. Record a fresh database dump and a private database/table-token fingerprint.
