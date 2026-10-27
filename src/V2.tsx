@@ -26,10 +26,12 @@ export function FloorPlan({
   floor,
   selected,
   onSelect,
+  showTableList = true,
 }: {
   floor: Floor;
   selected?: string;
   onSelect?: (id: string) => void;
+  showTableList?: boolean;
 }) {
   return (
     <div className="floor-wrap">
@@ -69,13 +71,15 @@ export function FloorPlan({
           </button>
         ))}
       </div>
-      <div className="floor-list">
-        {floor.tables.map((t) => (
-          <span key={t.id}>
-            {t.name} · {t.zone} · {t.seats} мест
-          </span>
-        ))}
-      </div>
+      {showTableList && (
+        <div className="floor-list">
+          {floor.tables.map((t) => (
+            <span key={t.id}>
+              {t.name} · {t.zone} · {t.seats} мест
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -123,7 +127,12 @@ export function TablePicker({
       {floor ? (
         floor.tables.length ? (
           <>
-            <FloorPlan floor={floor} selected={value} onSelect={onChange} />
+            <FloorPlan
+              floor={floor}
+              selected={value}
+              onSelect={onChange}
+              showTableList={false}
+            />
             {!value && (
               <small>Выберите стол или оставьте подбор ресторану.</small>
             )}

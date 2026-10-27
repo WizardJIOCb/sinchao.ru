@@ -277,6 +277,8 @@
 .table-picker {
   border-top: 1px solid #cbb889;
   padding-top: 18px;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
 }
 .table-picker h3 {
   margin-bottom: 8px;
