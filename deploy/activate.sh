@@ -2,10 +2,11 @@
 set -euo pipefail
 release_name="$1"
 [[ "$release_name" =~ ^[a-zA-Z0-9-]+$ ]] || exit 1
-release="/opt/food-sinchao/releases/$release_name"
+release="/var/www/sinchao.ru/releases/$release_name"
 test -d "$release"
 cd "$release"
 npm ci --no-audit --no-fund
+npm run build
 set -a
 source /etc/food-sinchao.env
 set +a
@@ -14,7 +15,8 @@ npm run migrate
 npm run seed
 chown -R root:food-sinchao "$release"
 chmod -R o-rwx "$release"
-ln -sfn "$release" /opt/food-sinchao/current
+ln -s "$release" /var/www/sinchao.ru/current.next
+mv -Tf /var/www/sinchao.ru/current.next /var/www/sinchao.ru/current
 install -m 644 deploy/food-sinchao.service /etc/systemd/system/food-sinchao.service
 install -m 644 deploy/food-sinchao-backup.service /etc/systemd/system/food-sinchao-backup.service
 install -m 644 deploy/food-sinchao-backup.timer /etc/systemd/system/food-sinchao-backup.timer

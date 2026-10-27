@@ -1,6 +1,6 @@
 # Син Чао — ресторанная платформа
 
-React/TypeScript customer app and staff console, Express/TypeScript modular monolith, PostgreSQL. Deployment target: **https://food.xedoc.ru**, server **82.146.42.213**.
+React/TypeScript customer app and staff console, Express/TypeScript modular monolith, PostgreSQL. Deployment target: **https://sinchao.ru**, server **82.146.42.213**. Repository: **https://github.com/WizardJIOCb/sinchao.ru**.
 
 ## Current release
 
@@ -27,7 +27,7 @@ The real menu is published with `menuVerified=true`. Hours, delivery zones/fees,
 
 ## Install on Android
 
-Open **https://food.xedoc.ru** in Chrome and tap the phone icon in the header, or use Chrome's menu → Install app / Add to Home screen. The PWA launches from its own icon; orders and bookings require internet. With no connection, it shows a retry button and the restaurant phone. Installation behaviour depends on the phone/browser. See [Android installation and optional APK packaging](docs/ANDROID.md).
+Open **https://sinchao.ru** in Chrome and tap the phone icon in the header, or use Chrome's menu → Install app / Add to Home screen. The PWA launches from its own icon; orders and bookings require internet. With no connection, it shows a retry button and the restaurant phone. Installation behaviour depends on the phone/browser. See [Android installation and optional APK packaging](docs/ANDROID.md).
 
 ## Local setup
 
@@ -71,19 +71,19 @@ Integration tests cover real PostgreSQL transactions, total tampering, modifier 
 
 ## Production operation
 
-Paths: `/opt/food-sinchao/releases/<release>`, atomic symlink `/opt/food-sinchao/current`, secret configuration `/etc/food-sinchao.env` (root-only). Service `food-sinchao`, loopback port 3187. Dedicated PostgreSQL role/database `food_sinchao`; no Docker required. Nginx vhost is separate from existing sites.
+Paths: `/var/www/sinchao.ru/releases/<release>`, atomic symlink `/var/www/sinchao.ru/current`, secret configuration `/etc/food-sinchao.env` (root-only). Service `food-sinchao`, loopback port 3187. Dedicated PostgreSQL role/database `food_sinchao`; no Docker required. Nginx vhost is separate from existing sites.
 
 The user creates their own account through the site. Assign the intended registered email server-side after owner authorization; never ask for the user's password:
 
 ```sh
-cd /opt/food-sinchao/current
+cd /var/www/sinchao.ru/current
 set -a; . /etc/food-sinchao.env; set +a
 npx tsx scripts/set-role.ts owner@example.com ADMIN
 ```
 
 Before updating, take a backup with `deploy/backup.sh`, copy a built release, install dependencies with `npm ci`, apply migrations, switch the symlink, restart and check `/api/health`. Rollback: point `current` to the prior release and restart; review migration compatibility before rollback. Database is outside the release directory. Backups are local; copy them off-host for disaster recovery. Automatic nightly backup is enabled on the deployment host.
 
-To inspect: `systemctl status food-sinchao`, `journalctl -u food-sinchao`, `nginx -t`. HTTPS uses the server's Certbot renewal mechanism.
+To inspect: `systemctl status food-sinchao`, `journalctl -u food-sinchao`, `nginx -t`. HTTPS uses the server's Certbot renewal mechanism. See [domain deployment and rollback](docs/DEPLOYMENT.md).
 
 ## Visual theme
 

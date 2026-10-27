@@ -1,6 +1,6 @@
 # Android installation
 
-The restaurant site is a PWA at https://food.xedoc.ru. Open it in Chrome on Android, then tap the phone icon in the header. When Chrome provides an installation prompt, the button opens it. Otherwise, it shows instructions to use Chrome's menu → Install app / Add to Home screen. Menu wording depends on the browser. Installation is confirmed by the user on their phone.
+The restaurant site is a PWA at https://sinchao.ru. Open it in Chrome on Android, then tap the phone icon in the header. When Chrome provides an installation prompt, the button opens it. Otherwise, it shows instructions to use Chrome's menu → Install app / Add to Home screen. Menu wording depends on the browser. Installation is confirmed by the user on their phone.
 
 The app uses the restaurant's original logo, launches at `/` in a standalone window, and updates its live content from the same website. Browser support determines whether Android installs a WebAPK or a home-screen shortcut. In standalone mode the installation button is hidden. App shortcuts link to Menu and Discover.
 
