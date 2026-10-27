@@ -82,7 +82,7 @@ redirect=$(curl -sS -o /dev/null -w '%{http_code} %{redirect_url}' 'https://food
 [[ "$redirect" == '308 https://sinchao.ru/menu?domain-check=1' ]]
 # Test and persist webroot renewal for old QR links as well as the new origin.
 certbot reconfigure --cert-name food.xedoc.ru --webroot -w "$root/acme" --non-interactive
-certbot renew --cert-name sinchao.ru --dry-run --non-interactive
+certbot renew --cert-name sinchao.ru --dry-run --non-interactive --no-random-sleep-on-renew
 systemctl is-active certbot.timer
 trap - ERR
 date -u +%FT%TZ > "$state/complete"

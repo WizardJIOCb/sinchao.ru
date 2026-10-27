@@ -62,7 +62,7 @@ for domain in sinchao.online www.sinchao.online; do
         [[ "$result" == '308 https://sinchao.ru/dine-in/alias-check?source=online' ]]
     done
 done
-certbot renew --cert-name sinchao.online --dry-run --non-interactive
+certbot renew --cert-name sinchao.online --dry-run --non-interactive --no-random-sleep-on-renew
 systemctl is-active certbot.timer
 trap - ERR
 date -u +%FT%TZ > "$state/complete"
