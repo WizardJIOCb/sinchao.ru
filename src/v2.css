@@ -714,7 +714,7 @@ progress {
   margin: 0;
 }
 .preorder-preview {
-  padding: 15px;
+  padding: 12px;
   background: #ede5c4;
   border: 1px solid #cbb889;
   border-radius: 6px;
@@ -722,14 +722,26 @@ progress {
 .preorder-preview p {
   margin: 5px 0;
 }
-.preorder-toggle {
+.modal .preorder-toggle {
   display: flex;
-  gap: 10px;
-  align-items: start;
+  gap: 12px;
+  align-items: center;
+  min-height: 44px;
+  margin-bottom: 0;
+  cursor: pointer;
 }
-.preorder-toggle input {
-  width: auto;
-  margin-top: 4px;
+.modal .preorder-toggle input[type="checkbox"] {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  min-height: 20px;
+  margin: 0;
+  padding: 0;
+  cursor: inherit;
+}
+.modal .preorder-toggle input:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
 }
 .discovery-page .standard-form {
   padding: 24px;
